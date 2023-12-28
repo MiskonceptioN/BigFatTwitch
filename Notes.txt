@@ -1,0 +1,8 @@
+Use "rooms" to team up players
+
+"Bank a question"?
+
+Keep message in chat until promise is resolved?
+{user} is typing
+Audience vote on funniest answer?
+
