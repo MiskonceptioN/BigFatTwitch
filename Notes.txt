@@ -1,8 +1,15 @@
+Socket.io
+=========
 Use "rooms" to team up players
-
-"Bank a question"?
-
 Keep message in chat until promise is resolved?
 {user} is typing
+
+Game features
+=============
+"Bank a question"?
 Audience vote on funniest answer?
 
+Admin ideas
+=============
+Database for questions
+UI for adding/editing questions
