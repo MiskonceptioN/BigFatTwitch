@@ -4,8 +4,11 @@
             <h1>Log the fuck in</h1>
         </header>
 		<section>
-			<a class="btn btn-lg btn-primary" target="_blank" href="/auth/twitch/callback">Log in with Twitch</a>
+			<a class="btn btn-lg btn-primary" href="/auth/twitch">Log in with Twitch</a>
 		</section>
+        <% if (locals.message) { %>
+            <h3><%= locals.message %></h3>
+          <% } %>          
         <footer style="margin-top: 10em;">
             <h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
         </footer>

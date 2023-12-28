@@ -1,7 +1,7 @@
 // Requirements
 require ("dotenv").config();
 const express = require("express");
-// const session = require('express-session')
+const session = require('express-session')
 const { createServer} = require("node:http");
 const bodyParser = require("body-parser");
 const axios = require("axios").default;
@@ -16,35 +16,69 @@ const io = new Server(server, {
 	connectionStateRecovery: {}
 });
 
+// Mongo
+const mongoose = require('mongoose');
+const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env.MONGODB_PASS + "@" + process.env.MONGODB_URL + "/gameshow?retryWrites=true&w=majority";
+const User = require("./userModel.js"); // Assuming the model is in the same directory
+
 // App config
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({
 	extended: true
 }));
 app.use(express.static("public"));
+app.use(session({
+	secret: 'your-secret-key', // Change this to a secure secret
+	resave: false,
+	saveUninitialized: true,
+  }));
+  
 
 // Passport
-// app.use(passport.initialize());
-// app.use(passport.session());
+app.use(passport.initialize());
+app.use(passport.session());
 passport.use(new twitchStrategy({
 	clientID: process.env.TWITCH_CLIENT_ID,
 	clientSecret: process.env.TWITCH_CLIENT_SECRET,
 	callbackURL: process.env.TWITCH_CALLBACK_URL,
-	// scope: "user_read"
 },
-	function(accessToken, refreshToken, profile, done) {
-		console.log({profile});
-		return done();
-	// User.findOrCreate({ twitchId: profile.id }, function (err, user) {
-	// 	return done(err, user);
-	// });
-}
-));
+async function(accessToken, refreshToken, profile, done) {
+	try {
+		await mongoose.connect(mongoUri);
+		const user = await User.findOrCreate({twitchId: profile.id},{
+			displayName: profile.displayName,
+			profileImageUrl: profile.profileImageUrl,
+			banned: false
+		});
+
+		if (user) {
+			return done(null, user);
+		} else {
+			console.log(`No user found with twitchId ${profile.id}`);
+			return done(null, false);
+		}
+	} catch (error) {
+		// console.error("MongoDB connection error:", error);
+		return done(error, false);
+	} finally {
+		await mongoose.connection.close();
+	}
+}));
+
+const twitchCallback = passport.authenticate('twitch', {failureRedirect: '/login'});
+const passportErrorHandler = (err, req, res, next) => {
+	// Here you can handle passport errors
+	console.error(`Passport error: ${err.message}`);
+	res.redirect('/login');
+};
+
 app.get("/auth/twitch", passport.authenticate("twitch"));
-app.get("/auth/twitch/callback", passport.authenticate("twitch", { failureRedirect: "/" }), function(req, res) {
-	// Successful authentication, redirect home.
-	res.redirect("/loggedin");
-});
+app.get('/auth/twitch/callback', twitchCallback, passportErrorHandler);
+
+// app.get("/auth/twitch/callback", passport.authenticate("twitch", { failureRedirect: "/", failureMessage: true }), function(req, res) {
+// 	// Successful authentication, redirect home.
+// 	res.redirect("/loggedin");
+// });
 
 
 // Socket.io listening
