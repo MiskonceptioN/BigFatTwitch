@@ -20,3 +20,4 @@ Figure out sensible wat of setting up session secret
 Whack (de)serializeUser into their own functions: // passport.serializeUser(User.serializeUser()); // passport.deserializeUser(User.deserializeUser());
 Set up isInGame with game ID & state in Mongo
 Update to latest bootstrap
+Save passport-twitch changes so they can be fetched by NPM
