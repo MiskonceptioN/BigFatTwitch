@@ -7,30 +7,23 @@ const bodyParser = require("body-parser");
 const axios = require("axios").default;
 const fs = require("fs");
 const { Server } = require("socket.io");
-
 const passport = require("passport");
 const twitchStrategy = require("passport-twitch").Strategy;
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-	connectionStateRecovery: {}
-});
+const io = new Server(server, {connectionStateRecovery: {}});
 
 // Mongo
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env.MONGODB_PASS + "@" + process.env.MONGODB_URL + "/gameshow?retryWrites=true&w=majority";
 const User = require("./userModel.js"); // Assuming the model is in the same directory
-
 mongoose.connect(mongoUri);
 const db = mongoose.connection;
 
-
 // App config
 app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({
-	extended: true
-}));
+app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public"));
 app.use(session({
 	secret: 'your-secret-key', // Change this to a secure secret
@@ -74,27 +67,11 @@ passport.deserializeUser(function(user, done) { done(null, user.doc) });
 app.use(passport.initialize());
 app.use(passport.session());
 
-// const twitchCallback = passport.authenticate('twitch', {failureRedirect: '/login'});
-const passportErrorHandler = (err, req, res, next) => {
-	// Here you can handle passport errors
-	console.error(`Passport error: ${err.message}`);
-	res.redirect('/login');
-};
-
-app.get("/auth/twitch", passport.authenticate("twitch"));
-// app.get('/auth/twitch/callback', twitchCallback, passportErrorHandler);
-app.get('/auth/twitch/callback',   passport.authenticate("twitch", { failureRedirect: "/login" }),
-function (req, res) {
-  // Successful authentication, redirect to a different route
-  res.redirect("/secure");
+// Helper functions
+const checkAuthenticated = (req, res, next) => {
+	if (req.isAuthenticated()) { return next() }
+	res.redirect("/login")
 }
-);
-
-// app.get("/auth/twitch/callback", passport.authenticate("twitch", { failureRedirect: "/", failureMessage: true }), function(req, res) {
-// 	// Successful authentication, redirect home.
-// 	res.redirect("/loggedin");
-// });
-
 
 // Socket.io listening
 io.on('connection', (socket) => {
@@ -111,21 +88,19 @@ io.on('connection', (socket) => {
 
 // Routes
 app.route("/")
-	.get(function(req, res){
+	.get(checkAuthenticated, function(req, res){
 		res.render("index");
 	});
 
 app.route("/game")
-	.get(function(req, res){
+	.get(checkAuthenticated, function(req, res){
 		res.render("game");
 	});
 
-app.route("/login", passport.authenticate('twitch', {
-	successRedirect: "/secure",
-	failureRedirect: "/login"
-}))
-	.get(function(req, res){
-		res.render("login");
+app.route("/login")
+	.get(function(req, res, next){
+		if (req.isAuthenticated()) { res.redirect('/') } else {
+		res.render("login");}
 	});
 
 app.route("/logout")
@@ -136,10 +111,27 @@ app.route("/logout")
 		  });
 	});
 
-const checkAuthenticated = (req, res, next) => {
-	if (req.isAuthenticated()) { return next() }
-	res.redirect("/login")
+// const twitchCallback = passport.authenticate('twitch', {failureRedirect: '/login'});
+const passportErrorHandler = (err, req, res, next) => {
+	// Here you can handle passport errors
+	console.error(`Passport error: ${err.message}`);
+	res.redirect('/login');
+};
+
+app.get("/auth/twitch", passport.authenticate("twitch"));
+// app.get('/auth/twitch/callback', twitchCallback, passportErrorHandler);
+app.get('/auth/twitch/callback', passport.authenticate("twitch", { failureRedirect: "/login" }),
+function (req, res) {
+  // Successful authentication, redirect to a different route
+  res.redirect("/secure");
 }
+);
+
+// app.get("/auth/twitch/callback", passport.authenticate("twitch", { failureRedirect: "/", failureMessage: true }), function(req, res) {
+// 	// Successful authentication, redirect home.
+// 	res.redirect("/loggedin");
+// });
+
 
 app.route("/secure").get(checkAuthenticated, function(req, res){
 	console.log(req.user);
