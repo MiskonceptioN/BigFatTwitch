@@ -18,8 +18,13 @@ const io = new Server(server, {
 
 // Mongo
 const mongoose = require('mongoose');
+const MongoStore = require('connect-mongo');
 const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env.MONGODB_PASS + "@" + process.env.MONGODB_URL + "/gameshow?retryWrites=true&w=majority";
 const User = require("./userModel.js"); // Assuming the model is in the same directory
+
+mongoose.connect(mongoUri);
+const db = mongoose.connection;
+
 
 // App config
 app.set("view engine", "ejs");
@@ -31,12 +36,11 @@ app.use(session({
 	secret: 'your-secret-key', // Change this to a secure secret
 	resave: false,
 	saveUninitialized: true,
+	store: new MongoStore({ mongoUrl: db.client.s.url })
   }));
   
 
 // Passport
-app.use(passport.initialize());
-app.use(passport.session());
 passport.use(new twitchStrategy({
 	clientID: process.env.TWITCH_CLIENT_ID,
 	clientSecret: process.env.TWITCH_CLIENT_SECRET,
@@ -44,7 +48,6 @@ passport.use(new twitchStrategy({
 },
 async function(accessToken, refreshToken, profile, done) {
 	try {
-		await mongoose.connect(mongoUri);
 		const user = await User.findOrCreate({twitchId: profile.id},{
 			displayName: profile.displayName,
 			profileImageUrl: profile.profileImageUrl,
@@ -60,12 +63,18 @@ async function(accessToken, refreshToken, profile, done) {
 	} catch (error) {
 		// console.error("MongoDB connection error:", error);
 		return done(error, false);
-	} finally {
-		await mongoose.connection.close();
+	// } finally {
+	// 	await mongoose.connection.close();
 	}
 }));
+// passport.serializeUser(User.serializeUser());
+// passport.deserializeUser(User.deserializeUser());
+passport.serializeUser(function(user, done) { done(null, user) });
+passport.deserializeUser(function(user, done) { done(null, user.doc) });
+app.use(passport.initialize());
+app.use(passport.session());
 
-const twitchCallback = passport.authenticate('twitch', {failureRedirect: '/login'});
+// const twitchCallback = passport.authenticate('twitch', {failureRedirect: '/login'});
 const passportErrorHandler = (err, req, res, next) => {
 	// Here you can handle passport errors
 	console.error(`Passport error: ${err.message}`);
@@ -73,7 +82,13 @@ const passportErrorHandler = (err, req, res, next) => {
 };
 
 app.get("/auth/twitch", passport.authenticate("twitch"));
-app.get('/auth/twitch/callback', twitchCallback, passportErrorHandler);
+// app.get('/auth/twitch/callback', twitchCallback, passportErrorHandler);
+app.get('/auth/twitch/callback',   passport.authenticate("twitch", { failureRedirect: "/login" }),
+function (req, res) {
+  // Successful authentication, redirect to a different route
+  res.redirect("/secure");
+}
+);
 
 // app.get("/auth/twitch/callback", passport.authenticate("twitch", { failureRedirect: "/", failureMessage: true }), function(req, res) {
 // 	// Successful authentication, redirect home.
@@ -105,7 +120,10 @@ app.route("/game")
 		res.render("game");
 	});
 
-app.route("/login")
+app.route("/login", passport.authenticate('twitch', {
+	successRedirect: "/secure",
+	failureRedirect: "/login"
+}))
 	.get(function(req, res){
 		res.render("login");
 	});
@@ -118,15 +136,16 @@ app.route("/logout")
 		  });
 	});
 
-app.route("/secure", passport.authenticate("twitch"), {
-	failureRedirect: '/login',
-	failureMessage: true
-}).get(function(req, res){
-	res.render("secure", {user: "Blop"});
+const checkAuthenticated = (req, res, next) => {
+	if (req.isAuthenticated()) { return next() }
+	res.redirect("/login")
+}
+
+app.route("/secure").get(checkAuthenticated, function(req, res){
+	console.log(req.user);
+	res.render("secure", {user: req.user.displayName});
 });
-
-
-
+	
 app.route("/exampleAjaxPOST")
 	.post(function(req, res){
 		setTimeout(function(){
