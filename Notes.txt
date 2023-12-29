@@ -13,3 +13,10 @@ Admin ideas
 =============
 Database for questions
 UI for adding/editing questions
+
+Tech debt
+=========
+Figure out sensible wat of setting up session secret
+Whack (de)serializeUser into their own functions: // passport.serializeUser(User.serializeUser()); // passport.deserializeUser(User.deserializeUser());
+Set up isInGame with game ID & state in Mongo
+Update to latest bootstrap
