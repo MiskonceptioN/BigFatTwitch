@@ -32,3 +32,28 @@
 h1 {
 	margin-bottom: 1.5rem;
 }
+
+.btn-twitch {
+	color: #fff;
+	background-color: #9146ff;
+	border-color: #9146ff;
+}
+
+.btn-twitch:not(:disabled):not(.disabled).active, .btn-twitch:not(:disabled):not(.disabled):active, .show>.btn-twitch.dropdown-toggle {
+    color: #fff;
+    background-color: #41145f;
+    border-color: #41145f;
+}
+
+.btn-twitch.focus, .btn-twitch:focus {
+    color: #fff;
+    background-color: #8205B4;
+    border-color: #8205B4;
+    box-shadow: 0 0 0 0.2rem rgba(130, 5, 180,.5);
+}
+
+.btn-twitch:hover {
+    color: #fff;
+    background-color: #8205B4;
+    border-color: #8205B4;
+}
