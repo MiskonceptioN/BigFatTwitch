@@ -13,6 +13,12 @@ Admin ideas
 =============
 Database for questions
 UI for adding/editing questions
+UI for creating games & dishing out points
+"Promote" a viewer to contestant role
+
+UI ideas
+========
+Show profile icon and name in top right to show profile settings and log out?
 
 Tech debt
 =========
@@ -21,3 +27,7 @@ Whack (de)serializeUser into their own functions: // passport.serializeUser(User
 Set up isInGame with game ID & state in Mongo
 Update to latest bootstrap
 Save passport-twitch changes so they can be fetched by NPM
+User levels & admins table
+Make nav work with Bootstrap 5
+Add audit log to check user bans, login attempts, etc
+Show error messages on logins
