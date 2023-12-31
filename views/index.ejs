@@ -1,11 +1,16 @@
 <%- include('header'); %>
-    <section id="index" class="text-center">
-        <header>
-            <h1>Some header</h1>
-        </header>
+	<section id="index" class="text-center">
+		<header>
+			<h1>Join a game</h1>
+		</header>
 		<section>
 			<%- include('forms/example'); %>
 		</section>
-    </section>
+		<% if(user.level == "admin"){ %>
+			<section>
+				<h1>Some header</h1>
+			</section>
+		<% } %>
+	</section>
 	<script src="js/ajaxFormHandler.js"></script>
 <%- include('footer'); %>

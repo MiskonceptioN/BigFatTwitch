@@ -2,6 +2,7 @@
 require ("dotenv").config();
 const express = require("express");
 const session = require('express-session')
+const flash = require("express-flash");
 const { createServer} = require("node:http");
 const bodyParser = require("body-parser");
 const axios = require("axios").default;
@@ -30,7 +31,8 @@ app.use(session({
 	resave: false,
 	saveUninitialized: true,
 	store: new MongoStore({ mongoUrl: db.client.s.url })
-  }));
+}));
+app.use(flash());
   
 
 // Passport
@@ -43,12 +45,16 @@ async function(accessToken, refreshToken, profile, done) {
 	try {
 		const user = await User.findOrCreate({twitchId: profile.id},{
 			displayName: profile.displayName,
-			profileImageUrl: profile.profileImageUrl,
-			banned: false
+			profileImageUrl: profile.profileImageUrl
 		});
 
 		if (user) {
-			return done(null, user);
+			if (user.doc.banned) {
+				// return done(null, false, {message: "Blip blip blorp"});
+				return done(null, false);
+			} else {
+				return done(null, user);
+			}
 		} else {
 			console.log(`No user found with twitchId ${profile.id}`);
 			return done(null, false);
@@ -89,7 +95,7 @@ io.on('connection', (socket) => {
 // Routes
 app.route("/")
 	.get(checkAuthenticated, function(req, res){
-		res.render("index");
+		res.render("index", {user: req.user});
 	});
 
 app.route("/game")
@@ -99,8 +105,11 @@ app.route("/game")
 
 app.route("/login")
 	.get(function(req, res, next){
+		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+	  
 		if (req.isAuthenticated()) { res.redirect('/') } else {
-		res.render("login");}
+			res.render("login", { failureMessage });
+		}
 	});
 
 app.route("/logout")
@@ -120,7 +129,10 @@ const passportErrorHandler = (err, req, res, next) => {
 
 app.get("/auth/twitch", passport.authenticate("twitch"));
 // app.get('/auth/twitch/callback', twitchCallback, passportErrorHandler);
-app.get('/auth/twitch/callback', passport.authenticate("twitch", { failureRedirect: "/login" }),
+app.get('/auth/twitch/callback', passport.authenticate("twitch", {
+	failureRedirect: "/login",
+	failureFlash: "Unable to log in"
+}),
 function (req, res) {
   // Successful authentication, redirect to a different route
   res.redirect("/secure");
@@ -134,8 +146,7 @@ function (req, res) {
 
 
 app.route("/secure").get(checkAuthenticated, function(req, res){
-	console.log(req.user);
-	res.render("secure", {user: req.user.displayName});
+	res.render("secure", {user: req.user});
 });
 	
 app.route("/exampleAjaxPOST")

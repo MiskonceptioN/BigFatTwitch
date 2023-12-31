@@ -1,10 +1,13 @@
 <%- include('header'); %>
     <section id="login" class="text-center">
         <header>
-            <h1>Welcome back, <%= user %></h1>
+            <h1>Welcome back, <%= user.displayName %></h1>
         </header>
 		<section>
-			<!-- <a class="btn btn-lg btn-primary" target="_blank" href="/auth/twitch/callback">Log in with Twitch</a> -->
+            <img src="<%= user.profileImageUrl %>" />
+			<h6>Games played: 5</h6>
+			<h6>Wins: 5</h6>
+			<h6>Last game played:</h6>
 		</section>
         <footer style="margin-top: 10em;">
             <h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
