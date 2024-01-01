@@ -31,3 +31,8 @@ User levels & admins table
 Make nav work with Bootstrap 5
 Add audit log to check user bans, login attempts, etc
 Show error messages on logins
+Link userid/sessioninfo
+Kill session upon ban
+Move flashes into its own EJS template
+Make flashes dismissable
+Add unit tests!
