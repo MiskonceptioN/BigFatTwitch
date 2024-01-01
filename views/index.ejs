@@ -6,9 +6,9 @@
 		<section>
 			<%- include('forms/example'); %>
 		</section>
-		<% if(user.level == "admin"){ %>
+		<% if(user.role == "admin"){ %>
 			<section>
-				<h1>Some header</h1>
+				<h1>Some admin header</h1>
 			</section>
 		<% } %>
 	</section>

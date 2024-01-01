@@ -95,7 +95,43 @@ io.on('connection', (socket) => {
 // Routes
 app.route("/")
 	.get(checkAuthenticated, function(req, res){
-		res.render("index", {user: req.user});
+		if (req.user.role == "admin") {
+			res.render("admin", {user: req.user});
+		} else {
+			res.render("index", {user: req.user});
+		}
+	});
+
+	app.route("/admin/users")
+	.get(checkAuthenticated, async function(req, res){
+		if (req.user.role == "admin") {
+			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+			const successMessage = req.flash("success")[0]; // Retrieve the flash message
+			const allUsersResult = await User.find({}).sort({displayName: "asc"});
+			res.render("admin_users", {user: req.user, allUsers: allUsersResult,  failureMessage, successMessage });
+		} else {
+			res.redirect("/login")
+		}
+	});
+
+	app.route("/admin/users/ban/:targetTwitchId")
+	.post(checkAuthenticated, async function(req, res){
+		if (req.user.role == "admin") {
+			const newBanState = (req.body.banstate === "false") ? 1 : 0;
+
+			// ban the user
+			const result = await User.updateOne({ twitchId: req.body.targetTwitchId }, { banned: newBanState });
+			console.log(result);
+			
+			if (result.modifiedCount == 0) {
+				req.flash("error", "Unable to update the ban state of " + req.body.targetTwitchDisplayName);
+			} else {
+				req.flash("success", "Updated the ban state of " + req.body.targetTwitchDisplayName);
+			}
+			res.redirect("/admin/users")
+		} else {
+			res.redirect("/login")
+		}
 	});
 
 app.route("/game")
