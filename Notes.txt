@@ -22,7 +22,7 @@ Show profile icon and name in top right to show profile settings and log out?
 
 Tech debt
 =========
-Figure out sensible wat of setting up session secret
+Figure out sensible way of setting up session secret
 Whack (de)serializeUser into their own functions: // passport.serializeUser(User.serializeUser()); // passport.deserializeUser(User.deserializeUser());
 Set up isInGame with game ID & state in Mongo
 Update to latest bootstrap
