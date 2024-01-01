@@ -57,3 +57,15 @@ h1 {
     background-color: #8205B4;
     border-color: #8205B4;
 }
+
+.text-twitch {
+	color: #9146ff;
+}
+
+.text-twitch:hover {
+    color: #8205B4;
+}
+
+table.user-info {
+	vertical-align: middle;
+}
