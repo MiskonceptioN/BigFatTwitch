@@ -25,9 +25,7 @@ Tech debt
 Figure out sensible way of setting up session secret
 Whack (de)serializeUser into their own functions: // passport.serializeUser(User.serializeUser()); // passport.deserializeUser(User.deserializeUser());
 Set up isInGame with game ID & state in Mongo
-Update to latest bootstrap
 Save passport-twitch changes so they can be fetched by NPM
-User levels & admins table
 Make nav work with Bootstrap 5
 Add audit log to check user bans, login attempts, etc
 Show error messages on logins
