@@ -69,3 +69,15 @@ h1 {
 table.user-info {
 	vertical-align: middle;
 }
+
+table.game-list form {
+	display: inline;
+}
+
+table.game-list i.delete-game:hover {
+	cursor: pointer;
+}
+
+table.game-list i.edit-game, table.game-list i.edit-game:hover, table.game-list i.edit-game:active {
+	color: black;
+}

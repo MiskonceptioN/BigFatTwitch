@@ -19,6 +19,7 @@ const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env.MONGODB_PASS + "@" + process.env.MONGODB_URL + "/gameshow?retryWrites=true&w=majority";
 const User = require("./userModel.js"); // Assuming the model is in the same directory
+const Game = require("./gameModel.js");
 mongoose.connect(mongoUri);
 const db = mongoose.connection;
 
@@ -79,6 +80,25 @@ const checkAuthenticated = (req, res, next) => {
 	res.redirect("/login")
 }
 
+async function generateGameCode() {
+	const chars = ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "X", "Z"];
+	let gameCode = "";
+
+	do {
+		gameCode = "";
+		for (let i = 0; i < 4; i++) {
+			gameCode += chars[Math.floor(Math.random() * chars.length)];
+		}
+	} while (!(await isGameCodeUnique(gameCode)));
+	
+	return gameCode;
+}
+
+async function isGameCodeUnique(code) {
+	const existingCode = await Game.findOne({ code: code });
+	return !existingCode;
+}
+
 // Socket.io listening
 io.on('connection', (socket) => {
 	console.log('a user connected');
@@ -102,19 +122,82 @@ app.route("/")
 		}
 	});
 
-	app.route("/admin/users")
+app.route("/admin/gameManagement")
 	.get(checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
-			const allUsersResult = await User.find({}).sort({displayName: "asc"});
-			res.render("admin_users", {user: req.user, allUsers: allUsersResult,  failureMessage, successMessage });
+			const allGamesResult = await Game.find({}).sort({createdAt: "asc"});
+			res.render("admin_game_management", {user: req.user, allGames: allGamesResult, failureMessage, successMessage});
+		} else {
+			res.redirect("/login")
+		}
+	})
+	.post(checkAuthenticated, async function(req, res){
+		if (req.user.role == "admin") {
+			const gameCode = await generateGameCode();
+
+			const result = await Game.create({code: gameCode});
+			
+			if (result.code) {
+				req.flash("success", "Created game " + result.code);
+			} else {
+				req.flash("error", "Unable to create a new game");
+			}
+			res.redirect("/admin/gameManagement")
 		} else {
 			res.redirect("/login")
 		}
 	});
 
-	app.route("/admin/users/ban/:targetTwitchId")
+app.route("/admin/gameManagement/:gameCode")
+	.get(checkAuthenticated, async function(req, res){
+		if (req.user.role == "admin") {
+			// Fetch the game
+			const result = await Game.findOne({code: req.params.gameCode});
+			if (result === null) {
+				req.flash("error", "Unable find game " + req.params.gameCode);
+				res.redirect("/admin/gameManagement")
+			} else {
+				const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+				const successMessage = req.flash("success")[0]; // Retrieve the flash message
+				res.render("admin_game_management_single_game", {user: req.user, game: result, failureMessage, successMessage})
+			}
+		} else {
+			res.redirect("/login")
+		}
+	});
+
+app.route("/admin/gameManagement/delete/:gameCode")
+	.post(checkAuthenticated, async function(req, res){
+		if (req.user.role == "admin") {
+			// Delete the game
+			const result = await Game.deleteOne({code: req.params.gameCode});
+			
+			if (result.deletedCount == 0) {
+				req.flash("error", "Unable to delete game " + req.params.gameCode);
+			} else {
+				req.flash("success", "Deleted game " + req.params.gameCode);
+			}
+			res.redirect("/admin/gameManagement")
+		} else {
+			res.redirect("/login")
+		}
+	});
+
+app.route("/admin/users")
+	.get(checkAuthenticated, async function(req, res){
+		if (req.user.role == "admin") {
+			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+			const successMessage = req.flash("success")[0]; // Retrieve the flash message
+			const allUsersResult = await User.find({}).sort({displayName: "asc"});
+			res.render("admin_users", {user: req.user, allUsers: allUsersResult,  failureMessage, successMessage});
+		} else {
+			res.redirect("/login")
+		}
+	});
+
+app.route("/admin/users/ban/:targetTwitchId")
 	.post(checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const newBanState = (req.body.banstate === "false") ? 1 : 0;

@@ -1,0 +1,62 @@
+<%- include('header'); %>
+	<section id="game-management" class="text-center">
+		<header>
+			<h1>Game Management</h1>
+		</header>
+		<% if(user.role == "admin"){ %>
+			<% if (failureMessage) { %>
+				<div class="container">
+					<section>
+						<div class="alert alert-danger" role="alert"><%= failureMessage %></div>
+					</section>
+				</div>
+			<% } if (successMessage) { %>
+				<div class="container">
+					<section>
+						<div class="alert alert-success" role="alert"><%= successMessage %></div>
+					</section>
+				</div>
+			<% } %>
+				<div class="d-grid gap-2 col-6 mx-auto">
+				<form method="POST">
+					<button type="submit" class="btn btn-success">Create new game</button>
+				</form>
+			</div>
+			<h2 class="mt-3">Pending games</h2>
+			<% if (allGames.length > 0) { %>
+				<table class="table table-striped table-hover game-list">
+					<thead>
+						<tr>
+							<th scope="col">Code</th>
+							<th scope="col">Status</th>
+							<th scope="col">Created</th>
+							<th scope="col">Updated</th>
+							<th scope="col">Actions</th>
+						</tr>
+					</thead>
+					<tbody>
+						<% allGames.forEach(function(currentGame) { %>
+							<tr>
+								<th><%- currentGame.code %></th>
+								<td><%- currentGame.status %></td>
+								<td><%- new Date(currentGame.createdAt).toUTCString() %></td>
+								<td><%- new Date(currentGame.updatedAt).toUTCString() %></td>
+								<td><a href="/admin/gameManagement/<%- currentGame.code %>"><i class="fa-solid fa-pencil edit-game"></i></a> <form method="post" action="/admin/gameManagement/delete/<%- currentGame.code %>"><i class="fa-solid fa-trash-can delete-game"></i></form></td>
+							</tr>
+						</form>
+						<% }); %>
+					</tbody>
+				</table>
+			<% } else { %>
+			<h3>There are no pending games!</h3>
+			<% } %>
+			<h2 class="mt-3">Played games</h2>
+				<h3>There are no previously played games!</h3>
+		<% } else { %>
+			<h1 class="text-danger">You should not be here!</h1>
+		<% } %>
+	</section>
+	<script src="/js/gameTableFormHandler.js"></script>
+<%- include('footer'); %>
+
+

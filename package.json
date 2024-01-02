@@ -10,6 +10,7 @@
     "express-session": "^1.17.3",
     "mongoose": "^8.0.3",
     "mongoose-findorcreate": "^4.0.0",
+    "mongoose-timestamp": "^0.6.0",
     "passport": "^0.7.0",
     "passport-twitch": "^1.0.3",
     "socket.io": "^4.7.2"
