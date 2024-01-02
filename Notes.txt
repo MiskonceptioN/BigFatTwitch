@@ -34,3 +34,6 @@ Kill session upon ban
 Move flashes into its own EJS template
 Make flashes dismissable
 Add unit tests!
+Make sure try/catch is *everywhere*
+Add last login time for users
+Use a foreach on flashes to show multiple messages
