@@ -19,6 +19,7 @@ UI for creating games & dishing out points
 UI ideas
 ========
 Show profile icon and name in top right to show profile settings and log out?
+Admin panel: show number of connected player
 
 Tech debt
 =========
