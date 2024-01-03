@@ -18,8 +18,8 @@ const io = new Server(server, {connectionStateRecovery: {}});
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env.MONGODB_PASS + "@" + process.env.MONGODB_URL + "/gameshow?retryWrites=true&w=majority";
-const User = require("./userModel.js"); // Assuming the model is in the same directory
-const Game = require("./gameModel.js");
+const User = require("./models/userModel.js"); // Assuming the model is in the same directory
+const Game = require("./models/gameModel.js");
 mongoose.connect(mongoUri);
 const db = mongoose.connection;
 
