@@ -4,10 +4,16 @@
 			<h1>Game Management - <%- game.code %></h1>
 		</header>
 		<% if(user.role == "admin"){ %>
-			<% if (failureMessage) { %>
+			<% if (failureMessage.length > 0) { %>
 				<div class="container">
 					<section>
-						<div class="alert alert-danger" role="alert"><%= failureMessage %></div>
+						<div class="alert alert-danger" role="alert">The following errors occurred:
+							<ul>
+								<% failureMessage.forEach(function(msg) { %>
+									<li><%- msg %></li>
+								<% }) %>
+							</ul>
+						</div>
 					</section>
 				</div>
 			<% } if (successMessage) { %>
@@ -17,16 +23,13 @@
 					</section>
 				</div>
 			<% } %>
-				<div class="d-grid gap-2 col-6 mx-auto">
-				<form method="POST">
-					<button type="submit" class="btn btn-success">Create new game</button>
-				</form>
-			</div>
+			<%- include('forms/newQuestion'); %>
 		<% } else { %>
 			<h1 class="text-danger">You should not be here!</h1>
 		<% } %>
 	</section>
 	<script src="/js/gameTableFormHandler.js"></script>
+	<script src="/js/ajaxFormHandler.js"></script>
 <%- include('footer'); %>
 
 

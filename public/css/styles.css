@@ -81,3 +81,15 @@ table.game-list i.delete-game:hover {
 table.game-list i.edit-game, table.game-list i.edit-game:hover, table.game-list i.edit-game:active {
 	color: black;
 }
+
+#game-management div.row {
+	align-items: center;
+}
+
+.alert-danger ul {
+	margin-bottom: 0;
+}
+
+.alert-danger ul li {
+	list-style-position: inside;
+}

@@ -1,0 +1,51 @@
+<form method="post" class="form-horizontal">
+	<input type="hidden" name="game" value="<%- game.code %>">
+	<div class="row">
+		<label for="question" class="col-sm-2 col-form-label">Question<sup class="text-danger">*</sup></label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" name="question" id="question" required>
+		</div>
+	</div>
+	<div class="row">
+		<label for="answer" class="col-sm-2 col-form-label">Answer<sup class="text-danger">*</sup></label>
+		<div class="col-sm-10">
+			<input type="text" class="form-control" name="answer" id="answer" required>
+		</div>
+	</div>
+	<div class="row">
+		<label for="title" class="col-sm-2 col-form-label">Question type<sup class="text-danger">*</sup></label>
+		<div class="col-sm-10 text-start">
+			<div class="form-check form-check-inline">
+				<input class="form-check-input" type="radio" name="type" id="textOption" value="text" checked>
+				<label class="form-check-label" for="textOption">Text</label>
+			</div>
+			<div class="form-check form-check-inline ms-3">
+				<input class="form-check-input" type="radio" name="type" id="imageOption" value="image">
+				<label class="form-check-label" for="imageOption">Image</label>
+			</div>
+			<div class="form-check form-check-inline ms-3">
+				<input class="form-check-input" type="radio" name="type" id="videoOption" value="video">
+				<label class="form-check-label" for="videoOption">Video</label>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<label for="round" class="col-sm-2 col-form-label">Round<sup class="text-danger">*</sup></label>
+		<div class="col-sm-10">
+			<input type="number" class="form-control" name="round" id="round" value="1" min="1" required>
+		</div>
+	</div>
+	<div class="row">
+		<label for="order" class="col-sm-2 col-form-label">Order<sup class="text-danger">*</sup></label>
+		<div class="col-sm-10">
+			<input type="number" class="form-control" name="order" id="round" value="1" min="1" required>
+		</div>
+	</div>
+	<hr>
+
+<div class="form-group row">
+	<div class="col-sm-12">
+		<input type="submit" class="form-control btn btn-primary">
+	</div>
+</div>
+</form>

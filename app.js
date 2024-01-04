@@ -18,8 +18,9 @@ const io = new Server(server, {connectionStateRecovery: {}});
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env.MONGODB_PASS + "@" + process.env.MONGODB_URL + "/gameshow?retryWrites=true&w=majority";
-const User = require("./models/userModel.js"); // Assuming the model is in the same directory
+const User = require("./models/userModel.js");
 const Game = require("./models/gameModel.js");
+const Question = require("./models/questionModel.js");
 mongoose.connect(mongoUri);
 const db = mongoose.connection;
 
@@ -99,6 +100,11 @@ async function isGameCodeUnique(code) {
 	return !existingCode;
 }
 
+function createErrorHTML(errors) {
+	if (errors.length === 1) return errors[0];
+	return "The following errors occurred:<ul><li>" + errors.join("</li><li>") + "</li></ul>";
+}
+
 // Socket.io listening
 io.on('connection', (socket) => {
 	console.log('a user connected');
@@ -159,13 +165,64 @@ app.route("/admin/gameManagement/:gameCode")
 				req.flash("error", "Unable find game " + req.params.gameCode);
 				res.redirect("/admin/gameManagement")
 			} else {
-				const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+				const failureMessage = req.flash("error"); // Retrieve the flash message
 				const successMessage = req.flash("success")[0]; // Retrieve the flash message
 				res.render("admin_game_management_single_game", {user: req.user, game: result, failureMessage, successMessage})
 			}
 		} else {
 			res.redirect("/login")
 		}
+	})
+	.post(async function(req, res){
+		if (req.user.role == "admin") {
+			let errors = [];
+			// Let's do some validation!
+			// if (!req.body.game) {req.flash("error", "Game is required")}
+			// if (!req.body.question) {req.flash("error", "Question is required")}
+			// if (!req.body.answer) {req.flash("error", "Answer is required")}
+			// if (req.body.round && req.body.round < 0) {req.flash("error", "The round number must be positive")}
+			// if (req.body.order && req.body.order < 0) {req.flash("error", "The order number must be positive")}
+			if (!req.body.game) {errors.push("Game is required")}
+			if (!req.body.question) {errors.push("Question is required")}
+			if (!req.body.answer) {errors.push("Answer is required")}
+			if (req.body.round && req.body.round <= 0) {errors.push("The round number must be greater than zero")}
+			if (req.body.order && req.body.order <= 0) {errors.push("The order number must be greater than zero")}
+			// res.redirect("/admin/gameManagement/" + req.params.gameCode);
+
+			// Try to add the question if there are no validation errors
+			console.log("errors.length is " + errors.length)
+			if (errors.length === 0) {
+				const result = await Question.create({
+					question: req.body.question,
+					answer: req.body.answer,
+					type: req.body.type,
+					game: req.body.game,
+					round: req.body.round,
+					order: req.body.order,
+				});
+				console.log(result);
+				// if (!result._id) {
+				// 	errors.push("Unable to create question due to database error");
+				// } else {
+				// 	console.log("Question <em>&quot;" + req.body.question + "&quot;</em> added");
+				// }
+			}
+
+			setTimeout(function(){
+				if (errors.length > 0) {
+					res.send({status: "danger", content: createErrorHTML(errors)});
+				} else {
+					res.send({status: "success", content: "Question <em>&quot;" + req.body.question + "&quot;</em> added"});
+				}
+			}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
+		} else {
+			res.redirect("/login")
+		}
+		
+		req.flash("error", "EGFH");
+		// setTimeout(function(){
+		// 	res.send({status: "success", content: "POST successful"});
+		// }, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	});
 
 app.route("/admin/gameManagement/delete/:gameCode")
@@ -272,7 +329,7 @@ app.route("/exampleAjaxPOST")
 	.post(function(req, res){
 		setTimeout(function(){
 			res.send({status: "success", content: "POST successful"});
-		}, 500); // 500ms delay to accommodate boostrap .collapse() - plus it looks cooler this way
+		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	});
 
 // Fire up the server
