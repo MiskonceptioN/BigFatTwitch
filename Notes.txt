@@ -20,6 +20,8 @@ UI ideas
 ========
 Show profile icon and name in top right to show profile settings and log out?
 Admin panel: show number of connected player
+Ajaxify question creation
+Show a timer for each question and lock the input/canvas upon timeout
 
 Tech debt
 =========
