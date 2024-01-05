@@ -24,6 +24,41 @@
 				</div>
 			<% } %>
 			<%- include('forms/newQuestion'); %>
+			<hr>
+			<section id="game-questions">
+				<h2 class="text-start">Questions</h2>
+				<% if (Object.keys(questionsByRound).length !== 0) { %>
+					<% Object.keys(questionsByRound).forEach(round => { %>
+					<h3 class="text-start">Round <%= round %></h3>
+					<table class="table table-striped table-hover user-info">
+						<thead>
+							<tr>
+								<th scope="col">Question</th>
+								<th scope="col">Answer</th>
+								<th scope="col">Status</th>
+								<th scope="col">Type</th>
+								<th scope="col">Round</th>
+								<th scope="col">Order</th>
+							</tr>
+						</thead>
+						<tbody>
+							<% questionsByRound[round].forEach(function(currentQuestion) { %>
+								<tr>
+									<th><%- currentQuestion.question %></th>
+									<td><%- currentQuestion.answer %></td>
+									<td><%- currentQuestion.status %></td>
+									<td><%- currentQuestion.type %></td>
+									<td><%- currentQuestion.round %></td>
+									<td><%- currentQuestion.order %></td>
+								</tr>
+							<% }); %>
+						</tbody>
+					</table>
+					<% }); %>
+			<% } else { %>
+				<h3 class="no-content">There are no questions for this game!</h3>
+			<% } %>
+			</section>
 		<% } else { %>
 			<h1 class="text-danger">You should not be here!</h1>
 		<% } %>

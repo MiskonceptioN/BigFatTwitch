@@ -167,7 +167,17 @@ app.route("/admin/gameManagement/:gameCode")
 			} else {
 				const failureMessage = req.flash("error"); // Retrieve the flash message
 				const successMessage = req.flash("success")[0]; // Retrieve the flash message
-				res.render("admin_game_management_single_game", {user: req.user, game: result, failureMessage, successMessage})
+				const allQuestionsResult = await Question.find({game: req.params.gameCode})//.sort([["round", "asc"], ["order","asc"]]);
+
+				const questionsByRound = allQuestionsResult.reduce((acc, question) => {
+					const round = question.round;
+					if (!acc[round]) {acc[round] = []};
+					acc[round].push(question); // Push the current question to the array corresponding to its round
+					return acc;
+				  }, {});
+				  
+				res.render("admin_game_management_single_game", {user: req.user,  questionsByRound, game: result, failureMessage, successMessage});
+				console.log(questionsByRound);
 			}
 		} else {
 			res.redirect("/login")
@@ -219,7 +229,6 @@ app.route("/admin/gameManagement/:gameCode")
 			res.redirect("/login")
 		}
 		
-		req.flash("error", "EGFH");
 		// setTimeout(function(){
 		// 	res.send({status: "success", content: "POST successful"});
 		// }, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
@@ -247,7 +256,7 @@ app.route("/admin/users")
 		if (req.user.role == "admin") {
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
-			const allUsersResult = await User.find({}).sort({displayName: "asc"});
+			const allUsersResult = await User.find({}).sort({order: "asc"});
 			res.render("admin_users", {user: req.user, allUsers: allUsersResult,  failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
