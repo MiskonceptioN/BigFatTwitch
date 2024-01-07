@@ -43,7 +43,7 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 			} else {
 				const failureMessage = req.flash("error"); // Retrieve the flash message
 				const successMessage = req.flash("success")[0]; // Retrieve the flash message
-				const allQuestionsResult = await Question.find({game: req.params.gameCode})//.sort([["round", "asc"], ["order","asc"]]);
+				const allQuestionsResult = await Question.find({game: req.params.gameCode}).sort([/*["round", "asc"], */["order","asc"]]);
 
 				const questionsByRound = allQuestionsResult.reduce((acc, question) => {
 					const round = question.round;
