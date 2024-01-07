@@ -8,26 +8,38 @@ $("button.btn-tiny").on("mouseleave blur", function(){
 });
 
 $(".move-up").click(function () {
-    updateOrder($(this).parents("tr:first"), "up");
+	updateOrder($(this).parents("tr:first"), "up");
 });
 
 $(".move-down").click(function () {
-    updateOrder($(this).parents("tr:first"), "down");
+	updateOrder($(this).parents("tr:first"), "down");
 });
 
 function updateOrder(row, direction) {
-    const thisOrderSpan = row.find(".order");
-    const currentOrderNumber = Number(thisOrderSpan.text());
-    const adjacentRow = direction === "up" ? row.prev() : row.next();
+	const moveUpForm = row.find("form.question-up");
+	const moveDownForm = row.find("form.question-down");
+	const thisOrderSpan = row.find(".order");
+	const currentOrderNumber = Number(thisOrderSpan.text());
+	const adjacentRow = direction === "up" ? row.prev() : row.next();
+	const adjacentRowMoveUpForm = adjacentRow.find("form.question-up");
+	const adjacentRowMoveDownForm = adjacentRow.find("form.question-down");
 
-    if (adjacentRow.length > 0) {
-        const adjacentOrderSpan = adjacentRow.find(".order");
-        const adjacentOrderNumber = Number(adjacentOrderSpan.text());
-        thisOrderSpan.text(direction === "up" ? currentOrderNumber - 1 : currentOrderNumber + 1);
-        adjacentOrderSpan.text(direction === "up" ? adjacentOrderNumber + 1 : adjacentOrderNumber - 1);
-        direction === "up" ? row.insertBefore(adjacentRow) : row.insertAfter(adjacentRow);
+	if (adjacentRow.length > 0) {
+		const adjacentOrderSpan = adjacentRow.find(".order");
+		const adjacentOrderNumber = Number(adjacentOrderSpan.text());
+		thisOrderSpan.text(direction === "up" ? currentOrderNumber - 1 : currentOrderNumber + 1);
+		adjacentOrderSpan.text(direction === "up" ? adjacentOrderNumber + 1 : adjacentOrderNumber - 1);
+		if (direction === "up") {
+			moveUpForm.submit();
+			adjacentRowMoveDownForm.submit();
+			row.insertBefore(adjacentRow);
+		} else {
+			moveDownForm.submit();
+			adjacentRowMoveUpForm.submit();
+			row.insertAfter(adjacentRow);
+		}
 		flashRow(row);
-    }
+	}
 }
 
 function flashRow(el){
@@ -49,27 +61,27 @@ function flashRow(el){
 // 	const formMethod = $(this).attr("method"); //get form GET/POST method
 // 	const formData = $(this).serialize(); //Encode form elements for submission
 
-//     $.ajax({
-//         method: formMethod,
-//         url: destUrl,
-//         data: formData,
-//         beforeSend: function() {
-//             console.log("Sending request...");
+//	 $.ajax({
+//		 method: formMethod,
+//		 url: destUrl,
+//		 data: formData,
+//		 beforeSend: function() {
+//			 console.log("Sending request...");
 // 			$("#loading").removeClass("d-none").addClass("d-flex");
 // 			$("#message").collapse("hide");
-//         },
-//         success: function(msg) {
+//		 },
+//		 success: function(msg) {
 // 			console.log("Request sent");
 // 			$("#loading").removeClass("d-flex").addClass("d-none");
 // 			$("#message").removeClass().addClass("alert").addClass("alert-" + msg.status).html(msg.content);
 // 			$("#message").collapse("show");
-//         },
-//         error: function(err) {
+//		 },
+//		 error: function(err) {
 // 			console.log("Request failed");
-//             console.log(err);
+//			 console.log(err);
 // 			$("#loading").removeClass("d-flex").addClass("d-none");
 // 			$("#message").removeClass().addClass("alert").addClass("alert-danger").html("Request failed with status " + err.status);
 // 			$("#message").collapse("show");
-//         }
-//     });
+//		 }
+//	 });
 // });

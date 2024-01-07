@@ -53,7 +53,7 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 				  }, {});
 				  
 				res.render("admin_game_management_single_game", {user: req.user,  questionsByRound, game: result, failureMessage, successMessage});
-				console.log(questionsByRound);
+				// console.log(questionsByRound);
 			}
 		} else {
 			res.redirect("/login")
@@ -109,6 +109,54 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 		// 	res.send({status: "success", content: "POST successful"});
 		// }, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	});
+
+router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async function(req, res){
+	if (req.user.role == "admin") {
+		let errors = [];
+		// Let's do some validation!
+		if (!req.body.questionId) {errors.push("An ID is required")}
+		if (!req.body.direction) {errors.push("Direction is required")}
+
+		// Try to add the question if there are no validation errors
+		console.log("errors.length is " + errors.length)
+		console.log({errors})
+		console.log(req.body)
+		if (errors.length === 0) {
+			const amount = (req.body.direction == "up" ? -1 : 1);
+			const updateQuestionResult = await Question.updateOne({ _id: req.body.questionId }, { $inc: { order: amount } });
+
+			// res.render("admin_users", {user: req.user, allUsers: allUsersResult,  failureMessage, successMessage});
+			// const result = await Question.create({
+			// 	question: req.body.question,
+			// 	answer: req.body.answer,
+			// 	type: req.body.type,
+			// 	game: req.body.game,
+			// 	round: req.body.round,
+			// 	order: req.body.order,
+			// });
+			console.log(updateQuestionResult);
+			// if (!result._id) {
+			// 	errors.push("Unable to create question due to database error");
+			// } else {
+			// 	console.log("Question <em>&quot;" + req.body.question + "&quot;</em> added");
+			// }
+		}
+
+		setTimeout(function(){
+			if (errors.length > 0) {
+				res.send({status: "danger", content: "createErrorHTML(errors)"});
+			} else {
+				res.send({status: "success", content: "Question <em>&quot;" + req.body.question + "&quot;</em> added"});
+			}
+		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
+	} else {
+		res.redirect("/login")
+	}
+	
+	// setTimeout(function(){
+	// 	res.send({status: "success", content: "POST successful"});
+	// }, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
+});
 
 router.post("/gameManagement/delete/:gameCode", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
