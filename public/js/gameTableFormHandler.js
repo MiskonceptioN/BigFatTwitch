@@ -1,7 +1,7 @@
-$("i.edit-game").on("mouseenter", function(){
+$("i.edit-game").on("mouseenter focus", function(){
 	$(this).addClass("text-success");
 });
-$("i.edit-game").on("mouseleave", function(){
+$("i.edit-game").on("mouseleave blur", function(){
 	$(this).removeClass("text-success");
 });
 
