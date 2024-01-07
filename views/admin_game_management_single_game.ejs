@@ -37,7 +37,6 @@
 								<th scope="col">Answer</th>
 								<th scope="col">Status</th>
 								<th scope="col">Type</th>
-								<th scope="col">Round</th>
 								<th scope="col">Order</th>
 							</tr>
 						</thead>
@@ -48,8 +47,8 @@
 									<td><%- currentQuestion.answer %></td>
 									<td><%- currentQuestion.status %></td>
 									<td><%- currentQuestion.type %></td>
-									<td><%- currentQuestion.round %></td>
-									<td><%- currentQuestion.order %></td>
+									<td><button type="button" class="btn btn-secondary btn-tiny move-up">▲</button>
+										<span class="order"><%- currentQuestion.order %></span> <button type="button" class="btn btn-secondary btn-tiny move-down">▼</button></td>
 								</tr>
 							<% }); %>
 						</tbody>
@@ -63,7 +62,7 @@
 			<h1 class="text-danger">You should not be here!</h1>
 		<% } %>
 	</section>
-	<script src="/js/gameTableFormHandler.js"></script>
+	<script src="/js/questionTableHandler.js"></script>
 	<script src="/js/ajaxFormHandler.js"></script>
 <%- include('footer'); %>
 
