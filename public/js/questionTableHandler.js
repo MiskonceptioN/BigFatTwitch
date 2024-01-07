@@ -26,7 +26,21 @@ function updateOrder(row, direction) {
         thisOrderSpan.text(direction === "up" ? currentOrderNumber - 1 : currentOrderNumber + 1);
         adjacentOrderSpan.text(direction === "up" ? adjacentOrderNumber + 1 : adjacentOrderNumber - 1);
         direction === "up" ? row.insertBefore(adjacentRow) : row.insertAfter(adjacentRow);
+		flashRow(row);
     }
+}
+
+function flashRow(el){
+	$(el).css({
+		"transition": "opacity 0s ease",
+		"opacity": "0"
+	})
+	setTimeout(() => {
+		$(el).css({
+			"transition": "opacity 1s ease",
+			"opacity": "1"
+		})
+	}, "0");	  
 }
 
 // $("form").on("submit", function(event){

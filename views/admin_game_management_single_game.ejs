@@ -30,7 +30,7 @@
 				<% if (Object.keys(questionsByRound).length !== 0) { %>
 					<% Object.keys(questionsByRound).forEach(round => { %>
 					<h3 class="text-start">Round <%= round %></h3>
-					<table class="table table-striped table-hover user-info">
+					<table class="table table-striped table-hover question-info">
 						<thead>
 							<tr>
 								<th scope="col">Question</th>
@@ -43,7 +43,7 @@
 						<tbody>
 							<% questionsByRound[round].forEach(function(currentQuestion) { %>
 								<tr>
-									<th><%- currentQuestion.question %></th>
+									<th class="question"><%- currentQuestion.question %></th>
 									<td><%- currentQuestion.answer %></td>
 									<td><%- currentQuestion.status %></td>
 									<td><%- currentQuestion.type %></td>
