@@ -70,7 +70,7 @@ table.user-info {
 	vertical-align: middle;
 }
 
-table.game-list form {
+table.game-list form, table.question-info form {
 	display: inline;
 }
 
