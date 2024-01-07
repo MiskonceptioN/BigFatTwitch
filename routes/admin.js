@@ -16,7 +16,7 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 			res.redirect("/login")
 		}
 	})
-	.post(checkAuthenticated, async function(req, res){
+	.post("/gameManagement", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const gameCode = await generateGameCode();
 
@@ -59,7 +59,7 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 			res.redirect("/login")
 		}
 	})
-	.post(async function(req, res){
+	.post("/gameManagement/:gameCode", async function(req, res){
 		if (req.user.role == "admin") {
 			let errors = [];
 			// Let's do some validation!
