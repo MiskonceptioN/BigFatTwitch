@@ -9,7 +9,8 @@ const gameSchema = new mongoose.Schema({
   winner: { type: String, default: null },
 //   winner: { type: mongoose.Schema.Types.ObjectId, ref: "Team" }
 });
-gameSchema.plugin(timestamps);
+// gameSchema.plugin(timestamps);
+questionSchema.set('timestamps', true);
 
 // Create the Game model based on the schema
 const Game = mongoose.model('Game', gameSchema);

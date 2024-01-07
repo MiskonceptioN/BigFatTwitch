@@ -14,7 +14,8 @@ const questionSchema = new mongoose.Schema({
 	order: { type: Number, required: true },
 //	 winner: { type: mongoose.Schema.Types.ObjectId, ref: "Team" }
 });
-questionSchema.plugin(timestamps);
+// questionSchema.plugin(timestamps);
+questionSchema.set('timestamps', true);
 
 // Create the Question model based on the schema
 const Question = mongoose.model("Question", questionSchema);
