@@ -93,3 +93,9 @@ table.game-list i.edit-game, table.game-list i.edit-game:hover, table.game-list 
 .alert-danger ul li {
 	list-style-position: inside;
 }
+
+.btn-tiny {
+	--bs-btn-padding-y: .125rem;
+	--bs-btn-padding-x: .25rem;
+	--bs-btn-font-size: .5rem;
+}
