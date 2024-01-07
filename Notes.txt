@@ -11,8 +11,6 @@ Audience vote on funniest answer?
 
 Admin ideas
 =============
-Database for questions
-UI for adding/editing questions
 UI for creating games & dishing out points
 "Promote" a viewer to contestant role
 
