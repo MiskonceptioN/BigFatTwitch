@@ -99,3 +99,10 @@ table.game-list i.edit-game, table.game-list i.edit-game:hover, table.game-list 
 	--bs-btn-padding-x: .25rem;
 	--bs-btn-font-size: .5rem;
 }
+
+.toast-progress {
+    background: var(--bs-toast-header-bg);
+    max-width: 100%;
+    height: 5px;
+    border-radius: 1em;
+}
