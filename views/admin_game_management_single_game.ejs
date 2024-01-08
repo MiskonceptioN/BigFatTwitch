@@ -67,21 +67,7 @@
 			<h1 class="text-danger">You should not be here!</h1>
 		<% } %>
 	</section>
-	<div id="live-toast-container" class="toast-container position-fixed top-50 start-50 translate-middle p-3">
-	  <div id="live-toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-		<div class="toast-header d-none">
-		  <strong class="me-auto toast-title"></strong>
-		  <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-		</div>
-		<div class="toast-body d-flex justify-content-between align-items-center" style="margin-bottom: -5px;"">
-			<div class="message-content"></div>
-			<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-		  </div>
-		  <div class="toast-progress"></div>
-		</div>
-	</div>
-	<button onclick="showToast()">Click me</button>
-		<script src="/js/toasts.js"></script>
+<%- include('helperToasts'); %>
 	<script src="/js/questionTableHandler.js"></script>
 	<script src="/js/ajaxFormHandler.js"></script>
 <%- include('footer'); %>

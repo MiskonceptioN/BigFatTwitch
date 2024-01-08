@@ -1,16 +1,23 @@
 function showToast(message, bootstrapClass = "secondary", title = false, dismissable = true) {
 	// Identify parts of the toast
 	const toastTarget = document.getElementById("live-toast");
+	const $toastHeader = $(toastTarget).find(".toast-header");
+	const $toastTitle = $(toastTarget).find(".toast-title");
+	const $toastBody = $(toastTarget).find(".toast-body")
+	const $toastHeaderClose = $toastHeader.find(".btn-close");
+	const $toastBodyClose = $toastBody.find(".btn-close");
+	const $toastProgressBar = $(toastTarget).find(".toast-progress");
 
 	// Create the instance
 	const toastInstance = bootstrap.Toast.getOrCreateInstance(toastTarget);
 
 	// Set the toast's default state
 	$(toastTarget).removeClass().addClass("toast"); // No additional classes
-	$(toastTarget).find(".toast-header").addClass("d-none"); // No header
-	$(toastTarget).find(".toast-header .btn-close").addClass("d-none"); // No header close button
-	$(toastTarget).find(".toast-body .btn-close").addClass("d-none"); // No body close button
-	$(toastTarget).find(".toast-progress").addClass("d-none");  // Hide the progress bar
+	$toastHeader.addClass("d-none"); // No header
+	$toastHeaderClose.addClass("d-none"); // No header close button
+	$toastBodyClose.addClass("d-none"); // No body close button
+	$toastProgressBar.addClass("d-none");  // Hide the progress bar
+	$toastBody.removeClass("has-progress-bar"); // Hide the progress bar
 	toastInstance._config.autohide = false; // Don't auto-hide
 	
 	// Prepare the toast's parameters
@@ -18,8 +25,8 @@ function showToast(message, bootstrapClass = "secondary", title = false, dismiss
 
 	// Set the header if there's a title
 	if (title) {
-		$(toastTarget).find(".toast-header").removeClass("d-none");
-		$(toastTarget).find(".toast-title").text(title);
+		$toastHeader.removeClass("d-none");
+		$toastTitle.text(title);
 	}
 
 	// Set the message
@@ -28,9 +35,9 @@ function showToast(message, bootstrapClass = "secondary", title = false, dismiss
 	if (dismissable) {
 		// Put the close button on the header or the body, depending on if there is a header
 		if (title) {
-			$(toastTarget).find(".toast-header .btn-close").removeClass("d-none");
+			$toastHeaderClose.removeClass("d-none");
 		} else {
-			$(toastTarget).find(".toast-body .btn-close").removeClass("d-none");
+			$toastBodyClose.removeClass("d-none");
 		}
 
 		// If the button should be auto-dismissed after X milliseconds
@@ -41,12 +48,14 @@ function showToast(message, bootstrapClass = "secondary", title = false, dismiss
 			toastInstance._config.autohide = true;
 			toastInstance._config.delay = duration;
 
-			$(toastTarget).find(".toast-progress").removeClass("d-none");  // Hide the progress bar
+			$toastProgressBar.removeClass("d-none"); // Show the progress bar
+			$toastBody.addClass("has-progress-bar"); // Show the progress bar
 
+			// Shrink the progress bar according to the duration
 			const timer = setInterval(() => {
 				if (durationCounter >= 0) {
 					const percentage = (durationCounter/duration)*100;
-					$(toastTarget).find(".toast-progress").css("width", percentage+"%")
+					$toastProgressBar.css("width", percentage+"%")
 					durationCounter = durationCounter-10;
 				} else {
 					clearInterval(timer);
