@@ -110,3 +110,12 @@ table.game-list i.edit-game, table.game-list i.edit-game:hover, table.game-list 
 .has-progress-bar {
 	margin-bottom: -5px;
 }
+
+.user-thumbnail {
+	transition-duration: 500ms;
+	transition-property: all;
+}
+.user-thumbnail:hover {
+	width: 150px;
+	height: 150px;
+}

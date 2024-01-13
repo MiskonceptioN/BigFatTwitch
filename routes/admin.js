@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { checkAuthenticated } = require("../helpers");
+const { checkAuthenticated, generateGameCode } = require("../helpers");
 
 const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
@@ -20,7 +20,7 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const gameCode = await generateGameCode();
 
-			const result = await Game.create({code: gameCode});
+			const result = await Game.create({code: gameCode, teams: [{name: "Team One"},{name: "Team Two"},{name: "Team Three"}]});
 			
 			if (result.code) {
 				req.flash("success", "Created game " + result.code);
@@ -174,11 +174,43 @@ router.post("/gameManagement/delete/:gameCode", checkAuthenticated, async functi
 		}
 	});
 
+router.get("/teams", checkAuthenticated, async function(req, res){
+	if (req.user.role == "admin") {
+		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+		const successMessage = req.flash("success")[0]; // Retrieve the flash message
+		const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
+		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"});
+		res.render("admin_teams", {user: req.user, allUsers: allUsersResult, allGames: allGamesResult, failureMessage, successMessage});
+	} else {
+		res.redirect("/login")
+	}
+})
+
+.post("/teams/:gameCode", checkAuthenticated, async function(req, res){
+	if (req.user.role == "admin") {
+		console.log(req.body)
+		const updateGameResult = await Game.updateOne({ code: req.params.gameCode }, {$set: { teams: [
+			{player1: req.body.Team1[0], player2: req.body.Team1[1]},
+			{player1: req.body.Team2[0], player2: req.body.Team2[1]},
+			{player1: req.body.Team3[0], player2: req.body.Team3[1]},
+		] }});
+		console.log(updateGameResult);
+
+		const updatedGame = await Game.findOne({ code: req.params.gameCode });
+		console.log(updatedGame);
+
+		req.flash("success", "Everything is great");
+		res.redirect("/admin/teams");
+	} else {
+		res.send({status: "danger", content: "You're not an admin. Bugger off"});
+	}
+});
+
 router.get("/users", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
-			const allUsersResult = await User.find({}).sort({order: "asc"});
+			const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
 			res.render("admin_users", {user: req.user, allUsers: allUsersResult,  failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
