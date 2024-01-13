@@ -119,3 +119,11 @@ table.game-list i.edit-game, table.game-list i.edit-game:hover, table.game-list 
 	width: 150px;
 	height: 150px;
 }
+
+input[type="search"] {
+	padding-left: 2em;
+	background-image: url("https://upload.wikimedia.org/wikipedia/commons/5/55/Magnifying_glass_icon.svg");
+	background-size: 13px;
+	background-repeat: no-repeat;
+	background-position: 10px center;
+}

@@ -21,7 +21,7 @@
 			<thead>
 				<tr>
 					<th scope="col">Profile image</th>
-					<th scope="col">Name</th>
+					<th scope="col">Name<br><input type="search" id="searchybar" class="form-control"></th>
 					<th scope="col">Role</th>
 					<th scope="col">Twitch ID</th>
 					<th scope="col">(Un)ban?</th>
@@ -55,6 +55,16 @@
 		<% } %>
 	</section>
 	<!-- <script src="js/ajaxFormHandler.js"></script> -->
+	<script>
+		$(document).ready(function(){
+			$("#searchybar").on("input", function() {
+				var value = $(this).val().toLowerCase();
+				$(".user-info tr:not(:first-child)").filter(function() {
+					$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+				});
+			});
+		});
+	</script>
 <%- include('footer'); %>
 
 
