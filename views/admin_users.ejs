@@ -17,7 +17,7 @@
 			</div>
 		<% } %>
 		<% if(user.role == "admin"){ %>
-		<table class="table table-striped table-hover user-info">
+		<table class="table table-striped table-hover user-info searchable">
 			<thead>
 				<tr>
 					<th scope="col">Profile image</th>
@@ -35,7 +35,7 @@
 					<input type="hidden" name="banstate" value="<%- currentUser.banned %>">
 					<tr <% if (currentUser.banned) { %> class="table-danger" <% } %>>
 						<th><a href="<%- currentUser.profileImageUrl %>" target="_blank"><img src="<%- currentUser.profileImageUrl %>" width="30" height="30"></a></th>
-						<td><%- currentUser.displayName %> <a href="https://twitch.tv/<%- currentUser.displayName %>" target="_blank" class="text-twitch"><i class="fa-brands fa-twitch"></i></a></td>
+						<td class="search-target"><%- currentUser.displayName %> <a href="https://twitch.tv/<%- currentUser.displayName %>" target="_blank" class="text-twitch"><i class="fa-brands fa-twitch"></i></a></td>
 						<td><%- currentUser.role %></td>
 						<td><%- currentUser.twitchId %></td>
 						<td><% if (currentUser.banned) { %>
@@ -55,16 +55,7 @@
 		<% } %>
 	</section>
 	<!-- <script src="js/ajaxFormHandler.js"></script> -->
-	<script>
-		$(document).ready(function(){
-			$("#searchybar").on("input", function() {
-				var value = $(this).val().toLowerCase();
-				$(".user-info tr:not(:first-child)").filter(function() {
-					$(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-				});
-			});
-		});
-	</script>
+	<script src="/js/searchableTable.js"></script>
 <%- include('footer'); %>
 
 
