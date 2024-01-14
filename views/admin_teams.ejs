@@ -36,7 +36,7 @@
 												<select class="form-select form-select-xs" name="Team<%- (i+1) %>" id="Team<%- (i+1) %>">
 													<option></option>
 													<% allUsers.forEach(function(currentUser) { %>
-														<option value="<%- currentUser.twitchId %>" <% if (currentGame.teams[i]['player' + (j + 1)] == currentUser.twitchId) { %> selected <% } %><% if (currentUser.role == "admin") { %> class="bg-info" <% } %>><% if (currentUser.role == "admin") { %>(A) <% } %><%- currentUser.displayName %></option>
+														<option value="<%- currentUser.twitchId %>" <% if (currentGame.teams[i].players[j] == currentUser.twitchId) { %> selected <% } %><% if (currentUser.role == "admin") { %> class="bg-info" <% } %>><% if (currentUser.role == "admin") { %>(A) <% } %><%- currentUser.displayName %></option>
 													<% }) %>
 												</select>
 											</div>

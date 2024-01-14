@@ -190,9 +190,9 @@ router.get("/teams", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		console.log(req.body)
 		const updateGameResult = await Game.updateOne({ code: req.params.gameCode }, {$set: { teams: [
-			{player1: req.body.Team1[0], player2: req.body.Team1[1]},
-			{player1: req.body.Team2[0], player2: req.body.Team2[1]},
-			{player1: req.body.Team3[0], player2: req.body.Team3[1]},
+			{players: [req.body.Team1[0], req.body.Team1[1]]},
+			{players: [req.body.Team2[0], req.body.Team2[1]]},
+			{players: [req.body.Team3[0], req.body.Team3[1]]},
 		] }});
 		console.log(updateGameResult);
 
