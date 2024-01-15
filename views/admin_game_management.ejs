@@ -31,6 +31,7 @@
 							<th scope="col">Status</th>
 							<th scope="col">Created</th>
 							<th scope="col">Updated</th>
+							<th scope="col">Questions</th>
 							<th scope="col">Actions</th>
 						</tr>
 					</thead>
@@ -41,6 +42,7 @@
 								<td><%- currentGame.status %></td>
 								<td><%- new Date(currentGame.createdAt).toUTCString() %></td>
 								<td><%- new Date(currentGame.updatedAt).toUTCString() %></td>
+								<td><%- questionTotals[currentGame.code] || 0 %></td>
 								<td><a href="/admin/gameManagement/<%- currentGame.code %>"><i class="fa-solid fa-pencil edit-game"></i></a> <form method="post" action="/admin/gameManagement/delete/<%- currentGame.code %>"><i class="fa-solid fa-trash-can delete-game"></i></form></td>
 							</tr>
 						</form>

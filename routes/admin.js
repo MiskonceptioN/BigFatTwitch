@@ -12,7 +12,16 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
 			const allGamesResult = await Game.find({}).sort({createdAt: "asc"});
-			res.render("admin_game_management", {user: req.user, allGames: allGamesResult, failureMessage, successMessage});
+			const aggregationResult = await Question.aggregate([{$group: {_id: '$game',total: { $sum: 1 }}}]);
+
+			// Convert the result array to an object with game codes as keys
+			const questionTotals = aggregationResult.reduce((acc, item) => {
+				acc[item._id] = item.total;
+				return acc;
+			}, {});
+			console.log(questionTotals);
+			  
+			res.render("admin_game_management", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
 		}
