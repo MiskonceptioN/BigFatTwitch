@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
   broadcasterType: { type: String, default: ""}
 });
 userSchema.plugin(findOrCreate);
+userSchema.set('timestamps', true);
 
 // Create the User model based on the schema
 const User = mongoose.model('User', userSchema);
