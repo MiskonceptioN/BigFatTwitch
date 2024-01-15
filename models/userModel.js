@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   profileImageUrl: { type: String },
   banned: { type: Boolean, default: false },
   role: { type: String, default: "player" },
+  broadcasterType: { type: String, default: ""}
 });
 userSchema.plugin(findOrCreate);
 

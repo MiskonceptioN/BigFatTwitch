@@ -1,5 +1,6 @@
 const express = require("express");
 const router = express.Router();
+const axios = require("axios").default;
 const { checkAuthenticated, generateGameCode } = require("../helpers");
 
 const User = require("../models/userModel.js");
@@ -216,6 +217,65 @@ router.get("/users", checkAuthenticated, async function(req, res){
 			res.redirect("/login")
 		}
 	});
+
+router.post("/users/add/", checkAuthenticated, async function(req, res){
+	if (req.user.role == "admin") {
+		const user = req.body.target_username;
+
+		// Get Twitch Access Token
+		const params = new URLSearchParams();
+		params.append("client_id", process.env.TWITCH_CLIENT_ID);
+		params.append("client_secret", process.env.TWITCH_CLIENT_SECRET);
+		params.append("grant_type", "client_credentials");
+
+		axios.post("https://id.twitch.tv/oauth2/token", params)
+		.then(result => {
+			const accessToken = result.data.access_token;
+			axios.get("https://api.twitch.tv/helix/users?login=" + user, {
+				headers: {
+					"Authorization": `Bearer ${accessToken}`,
+					"Client-Id": process.env.TWITCH_CLIENT_ID
+				}
+			})
+				.then(response => {
+					const userInfo = response.data.data[0];
+
+					User.updateOne({ twitchId: userInfo.id }, {
+						displayName: userInfo.display_name,
+						profileImageUrl: userInfo.profile_image_url,
+						broadcasterType: userInfo.broadcaster_type,
+					}, { upsert: true })
+						.then(result => {
+							if (result.upsertedCount === 1) {
+								req.flash("success", "Added " + userInfo.display_name + " to the database!");
+							} else {
+								req.flash("success", "Updated " + userInfo.display_name + "'s user info!");
+							}
+						})
+						.catch(error => {
+							req.flash("error", "Unable to add " + user + " to the database!");
+							console.error(error, response.data.id);
+						})
+						.finally(() => {
+							res.redirect("/admin/users");
+						});
+				})
+				.catch(error => {
+					req.flash("error", "Unable to fetch data from Twitch");
+					console.log(error);
+					res.redirect("/admin/users");
+				});
+		})
+		.catch(error => {
+			req.flash("error", "Unable to get Twitch access token!");
+			console.log(error);
+			res.redirect("/admin/users");
+		});
+
+	} else {
+		res.redirect("/login")
+	}
+});
 
 router.post("/users/ban/:targetTwitchId", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
