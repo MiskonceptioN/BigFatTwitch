@@ -111,6 +111,11 @@ table.game-list i.edit-game, table.game-list i.edit-game:hover, table.game-list 
 	margin-bottom: -5px;
 }
 
+.profileimage-thumb {
+	max-height: 20px;
+	padding-right: 1em;
+}
+
 .user-thumbnail {
 	transition-duration: 500ms;
 	transition-property: all;

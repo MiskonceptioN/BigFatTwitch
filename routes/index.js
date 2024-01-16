@@ -4,11 +4,11 @@ const { checkAuthenticated } = require("../helpers");
 
 router.get("/", checkAuthenticated, (req, res) => {
 	if (req.user.role == "admin") {res.render("admin", {user: req.user})}
-	else {res.render("admin", {user: req.user})}
+	else {res.render("game", {user: req.user})}
 });
 
 router.get("/game", checkAuthenticated, (req, res) => {
-	res.render("game");
+	res.render("game", {user: req.user});
 });
 
 router.get("/login", (req, res) => {
