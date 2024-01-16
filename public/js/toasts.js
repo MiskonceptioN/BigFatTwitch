@@ -58,6 +58,7 @@ function showToast(message, bootstrapClass = "secondary", title = false, dismiss
 					$toastProgressBar.css("width", percentage+"%")
 					durationCounter = durationCounter-10;
 				} else {
+					toastInstance.hide();
 					clearInterval(timer);
 				}
 			},10);
