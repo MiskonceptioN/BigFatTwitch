@@ -113,7 +113,7 @@ table.game-list i.edit-game, table.game-list i.edit-game:hover, table.game-list 
 
 .profileimage-thumb {
 	max-height: 20px;
-	padding-right: 1em;
+	margin-right: 0.5em;
 }
 
 .user-thumbnail {
