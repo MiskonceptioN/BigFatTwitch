@@ -1,17 +1,41 @@
-$("button.btn-tiny").on("mouseenter focus", function(){
+// Use event delegation becase to accommodate elements added to the DOM dynamically
+$(document).on("submit", "form.question-up, form.question-down", function(event){
+	event.preventDefault(); //prevent default action
+	const destUrl = $(this).attr("action"); //get form action url
+	const formMethod = $(this).attr("method"); //get form GET/POST method
+	const formData = $(this).serialize(); //Encode form elements for submission
+
+	 $.ajax({
+		 method: formMethod,
+		 url: destUrl,
+		 data: formData,
+		 beforeSend: function() {
+			$(".move-up, .move-down").attr("disabled", true)
+		 },
+		 success: function() {
+			$(".move-up, .move-down").attr("disabled", false)
+		 },
+		 error: function(err) {
+			showToast("Please refresh and try again", "danger", "Could not change the question's order", false);
+		}
+	 });
+});
+
+// Use event delegation becase to accommodate elements added to the DOM dynamically
+$(document).on("mouseenter focus", "button.btn-tiny", function(){
 	$(this).addClass("btn-primary");
 	$(this).removeClass("btn-secondary");
 });
-$("button.btn-tiny").on("mouseleave blur", function(){
+$(document).on("mouseleave blur", "button.btn-tiny", function(){
 	$(this).addClass("btn-secondary");
 	$(this).removeClass("btn-primary");
 });
 
-$(".move-up").click(function () {
+$(document).on("click", ".move-up", function () {
 	updateOrder($(this).parents("tr:first"), "up");
 });
 
-$(".move-down").click(function () {
+$(document).on("click", ".move-down", function () {
 	updateOrder($(this).parents("tr:first"), "down");
 });
 
@@ -54,34 +78,3 @@ function flashRow(el){
 		})
 	}, "0");	  
 }
-
-// $("form").on("submit", function(event){
-// 	event.preventDefault(); //prevent default action
-// 	const destUrl = $(this).attr("action"); //get form action url
-// 	const formMethod = $(this).attr("method"); //get form GET/POST method
-// 	const formData = $(this).serialize(); //Encode form elements for submission
-
-//	 $.ajax({
-//		 method: formMethod,
-//		 url: destUrl,
-//		 data: formData,
-//		 beforeSend: function() {
-//			 console.log("Sending request...");
-// 			$("#loading").removeClass("d-none").addClass("d-flex");
-// 			$("#message").collapse("hide");
-//		 },
-//		 success: function(msg) {
-// 			console.log("Request sent");
-// 			$("#loading").removeClass("d-flex").addClass("d-none");
-// 			$("#message").removeClass().addClass("alert").addClass("alert-" + msg.status).html(msg.content);
-// 			$("#message").collapse("show");
-//		 },
-//		 error: function(err) {
-// 			console.log("Request failed");
-//			 console.log(err);
-// 			$("#loading").removeClass("d-flex").addClass("d-none");
-// 			$("#message").removeClass().addClass("alert").addClass("alert-danger").html("Request failed with status " + err.status);
-// 			$("#message").collapse("show");
-//		 }
-//	 });
-// });

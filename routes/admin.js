@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios").default;
-const { checkAuthenticated, generateGameCode } = require("../helpers");
+const { checkAuthenticated, generateGameCode, createErrorHTML } = require("../helpers");
 
 const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
@@ -86,7 +86,6 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 			// res.redirect("/admin/gameManagement/" + req.params.gameCode);
 
 			// Try to add the question if there are no validation errors
-			console.log("errors.length is " + errors.length)
 			if (errors.length === 0) {
 				const result = await Question.create({
 					question: req.body.question,
@@ -102,15 +101,10 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 				// } else {
 				// 	console.log("Question <em>&quot;" + req.body.question + "&quot;</em> added");
 				// }
+				res.send({status: "success", content: result._id.toHexString()});
+			} else {
+				res.send({status: "failure", content: createErrorHTML(errors)});
 			}
-
-			setTimeout(function(){
-				if (errors.length > 0) {
-					res.send({status: "danger", content: createErrorHTML(errors)});
-				} else {
-					res.send({status: "success", content: "Question <em>&quot;" + req.body.question + "&quot;</em> added"});
-				}
-			}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 		} else {
 			res.redirect("/login")
 		}

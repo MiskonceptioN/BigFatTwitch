@@ -29,8 +29,8 @@
 				<h2 class="text-start">Questions</h2>
 				<% if (Object.keys(questionsByRound).length !== 0) { %>
 					<% Object.keys(questionsByRound).forEach(round => { %>
-					<h3 class="text-start">Round <%= round %></h3>
-					<table class="table table-striped table-hover question-info">
+					<h3 class="text-start">Round <%- round %></h3>
+					<table id="round<%- round %>questions" class="table table-striped table-hover question-info">
 						<thead>
 							<tr>
 								<th scope="col">Question</th>
@@ -68,8 +68,9 @@
 		<% } %>
 	</section>
 <%- include('helperToasts'); %>
+	<!-- <script src="/js/ajaxFormHandler.js"></script> -->
 	<script src="/js/questionTableHandler.js"></script>
-	<script src="/js/ajaxFormHandler.js"></script>
+	<script src="/js/newQuestionFormHandler.js"></script>
 <%- include('footer'); %>
 
 
