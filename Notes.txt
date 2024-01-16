@@ -43,3 +43,4 @@ Use a foreach on flashes to show multiple messages
 Ensure member ID in Teams table references Users table with objectID
 Store broadcaster_type when pulling twitch info (make Partners appear in different colour?)
 Add "show affiliate/partner status" in user preferences?
+Create audit on users {audit: created: DATE, updated: { profileImage: DATE, displayName: DATE }, banned: [DATE, DATE], unbanned: [DATE, DATE]}
