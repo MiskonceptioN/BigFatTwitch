@@ -30,7 +30,7 @@ function showToast(message, bootstrapClass = "secondary", title = false, dismiss
 	}
 
 	// Set the message
-	$(toastTarget).find(".message-content").text(message);
+	$(toastTarget).find(".message-content").html(message);
 	
 	if (dismissable) {
 		// Put the close button on the header or the body, depending on if there is a header
