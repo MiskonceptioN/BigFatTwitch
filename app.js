@@ -54,6 +54,7 @@ async function(accessToken, refreshToken, profile, done) {
 				// return done(null, false, {message: "Blip blip blorp"});
 				return done(null, false);
 			} else {
+				await User.updateOne({twitchId: profile.id}, {lastLogin: new Date().toISOString()});
 				return done(null, user);
 			}
 		} else {

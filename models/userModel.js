@@ -5,6 +5,7 @@ const findOrCreate = require('mongoose-findorcreate');
 const userSchema = new mongoose.Schema({
   twitchId: { type: String, required: true },
   displayName: { type: String, required: true },
+  lastLogin: { type: String, default: null },
   profileImageUrl: { type: String },
   banned: { type: Boolean, default: false },
   role: { type: String, default: "player" },
