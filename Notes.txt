@@ -22,6 +22,7 @@ Admin panel: show number of connected player
 Ajaxify question creation
 Show a timer for each question and lock the input/canvas upon timeout
 Add round names?
+Show trophy next to logged in users names?
 
 Tech debt
 =========
