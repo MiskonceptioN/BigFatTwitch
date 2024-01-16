@@ -25,7 +25,7 @@ Show trophy next to logged in users names?
 
 Settings/preferences ideas
 ==========================
-Use Twitch colour in chat?
+Use Twitch colour in chat? - https://dev.twitch.tv/docs/api/reference/#get-user-chat-color
 Bio?
 
 Tech debt
