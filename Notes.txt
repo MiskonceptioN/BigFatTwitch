@@ -31,7 +31,7 @@ Whack (de)serializeUser into their own functions: // passport.serializeUser(User
 Set up isInGame with game ID & state in Mongo
 Save passport-twitch changes so they can be fetched by NPM
 Make nav work with Bootstrap 5
-Add audit log to check user bans, login attempts, etc
+Create audit on users {audit: created: DATE, updated: { profileImage: DATE, displayName: DATE }, banned: [DATE, DATE], unbanned: [DATE, DATE]}
 Show error messages on logins
 Link userid/sessioninfo
 Kill session upon ban
@@ -44,4 +44,3 @@ Use a foreach on flashes to show multiple messages
 Ensure member ID in Teams table references Users table with objectID
 Store broadcaster_type when pulling twitch info (make Partners appear in different colour?)
 Add "show affiliate/partner status" in user preferences?
-Create audit on users {audit: created: DATE, updated: { profileImage: DATE, displayName: DATE }, banned: [DATE, DATE], unbanned: [DATE, DATE]}
