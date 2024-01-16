@@ -26,8 +26,8 @@ router.get("/logout", (req, res) => {
 	  });
 });
 
-router.get("/secure", checkAuthenticated, function(req, res){
-	res.render("secure", {user: req.user});
+router.get("/profile", checkAuthenticated, function(req, res){
+	res.render("profile", {user: req.user});
 });
 
 module.exports = router;
