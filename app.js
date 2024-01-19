@@ -46,7 +46,8 @@ async function(accessToken, refreshToken, profile, done) {
 	try {
 		const user = await User.findOrCreate({twitchId: profile.id},{
 			displayName: profile.displayName,
-			profileImageUrl: profile.profileImageUrl
+			profileImageUrl: profile.profileImageUrl,
+			broadcasterType: profile.broadcaster_type
 		});
 
 		if (user) {
@@ -54,7 +55,13 @@ async function(accessToken, refreshToken, profile, done) {
 				// return done(null, false, {message: "Blip blip blorp"});
 				return done(null, false);
 			} else {
-				await User.updateOne({twitchId: profile.id}, {lastLogin: new Date().toISOString()});
+				const updateUser = await User.updateOne({twitchId: profile.id}, {
+					lastLogin: new Date().toISOString(),
+					displayName: profile.displayName,
+					profileImageUrl: profile.profileImageUrl,
+					broadcasterType: profile.broadcaster_type
+				});
+				console.log(updateUser);
 				return done(null, user);
 			}
 		} else {
