@@ -47,7 +47,8 @@ async function(accessToken, refreshToken, profile, done) {
 		const user = await User.findOrCreate({twitchId: profile.id},{
 			displayName: profile.displayName,
 			profileImageUrl: profile.profileImageUrl,
-			broadcasterType: profile.broadcaster_type
+			broadcasterType: profile.broadcaster_type,
+			bio: profile.description
 		});
 
 		if (user) {

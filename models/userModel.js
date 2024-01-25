@@ -9,7 +9,10 @@ const userSchema = new mongoose.Schema({
   profileImageUrl: { type: String },
   banned: { type: Boolean, default: false },
   role: { type: String, default: "player" },
-  broadcasterType: { type: String, default: ""}
+  broadcasterType: { type: String, default: ""},
+  bio: { type: String },
+  chatColour: { type: String },
+  showBroadcasterType: { type: Boolean, default: true }
 });
 userSchema.plugin(findOrCreate);
 userSchema.set('timestamps', true);

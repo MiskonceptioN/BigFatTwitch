@@ -1,0 +1,55 @@
+<%- include('header'); %>
+    <section id="login" class="text-center">
+        <header>
+            <h1>Settings</h1>
+        </header>
+		<section>
+			<form method="post">
+				<input type="hidden" name="userID" value="<%- user._id %>">
+				<div class="mb-3 row">
+					<label class="col-sm-2 col-form-label">Chat colour</label>
+					<div class="col-sm-10">
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="radio" name="chat_color" id="default-radio" value="default"<% if (user.chatColour === "default") { %> checked <% } %>>
+							<label class="form-check-label" for="default-radio">Default</label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="radio" name="chat_color" id="twitch-radio" value="twitch"<% if (user.chatColour === "twitch") { %> checked <% } %>>
+							<label class="form-check-label" for="twitch-radio" style="color: #bada55">Twitch chat colour</label>
+						</div>
+						<div class="form-check form-check-inline">
+							<input class="form-check-input" type="radio" name="chat_color" id="custom-radio" value="custom"<% if (user.chatColour !== "default" && user.chatColour !== "twitch") { %> checked <% } %>>
+							<label class="form-check-label" for="custom-radio">Custom colour</label>
+							<input type="color" id="head" name="head" value="#000000">
+						</div>
+					</div>
+				</div>
+				<div class="mb-3 row">
+					<label for="bio" class="col-sm-2 col-form-label">Bio</label>
+					<div class="col-sm-10">
+						<textarea class="form-control" name="bio"><%= user.bio %></textarea>
+					</div>
+				</div>
+				<div class="mb-3 row">
+					<div class="offset-sm-2 col-sm-10">
+						<div class="form-check form-switch">
+							<input class="form-check-input" name="show-broadcaster-type" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked>
+							<label class="form-check-label" for="flexSwitchCheckDefault">Show affiliate/partner status</label>
+						</div>
+					</div>
+				</div>
+				<div class="mb-3 row">
+					<div class="offset-sm-2 col-sm-10">
+						<div class="form-check form-switch">
+							<input class="form-control btn btn-large btn-primary" type="submit">
+						</div>
+					</div>
+				</div>
+			</form>
+		</section>
+        <footer style="margin-top: 10em;">
+            <h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
+        </footer>
+    </section>
+	<script src="js/ajaxFormHandler.js"></script>
+<%- include('footer'); %>
