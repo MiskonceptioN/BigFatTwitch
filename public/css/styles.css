@@ -140,3 +140,7 @@ input[type="search"] {
     font-size: 0.75rem;
     border-radius: var(--bs-border-radius-sm);
 }
+
+.form-check-label {
+	user-select: none;
+}
