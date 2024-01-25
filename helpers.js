@@ -1,4 +1,5 @@
 const Game = require("./models/gameModel.js");
+const axios = require("axios");
 
 const checkAuthenticated = (req, res, next) => {
     if (req.isAuthenticated()) {
@@ -31,6 +32,25 @@ function createErrorHTML(errors) {
 	return "The following errors occurred:<ul><li>" + errors.join("</li><li>") + "</li></ul>";
 }
 
+async function fetchTwitchChatColour (uid) {
+	// Get Twitch Access Token
+	const params = new URLSearchParams();
+	params.append("client_id", process.env.TWITCH_CLIENT_ID);
+	params.append("client_secret", process.env.TWITCH_CLIENT_SECRET);
+	params.append("grant_type", "client_credentials");
+
+	const result = await axios.post("https://id.twitch.tv/oauth2/token", params);
+	const accessToken = result.data.access_token;
+	const colorResult = await axios.get("https://api.twitch.tv/helix/chat/color?user_id=" + uid, {
+		headers: {
+			"Authorization": `Bearer ${accessToken}`,
+			"Client-Id": process.env.TWITCH_CLIENT_ID
+		}
+	})
+	const userInfo = colorResult.data.data[0];
+	return userInfo.color;
+}
+
 module.exports = {
-    checkAuthenticated, generateGameCode, createErrorHTML
+    checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatColour
 };
