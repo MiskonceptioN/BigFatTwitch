@@ -12,7 +12,8 @@ const userSchema = new mongoose.Schema({
   broadcasterType: { type: String, default: ""},
   bio: { type: String },
   chatColour: { type: String },
-  showBroadcasterType: { type: Boolean, default: true }
+  showBroadcasterType: { type: Boolean, default: true },
+  twitchChatColour: {type: String, default: ""}
 });
 userSchema.plugin(findOrCreate);
 userSchema.set('timestamps', true);

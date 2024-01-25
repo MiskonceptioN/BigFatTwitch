@@ -35,6 +35,7 @@
 				<tr>
 					<th scope="col" class="col-2">Profile image</th>
 					<th scope="col">Name<br><input type="search" id="searchybar" class="form-control"></th>
+					<th scope="col">Twitch chat colour</th>
 					<th scope="col">Account type</th>
 					<th scope="col">Role</th>
 					<th scope="col">Last login</th>
@@ -51,6 +52,7 @@
 					<tr <% if (currentUser.banned) { %> class="table-danger" <% } %>>
 						<th><a href="<%- currentUser.profileImageUrl %>" target="_blank"><img src="<%- currentUser.profileImageUrl %>" width="30" height="30" class="user-thumbnail"></a></th>
 						<td class="search-target"><%- currentUser.displayName %> <a href="https://twitch.tv/<%- currentUser.displayName %>" target="_blank" class="text-twitch"><i class="fa-brands fa-twitch"></i></a></td>
+						<td><span style="color: <%- currentUser.twitchChatColour %>"><%- currentUser.twitchChatColour %></span></td>
 						<td><%- currentUser.broadcasterType %></td>
 						<td><%- currentUser.role %></td>
 						<td><%- currentUser.lastLogin || "N/A" %></td>

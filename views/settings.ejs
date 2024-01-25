@@ -15,7 +15,7 @@
 						</div>
 						<div class="form-check form-check-inline">
 							<input class="form-check-input" type="radio" name="chat_color" id="twitch-radio" value="twitch"<% if (user.chatColour === "twitch") { %> checked <% } %>>
-							<label class="form-check-label" for="twitch-radio" style="color: #bada55">Twitch chat colour</label>
+							<label class="form-check-label" for="twitch-radio" style="color: <%- user.twitchChatColour %>">Twitch chat colour</label>
 						</div>
 						<div class="form-check form-check-inline">
 							<input class="form-check-input" type="radio" name="chat_color" id="custom-radio" value="custom"<% if (user.chatColour !== "default" && user.chatColour !== "twitch") { %> checked <% } %>>

@@ -48,7 +48,8 @@ async function(accessToken, refreshToken, profile, done) {
 			displayName: profile.displayName,
 			profileImageUrl: profile.profileImageUrl,
 			broadcasterType: profile.broadcaster_type,
-			bio: profile.description
+			bio: profile.description,
+			twitchChatColour: await fetchTwitchChatColour(profile.id)
 		});
 
 		if (user) {
@@ -60,7 +61,8 @@ async function(accessToken, refreshToken, profile, done) {
 					lastLogin: new Date().toISOString(),
 					displayName: profile.displayName,
 					profileImageUrl: profile.profileImageUrl,
-					broadcasterType: profile.broadcaster_type
+					broadcasterType: profile.broadcaster_type,
+					twitchChatColour: await fetchTwitchChatColour(profile.id)
 				});
 				console.log(updateUser);
 				return done(null, user);
@@ -82,7 +84,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Import helper functions
-const { checkAuthenticated, generateGameCode, createErrorHTML } = require("./helpers");
+const { checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatColour } = require("./helpers");
 
 // Socket.io listening
 io.on('connection', (socket) => {
