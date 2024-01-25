@@ -48,3 +48,4 @@ Make sure try/catch is *everywhere*
 Use a foreach on flashes to show multiple messages
 Ensure member ID in Teams table references Users table with objectID (currently using Twitch ID instead of objectID)
 Store broadcaster_type when pulling twitch info (make Partners appear in different colour?)
+Wrap fetchTwitchChatColour() in try/catch
