@@ -10,17 +10,17 @@
 					<label class="col-sm-2 col-form-label">Chat colour</label>
 					<div class="col-sm-10">
 						<div class="form-check form-check-inline">
-							<input class="form-check-input" type="radio" name="chat_color" id="default-radio" value="default"<% if (user.chatColour === "default") { %> checked <% } %>>
+							<input class="form-check-input" type="radio" name="chat_colour" id="default-radio" value="default"<% if (user.chatColour === "default") { %> checked <% } %>>
 							<label class="form-check-label" for="default-radio">Default</label>
 						</div>
 						<div class="form-check form-check-inline">
-							<input class="form-check-input" type="radio" name="chat_color" id="twitch-radio" value="twitch"<% if (user.chatColour === "twitch") { %> checked <% } %>>
+							<input class="form-check-input" type="radio" name="chat_colour" id="twitch-radio" value="twitch"<% if (user.chatColour === "twitch") { %> checked <% } %>>
 							<label class="form-check-label" for="twitch-radio" style="color: <%- user.twitchChatColour %>">Twitch chat colour</label>
 						</div>
 						<div class="form-check form-check-inline">
-							<input class="form-check-input" type="radio" name="chat_color" id="custom-radio" value="custom"<% if (user.chatColour !== "default" && user.chatColour !== "twitch") { %> checked <% } %>>
+							<input class="form-check-input" type="radio" name="chat_colour" id="custom-radio" value="custom"<% if (user.chatColour !== "default" && user.chatColour !== "twitch") { %> checked <% } %>>
 							<label class="form-check-label" for="custom-radio">Custom colour</label>
-							<input type="color" id="head" name="head" value="#000000">
+							<input type="color" id="custom_colour" name="custom_colour" value="<% if (user.customChatColour) {%><%- user.customChatColour %><% } else { %>#00ff00<% } %>">
 						</div>
 					</div>
 				</div>

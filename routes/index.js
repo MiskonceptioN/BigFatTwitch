@@ -38,29 +38,34 @@ router.get("/settings", checkAuthenticated, function(req, res){
 post("/settings", checkAuthenticated, async function(req, res){
 	// Sanitise inputs (later)
 	const userID = req.body.userID;
-	const chatColour = req.body.chat_color;
+	const chatColour = req.body.chat_colour;
+	const customChatColour = req.body.custom_colour;
 	const bio = req.body.bio;
 	const showBroadcasterType = (req.body["show-broadcaster-type"]) ? true : false;
 
-	console.log({userID, chatColour, bio, showBroadcasterType});
+	// console.log({userID, chatColour, customChatColour, bio, showBroadcasterType});
 
 	// if (req.user.role == "admin") {
 		// const newBanState = (req.body.banstate === "false") ? 1 : 0;
 
 
 		try {
-			const result = await User.updateOne({ _id: userID }, {
-				bio: bio,
-				chatColour: chatColour,
-				showBroadcasterType: showBroadcasterType
-			});
+			const paramsToUpdate = {
+				bio,
+				chatColour,
+				showBroadcasterType,
+				customChatColour
+			};
+
+			const result = await User.updateOne({ _id: userID }, paramsToUpdate);
 			res.send({status: "success", content: "Preferences updated"});
-			console.log(req.session.passport.user.doc);
+
 			req.session.passport.user.doc = {
 				...req.session.passport.user.doc, 
 				bio,
 				chatColour,
-				showBroadcasterType
+				showBroadcasterType,
+				customChatColour
 			};
 			// req.session.passport.user.doc.bio="replaced manually";
 			req.session.save();
@@ -70,7 +75,6 @@ post("/settings", checkAuthenticated, async function(req, res){
 			res.send({status: "danger", content: "Shit is fucked yo"});
 			console.error(error);
 		}
-		console.log(req.session.passport.user);
 
 		// if (result.matchedCount !== 1) {
 		// 	res.send({status: "danger", content: "User with ID " + userID + " not found!"});
