@@ -92,12 +92,20 @@ io.on('connection', (socket) => {
 	socket.on('disconnect', () => {
 		console.log('user disconnected');
 	});
-	socket.on('chat message', (msg) => {
+	socket.on('chat message', (msg, user) => {
+		msg = prepUserMessage(msg, user);
 		console.log('message: ' + msg);
+		console.log(user);
 		io.emit('chat message', msg);
 	});
 });
 
+function prepUserMessage(msg, user){
+	const colour = user.customChatColour;
+	const username = user.displayName;
+	const prefix = "<span style='color: " + colour + "'>" + username + "</span>";
+	return `${prefix}: ${msg}`
+}
 
 // Routes
 app.use("/", require("./routes/index"));
