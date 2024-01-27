@@ -3,6 +3,19 @@
 		<header>
 			<h1>Admin panel</h1>
 		</header>
+		<% if (failureMessage) { %>
+			<div class="container">
+				<section>
+					<div class="alert alert-danger" role="alert"><%= failureMessage %></div>
+				</section>
+			</div>
+		<% } if (successMessage) { %>
+			<div class="container">
+				<section>
+					<div class="alert alert-success" role="alert"><%= successMessage %></div>
+				</section>
+			</div>
+		<% } %>
 		<% if(user.role == "admin"){ %>
 			<div class="d-grid gap-2 col-6 mx-auto">
 				<a class="btn btn-success" role="button" href="admin/startGame">Start game</a>

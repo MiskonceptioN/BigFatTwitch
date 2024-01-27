@@ -5,8 +5,10 @@ const { checkAuthenticated } = require("../helpers");
 const User = require("../models/userModel.js");
 
 router.get("/", checkAuthenticated, (req, res) => {
-	if (req.user.role == "admin") {res.render("admin", {user: req.user})}
-	else {res.render("game", {user: req.user})}
+	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+	const successMessage = req.flash("success")[0]; // Retrieve the flash message
+	if (req.user.role == "admin") {res.render("admin", {user: req.user, failureMessage, successMessage})}
+	else {res.render("game", {user: req.user, failureMessage, successMessage})}
 });
 
 router.get("/game", checkAuthenticated, (req, res) => {
