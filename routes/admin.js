@@ -224,35 +224,27 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 		const successMessage = req.flash("success")[0]; // Retrieve the flash message
-		const gameResult = await Game.findOne({ code: req.params.gameCode}); // Figure out pulling in team members using aggregate
-		const players = [];
 
-		console.log(gameResult);
-
-		gameResult.teams.forEach(function(team) {
-			team.players.forEach(function(player) {
-				players.push(player);
+		try {
+			const gameResult = await Game.findOne({ code: req.params.gameCode })
+			.populate({
+				path: 'teams.players',
+				model: User,
+				select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour',
+				foreignField: 'twitchId',
 			});
-		});
 
-		const playersResult = await User.find({ twitchId: { $in: players } });
-		// const teams = [
-		// 	{players: [
-		// 		{displayName: "danny"},
-		// 		{displayName: "danny"}
-		// 	]},
-		// 	{players: [
-		// 		{displayName: "danny"},
-		// 		{displayName: "danny"}
-		// 	]},
-		// 	{players: [
-		// 		{displayName: "danny"},
-		// 		{displayName: "danny"}
-		// 	]}
-		// ]
-
-
-	res.render("admin_startGame_single_game", {user: req.user, game: gameResult, players: playersResult, failureMessage, successMessage});
+			if (gameResult !== null) {
+				res.render("admin_startGame_single_game", {user: req.user, game: gameResult, failureMessage, successMessage});
+			} else {
+				req.flash("error", "Unable to find game " + req.params.gameCode);
+				res.redirect("/admin/startGame/");
+			}
+		} catch (error) {
+			console.error(error);
+			req.flash("error", "Unable to load up game " + req.params.gameCode);
+			res.redirect("/admin/startGame/");
+		}
 	} else {
 		res.redirect("/login")
 	}

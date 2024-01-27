@@ -5,7 +5,7 @@ const timestamps  = require('mongoose-timestamp');
 const teamSchema = new mongoose.Schema({
   name: { type: String, default: "Team" },
   points: { type: Number, default: 0 },
-  players: { type: [Number], default: [null, null]}
+  players: [{ type: String, default: [null, null], ref: 'User', foreignField: 'twitchId' }]
 });
 
 // Define the Game schema
