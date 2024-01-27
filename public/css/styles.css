@@ -144,8 +144,20 @@ input[type="search"] {
 .form-check-label {
 	user-select: none;
 }
+
+.player-logged-out {
+	filter: saturate(0);
+}
+
+.player-logged-in {
+	border: 5px solid #ff0000;
+}
+
 .bg-admin {
 	background-color: #ad0000;
 }
 
 /* img:has(.player-logged-in)::after {
+	content: "I'm logged in!"
+
+} */

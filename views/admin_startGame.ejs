@@ -1,0 +1,36 @@
+<%- include('header'); %>
+	<section id="game-management" class="text-center">
+		<header>
+			<h1>Start a game</h1>
+		</header>
+		<% if(user.role == "admin"){ %>
+			<% if (failureMessage) { %>
+				<div class="container">
+					<section>
+						<div class="alert alert-danger" role="alert"><%= failureMessage %></div>
+					</section>
+				</div>
+			<% } if (successMessage) { %>
+				<div class="container">
+					<section>
+						<div class="alert alert-success" role="alert"><%= successMessage %></div>
+					</section>
+				</div>
+			<% } %>
+			<h2 class="mt-3">Pending games</h2>
+			<div class="d-grid gap-2 col-6 mx-auto">
+			<% if (allGames.length > 0) { %>
+				<% allGames.forEach(function(currentGame) { %>
+					<a class="btn btn-large btn-primary" href="/admin/startGame/<%- currentGame.code %>"><%- currentGame.code %></a>
+				<% }); %>
+			<% } else { %>
+			<h3>There are no pending games!</h3>
+			<% } %>
+		<% } else { %>
+			<h1 class="text-danger">You should not be here!</h1>
+		<% } %>
+	</section>
+	<script src="/js/gameTableFormHandler.js"></script>
+<%- include('footer'); %>
+
+

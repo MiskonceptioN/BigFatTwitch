@@ -203,6 +203,61 @@ router.get("/release-user", checkAuthenticated, function(req, res){
 });
 
 router.get("/startGame", checkAuthenticated, async function(req, res){
+	if (req.user.role == "admin") {
+		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+		const successMessage = req.flash("success")[0]; // Retrieve the flash message
+		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"});
+		const aggregationResult = await Question.aggregate([{$group: {_id: '$game',total: { $sum: 1 }}}]);
+
+		// Convert the result array to an object with game codes as keys
+		const questionTotals = aggregationResult.reduce((acc, item) => {
+			acc[item._id] = item.total;
+			return acc;
+		}, {});
+	res.render("admin_startGame", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
+	} else {
+		res.redirect("/login")
+	}
+});
+
+router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
+	if (req.user.role == "admin") {
+		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+		const successMessage = req.flash("success")[0]; // Retrieve the flash message
+		const gameResult = await Game.findOne({ code: req.params.gameCode}); // Figure out pulling in team members using aggregate
+		const players = [];
+
+		console.log(gameResult);
+
+		gameResult.teams.forEach(function(team) {
+			team.players.forEach(function(player) {
+				players.push(player);
+			});
+		});
+
+		const playersResult = await User.find({ twitchId: { $in: players } });
+		// const teams = [
+		// 	{players: [
+		// 		{displayName: "danny"},
+		// 		{displayName: "danny"}
+		// 	]},
+		// 	{players: [
+		// 		{displayName: "danny"},
+		// 		{displayName: "danny"}
+		// 	]},
+		// 	{players: [
+		// 		{displayName: "danny"},
+		// 		{displayName: "danny"}
+		// 	]}
+		// ]
+
+
+	res.render("admin_startGame_single_game", {user: req.user, game: gameResult, players: playersResult, failureMessage, successMessage});
+	} else {
+		res.redirect("/login")
+	}
+});
+
 router.get("/teams", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
