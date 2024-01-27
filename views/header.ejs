@@ -20,7 +20,7 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-lg navbar-dark <% if (user.adminLogin === true) { %>bg-admin<% } else { %>bg-dark<% } %>">
         <div class="container">
             <a class="navbar-brand" href="/">The Big Chonky Question Show</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,14 +44,18 @@
                     <li class="nav-item"><a class="nav-link" href="/profile">Logged in</a></li>
                 </ul>
             </div>
-                <ul class="navbar-nav ml-auto">
+				<ul class="navbar-nav ml-auto">
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false"><img src="<%- user.profileImageUrl %>" class="profileimage-thumb"><%- user.displayName %></a>
 							<ul class="dropdown-menu">
+								<% if (user.adminLogin === true) { %>
+								<li><a class="dropdown-item text-danger" href="/admin/release-user">Log back in as <%- user.adminUser.displayName %></a></li>
+								<% } else { %>
 								<li><a class="dropdown-item" href="/profile">Profile</a></li>
 								<li><a class="dropdown-item" href="/settings">Settings</a></li>
 								<li><hr class="dropdown-divider"></li>
 								<li><a class="dropdown-item text-danger" href="/logout">Log out</a></li>
+								<% } %>
 							</ul>
 						</li>
                 </ul>

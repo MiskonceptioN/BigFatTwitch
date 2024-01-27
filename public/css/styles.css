@@ -144,3 +144,8 @@ input[type="search"] {
 .form-check-label {
 	user-select: none;
 }
+.bg-admin {
+	background-color: #ad0000;
+}
+
+/* img:has(.player-logged-in)::after {

@@ -40,7 +40,7 @@
 					<th scope="col">Role</th>
 					<th scope="col">Last login</th>
 					<th scope="col">Twitch ID</th>
-					<th scope="col" class="col-1">(Un)ban?</th>
+					<th scope="col" class="col-1">Actions</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -62,6 +62,7 @@
 							<% } else { %>
 								<button type="submit" class="btn btn-danger btn-sm" href="/admin/users/ban/<%- currentUser.twitchId %>">Ban</button>
 							<% } %>
+							<a class="btn btn-primary btn-sm mt-2" href="/admin/users/login/<%- currentUser.twitchId %>">Log in as&hellip;</a>
 						</td>
 					</tr>
 				</form>

@@ -299,5 +299,38 @@ router.post("/users/ban/:targetTwitchId", checkAuthenticated, async function(req
 		}
 });
 
+router.get("/users/login/:targetTwitchId", checkAuthenticated, async function(req, res){
+	if (req.user.role == "admin") {
+		try {
+            // Find a user with the target Twitch ID
+            const result = await User.findOne({ twitchId: req.params.targetTwitchId });	
+            // If the user exists
+            if (result !== null) {
+                // Store the current admin user's data
+                const adminUser = req.session.passport.user.doc;
+                // Update the session user data with the target user's data, and add adminLogin and adminUser properties
+                req.session.passport.user.doc = {...result._doc, adminLogin: true, adminUser};
+
+                // If the session user's displayName matches the target user's displayName and adminUser exists
+                if (req.session.passport.user.doc.displayName === result.displayName
+                    && adminUser) {
+                    // Log a success message and flash a success message to the user
+                    console.log("Successfully logged in as " + result.displayName + "!");
+                    req.flash("success", "Logged in as " + result.displayName);
+                    // Save the session
+                    req.session.save();
+                } else {
+                    // If the displayName doesn't match or adminUser doesn't exist, flash an error message to the user
+                    req.flash("error", "Unable to log in as " + result.displayName);
+                }
+            }
+		} catch (error) {
+			console.error(error);
+		}
+		res.redirect("/admin/users")
+	} else {
+		res.redirect("/login")
+	}
+});
 
 module.exports = router;
