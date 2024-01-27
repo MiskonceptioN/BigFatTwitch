@@ -178,6 +178,31 @@ router.post("/gameManagement/delete/:gameCode", checkAuthenticated, async functi
 		}
 	});
 
+router.get("/release-user", checkAuthenticated, function(req, res){
+	if (req.user.adminLogin === true) {
+		const currentUser = req.session.passport.user.doc;
+		const adminUser = currentUser.adminUser;
+
+		req.session.passport.user.doc = adminUser;
+
+		// if displayName from session matches displayName from adminUser
+		if (req.session.passport.user.doc.displayName === adminUser.displayName) {
+			// Log a success message and flash a success message to the user
+			console.log("Successfully logged out of " + currentUser.displayName + "!");
+			req.flash("success", "Logged out of " + currentUser.displayName);
+			// Save the session
+			req.session.save();
+		} else {
+			// If the displayName doesn't match, flash an error message to the user
+			req.flash("error", "Unable to log out of " + currentUser.displayName);
+		}
+		res.redirect("/")
+	} else {
+		res.redirect("/")
+	}
+});
+
+router.get("/startGame", checkAuthenticated, async function(req, res){
 router.get("/teams", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
