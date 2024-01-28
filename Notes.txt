@@ -28,7 +28,6 @@ Settings/preferences ideas
 Use Twitch colour in chat? - https://dev.twitch.tv/docs/api/reference/#get-user-chat-color
 Bio?
 Add "show affiliate/partner status" in user preferences?
-Refresh user session with updated values
 
 Tech debt
 =========
