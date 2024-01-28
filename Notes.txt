@@ -9,6 +9,7 @@ Game features
 =============
 "Bank a question"?
 Audience vote on funniest answer?
+"finish the lyric" question?
 
 Admin ideas
 =============
