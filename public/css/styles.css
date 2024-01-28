@@ -161,3 +161,11 @@ input[type="search"] {
 	content: "I'm logged in!"
 
 } */
+
+input#gameCode {
+	text-transform: uppercase;
+}
+
+input#gameCode::placeholder {
+	text-transform: none;
+}

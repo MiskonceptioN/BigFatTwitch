@@ -26,8 +26,10 @@
 							<h2><%- team.name %></h2>
 						<% team.players.forEach(function(player) { %>
 							<div class="col">
-								<img id="<%- player.displayName %>-thumbnail" class="player-icon player-logged-out" src="<%- player.profileImageUrl %>" width="100">
-								<p><%- player.displayName %></p>
+								<figure>
+									<img id="<%- player.displayName %>-thumbnail" class="player-icon player-logged-out" src="<%- player.profileImageUrl %>" width="100" alt="<%- player.displayName %>'s thumbnail">
+									<figcaption><%- player.displayName %></figcaption>
+								</figure>
 							</div>
 						<% }) %>
 						</div>

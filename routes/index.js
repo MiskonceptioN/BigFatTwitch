@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const { checkAuthenticated } = require("../helpers");
 
+const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
 
 router.get("/", checkAuthenticated, (req, res) => {
@@ -12,7 +13,58 @@ router.get("/", checkAuthenticated, (req, res) => {
 });
 
 router.get("/game", checkAuthenticated, (req, res) => {
-	res.render("game", {user: req.user});
+	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+	const successMessage = req.flash("success")[0]; // Retrieve the flash message
+	res.render("game", {user: req.user, failureMessage, successMessage});
+});
+
+router.get("/joingame", checkAuthenticated, (req, res) => {
+	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+	const successMessage = req.flash("success")[0]; // Retrieve the flash message
+
+	res.render("join", {user: req.user, failureMessage, successMessage});
+})
+.post("/joingame", checkAuthenticated, async (req, res) => {
+	const gameCode = req.body.gameCode;
+	const userID = req.user._id;
+
+	// console.log({gameCode, userID});
+
+	try {
+		const game = await Game.findOne({code: gameCode});
+		if (game) {
+			// send a message via socket.io to say the player has joined
+			io.emit("player joined", {gameCode, userID});
+			req.flash("success", "Joined game!");
+			res.redirect("/joingame");
+
+			// const player = await Player.findOne({game: game._id, user: userID});
+			// if (player) {
+			// 	req.flash("error", "You're already in this game!");
+			// 	res.redirect("/joingame");
+			// } else {
+			// 	const newPlayer = new Player({
+			// 		game: game._id,
+			// 		user: userID,
+			// 		role: "player",
+			// 		alive: true,
+			// 		deadAt: null,
+			// 		joinedAt: Date.now()
+			// 	});
+
+			// 	const result = await newPlayer.save();
+			// 	req.flash("success", "You've joined the game!");
+			// 	res.redirect("/");
+			// }
+		} else {
+			req.flash("error", "Game not found!");
+			res.redirect("/joingame");
+		}
+	} catch (error) {
+		console.error(error);
+		req.flash("error", "Something went wrong!");
+		res.redirect("/joingame");
+	}
 });
 
 router.get("/login", (req, res) => {
