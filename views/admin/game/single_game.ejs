@@ -1,4 +1,4 @@
-<%- include('header'); %>
+<%- include('../../header'); %>
 	<section id="game-management" class="text-center">
 		<header>
 			<h1>Game Management - <%- game.code %></h1>
@@ -23,7 +23,7 @@
 					</section>
 				</div>
 			<% } %>
-			<%- include('forms/newQuestion'); %>
+			<%- include('../../forms/newQuestion'); %>
 			<hr>
 			<section id="game-questions">
 				<h2 class="text-start">Questions</h2>
@@ -67,10 +67,10 @@
 			<h1 class="text-danger">You should not be here!</h1>
 		<% } %>
 	</section>
-<%- include('helperToasts'); %>
+<%- include('../../helperToasts'); %>
 	<!-- <script src="/js/ajaxFormHandler.js"></script> -->
 	<script src="/js/questionTableHandler.js"></script>
 	<script src="/js/newQuestionFormHandler.js"></script>
-<%- include('footer'); %>
+<%- include('../../footer'); %>
 
 

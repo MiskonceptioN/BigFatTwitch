@@ -21,7 +21,7 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 			}, {});
 			console.log(questionTotals);
 			  
-			res.render("admin_game_management", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
+			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
 		}
@@ -62,7 +62,7 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 					return acc;
 				  }, {});
 				  
-				res.render("admin_game_management_single_game", {user: req.user,  questionsByRound, game: result, failureMessage, successMessage});
+				res.render("admin/game/single_game", {user: req.user,  questionsByRound, game: result, failureMessage, successMessage});
 				// console.log(questionsByRound);
 			}
 		} else {
@@ -214,7 +214,7 @@ router.get("/startGame", checkAuthenticated, async function(req, res){
 			acc[item._id] = item.total;
 			return acc;
 		}, {});
-	res.render("admin_startGame", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
+	res.render("admin/startGame", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
 	} else {
 		res.redirect("/login")
 	}
@@ -235,7 +235,7 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 			});
 
 			if (gameResult !== null) {
-				res.render("admin_startGame_single_game", {user: req.user, game: gameResult, failureMessage, successMessage});
+				res.render("admin/startGame/single_game", {user: req.user, game: gameResult, failureMessage, successMessage});
 			} else {
 				req.flash("error", "Unable to find game " + req.params.gameCode);
 				res.redirect("/admin/startGame/");
@@ -256,7 +256,7 @@ router.get("/teams", checkAuthenticated, async function(req, res){
 		const successMessage = req.flash("success")[0]; // Retrieve the flash message
 		const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
 		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"});
-		res.render("admin_teams", {user: req.user, allUsers: allUsersResult, allGames: allGamesResult, failureMessage, successMessage});
+		res.render("admin/teams", {user: req.user, allUsers: allUsersResult, allGames: allGamesResult, failureMessage, successMessage});
 	} else {
 		res.redirect("/login")
 	}
@@ -287,7 +287,7 @@ router.get("/users", checkAuthenticated, async function(req, res){
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
 			const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
-			res.render("admin_users", {user: req.user, allUsers: allUsersResult,  failureMessage, successMessage});
+			res.render("admin/users", {user: req.user, allUsers: allUsersResult,  failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
 		}
