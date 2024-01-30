@@ -34,8 +34,6 @@
 						<% }) %>
 						</div>
 					</div>
-					<!-- <img class="player-logged-out" src="https://res.cloudinary.com/demo/image/upload/w_100,h_100,c_fill/sample.jpg">
-					<img class="player-logged-out" src="https://res.cloudinary.com/demo/image/upload/w_100,h_100,c_fill/sample.jpg"> -->
 					<% }) %>
 				
 			</div>
@@ -46,6 +44,61 @@
 			<h1 class="text-danger">You should not be here!</h1>
 		<% } %>
 	</section>
+	<section>
+		<h2>Audits</h2>
+		<div class="row">
+			<% game.teams.forEach(function(team) { %>
+				<h3><%- team.name %>'s chat</h3>
+			<% }); %>
+		</div>
+	</section>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+	const socket = io();
+
+	// io.on("connection", (socket) => {
+	// 	socket.join("ABCD");
+	// });
+
+	socket.on('player joined', (gameCode, user) => {
+		if (gameCode === "<%- game.code %>") {
+			const playerIcon = document.getElementById(user.displayName + "-thumbnail");
+			const teamContainer = playerIcon.parentElement.parentElement;
+			playerIcon.classList.remove("player-logged-out");
+			playerIcon.classList.add("player-logged-in");
+
+			// socket.emit('player joined', gameCode, user);
+
+			// // Use jquery to say "if both img inside col have class player-logged-in, then add class team-ready"
+			// if ($(teamContainer).children(".player-logged-in").length == 2) {
+			// 	$(teamContainer).addClass("team-ready");
+			// }
+		}
+		// const item = document.createElement('li');
+		// item.innerHTML = msg;
+		// messages.appendChild(item);
+		// window.scrollTo(0, document.body.scrollHeight);
+	});
+	// socket.on('player disconnected', (gameCode, user) => {
+	// 	if (gameCode === "<%- game.code %>") {
+	// 		const playerIcon = document.getElementById(user.displayName + "-thumbnail");
+	// 		const teamContainer = playerIcon.parentElement.parentElement;
+	// 		playerIcon.classList.add("player-logged-out");
+	// 		playerIcon.classList.remove("player-logged-in");
+
+	// 		socket.emit('player disconnected', gameCode, user);
+
+			// // Use jquery to say "if both img inside col have class player-logged-in, then add class team-ready"
+			// if ($(teamContainer).children(".player-logged-in").length == 2) {
+			// 	$(teamContainer).addClass("team-ready");
+			// }
+		// }
+		// const item = document.createElement('li');
+		// item.innerHTML = msg;
+		// messages.appendChild(item);
+		// window.scrollTo(0, document.body.scrollHeight);
+	// });
+	</script>
 	<script src="/js/gameTableFormHandler.js"></script>
 <%- include('footer'); %>
 

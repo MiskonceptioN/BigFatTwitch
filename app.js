@@ -10,9 +10,12 @@ const fs = require("fs");
 const { Server } = require("socket.io");
 const passport = require("passport");
 const twitchStrategy = require("passport-twitch").Strategy;
+
+// Expose socket.io to the rest of the app
 const app = express();
 const server = createServer(app);
 const io = new Server(server, {connectionStateRecovery: {}});
+module.exports = io;
 
 // Mongo
 const mongoose = require('mongoose');
@@ -88,15 +91,20 @@ const { checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatCo
 
 // Socket.io listening
 io.on('connection', (socket) => {
-	console.log('a user connected');
+	// console.log('a user connected');
 	socket.on('disconnect', () => {
-		console.log('user disconnected');
+		// console.log('user disconnected');
 	});
 	socket.on('chat message', (msg, user) => {
 		msg = prepUserMessage(msg, user);
 		console.log('message: ' + msg);
-		console.log(user);
 		io.emit('chat message', msg);
+	});
+	socket.on('player joined', (gameCode, user) => {
+		// console.log(gameCode, user.displayName);
+		console.log(user.displayName + " has joined game " + gameCode);
+		
+		io.emit('player joined', gameCode, user);
 	});
 });
 
@@ -111,6 +119,7 @@ function prepUserMessage(msg, user){
 app.use("/", require("./routes/index"));
 app.use("/admin", require("./routes/admin"));
 app.use("/auth", require("./routes/auth"));
+app.use("/game", require("./routes/game"));
 	
 app.route("/exampleAjaxPOST")
 	.post(function(req, res){

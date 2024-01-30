@@ -1,0 +1,36 @@
+<%- include('../header'); %>
+    <section id="game" class="text-center">
+        <header>
+            <h1>Waiting for game to begin</h1>
+        </header>
+		<% if (failureMessage) { %>
+			<div class="container">
+				<section>
+					<div class="alert alert-danger" role="alert"><%= failureMessage %></div>
+				</section>
+			</div>
+		<% } if (successMessage) { %>
+			<div class="container">
+				<section>
+					<div class="alert alert-success" role="alert"><%= successMessage %></div>
+				</section>
+			</div>
+		<% } %>
+		<footer style="margin-top: 10em;">
+            <h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
+        </footer>
+    </section>
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+	const socket = io();
+
+	socket.on('chat message', (msg) => {
+		const item = document.createElement('li');
+		item.innerHTML = msg;
+		document.querySelector("h2").appendChild(item);
+		window.scrollTo(0, document.body.scrollHeight);
+	});
+
+	</script>
+	<!-- <script src="js/ajaxFormHandler.js"></script> -->
+<%- include('../footer'); %>

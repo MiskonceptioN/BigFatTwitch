@@ -1,4 +1,4 @@
-<%- include('header'); %>
+<%- include('../header'); %>
     <section id="game" class="text-center">
         <header>
             <h1>Join a game</h1>
@@ -18,9 +18,9 @@
 		<% } %>
 		<div class="d-grid gap-2 col-6 mx-auto">
 			<section>
-				<form action="/joingame" method="post">
+				<form action="/game/join" method="post">
 					<div class="form-group">
-						<input type="text" class="form-control form-control-lg" id="gameCode" name="gameCode" placeholder="Enter game code" maxlength="4" pattern="[A-Za-z]{4}" required>
+						<input type="text" class="form-control form-control-lg" id="gameCode" name="gameCode" placeholder="Enter game code" maxlength="4" pattern="[A-Za-z]{4}" required autofocus>
 					</div>
 					<button type="submit" class="btn btn-primary">Join game</button>
 				</form>
@@ -31,4 +31,4 @@
         </footer>
     </section>
 	<!-- <script src="js/ajaxFormHandler.js"></script> -->
-<%- include('footer'); %>
+<%- include('../footer'); %>
