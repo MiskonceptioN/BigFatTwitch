@@ -145,12 +145,19 @@ input[type="search"] {
 	user-select: none;
 }
 
+.player-icon {
+	transition-duration: 1500ms;
+	transition-property: all;
+}
+
 .player-logged-out {
 	filter: saturate(0);
+	border: 5px solid #ffffff;
 }
 
 .player-logged-in {
-	border: 5px solid #ff0000;
+	border: 5px solid #bada55;
+	border-radius: 100%;
 }
 
 .bg-admin {
