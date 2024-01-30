@@ -235,6 +235,17 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 			});
 
 			if (gameResult !== null) {
+				// Set the game's state to starting
+				try {
+					const updateGameStatusResult = await Game.updateOne({ code: req.params.gameCode }, { status: "starting" });
+					console.log({updateGameStatusResult});
+				} catch (error) {
+					console.error(error);
+					req.flash("error", "Unable to start game " + req.params.gameCode);
+					res.redirect("/admin/startGame/");
+					return;
+				}
+
 				res.render("admin/startGame/single_game", {user: req.user, game: gameResult, failureMessage, successMessage});
 			} else {
 				req.flash("error", "Unable to find game " + req.params.gameCode);
