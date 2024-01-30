@@ -4,6 +4,7 @@ Use "rooms" to team up players
 Monitor rooms in admin panel
 Keep message in chat until promise is resolved?
 {user} is typing
+Add heartbeat to confirm health?
 
 Game features
 =============
