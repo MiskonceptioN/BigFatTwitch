@@ -100,10 +100,13 @@ io.on('connection', (socket) => {
 		console.log('message: ' + msg);
 		io.emit('chat message', msg);
 	});
-	socket.on('player joined', (gameCode, user) => {
+	socket.on('player joined', async (gameCode, user) => {
 		// console.log(gameCode, user.displayName);
 		console.log(user.displayName + " has joined game " + gameCode);
-		
+
+		// Update user's inGame status to the game code
+		await User.updateOne({twitchId: user.twitchId}, {inGame: gameCode});
+
 		io.emit('player joined', gameCode, user);
 	});
 });
