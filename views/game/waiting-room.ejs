@@ -97,6 +97,33 @@ function findTeammate(game, currentUser) {
 		window.scrollTo(0, document.body.scrollHeight);
 	});
 
+	socket.on('player joined', (gameCode, user) => {
+		if (gameCode === "<%- game.code %>") {
+			const livePlayerCount = document.querySelector(".live-players");
+			livePlayerCount.innerHTML = parseInt(livePlayerCount.innerHTML) + 1;
+
+			// Check if recently joined player is your teammate
+			if (user.twitchId === "<%- teamMate.twitchId %>") {
+				const playerIcon = document.getElementById(user.displayName + "-thumbnail");
+				playerIcon.classList.remove("player-logged-out");
+				playerIcon.classList.add("player-logged-in");
+			}
+		}
+	});
+
+	socket.on('player left', (gameCode, user) => {
+		if (gameCode === "<%- game.code %>") {
+			const livePlayerCount = document.querySelector(".live-players");
+			livePlayerCount.innerHTML = parseInt(livePlayerCount.innerHTML) - 1;
+
+			// Check if recently left player is your teammate
+			if (user.twitchId === "<%- teamMate.twitchId %>") {
+				const playerIcon = document.getElementById(user.displayName + "-thumbnail");
+				playerIcon.classList.remove("player-logged-in");
+				playerIcon.classList.add("player-logged-out");
+			}
+		}
+	});
 	</script>
 	<!-- <script src="js/ajaxFormHandler.js"></script> -->
 <%- include('../footer'); %>
