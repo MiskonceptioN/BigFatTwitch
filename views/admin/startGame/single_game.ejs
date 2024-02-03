@@ -58,11 +58,12 @@ Player two (19:54); U wot m8?</textarea>
 	</section>
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
-	const socket = io();
+	// Scroll all team chats to bottom
+	$('textarea').each(function() {
+		$(this).scrollTop($(this)[0].scrollHeight);
+	});
 
-	// io.on("connection", (socket) => {
-	// 	socket.join("ABCD");
-	// });
+	const socket = io();
 
 	socket.on('player joined', (gameCode, user) => {
 		if (gameCode === "<%- game.code %>") {
