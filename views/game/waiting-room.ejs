@@ -1,4 +1,21 @@
 <%- include('../header'); %>
+<% 
+const teamMate = findTeammate(game, user);
+
+function findTeammate(game, currentUser) {
+	let teamMate = "";
+		for (let i = 0; i < game.teams.length; i++) {
+		const playerOne = game.teams[i].players[0];
+		const playerTwo = game.teams[i].players[1];
+
+		if (currentUser.twitchId === playerOne.twitchId || currentUser.twitchId === playerTwo.twitchId) {
+			teamMate = (playerOne.twitchId === currentUser.twitchId) ? playerTwo : playerOne;
+		}
+	}
+	return teamMate;
+}
+
+%>
     <section id="game" class="text-center">
         <header>
             <h1>Waiting for game to begin</h1>
@@ -25,8 +42,10 @@
 			<div class="row">
 				<div class="col">
 					<figure>
-						<img id="ItsAsh_btw-thumbnail" class="player-icon player-logged-out" src="https://static-cdn.jtvnw.net/jtv_user_pictures/002c6c7a-2520-4504-903e-a1f5dad0bee3-profile_image-300x300.png" width="100" alt="ItsAsh_btw's thumbnail">
-						<figcaption>ItsAsh_btw</figcaption>
+						<img id="<%- teamMate.displayName %>-thumbnail"
+						class="player-icon <% if (teamMate.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- teamMate.profileImageUrl %>" width="100" alt="<%- teamMate.displayName %>'s thumbnail">
+						
+						<figcaption><%- teamMate.displayName %></figcaption>
 					</figure>
 				</div>
 			</div>
