@@ -230,7 +230,7 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 			.populate({
 				path: 'teams.players',
 				model: User,
-				select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour',
+				select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
 				foreignField: 'twitchId',
 			});
 
