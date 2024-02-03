@@ -27,7 +27,8 @@
 						<% team.players.forEach(function(player) { %>
 							<div class="col">
 								<figure>
-									<img id="<%- player.displayName %>-thumbnail" class="player-icon player-logged-out" src="<%- player.profileImageUrl %>" width="100" alt="<%- player.displayName %>'s thumbnail">
+									<img id="<%- player.displayName %>-thumbnail" 
+									class="player-icon <% if (player.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- player.profileImageUrl %>" width="100" alt="<%- player.displayName %>'s thumbnail">
 									<figcaption><%- player.displayName %></figcaption>
 								</figure>
 							</div>
