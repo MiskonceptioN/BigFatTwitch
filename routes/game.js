@@ -50,8 +50,7 @@ router.get("/join", checkAuthenticated, (req, res) => {
 					// Update the session to include the game code
 					req.session.passport.user.doc = {
 						...req.session.passport.user.doc,
-						inGame: gameCode,
-						game
+						inGame: gameCode
 					};
 					// req.session.save();
 					try {
@@ -119,8 +118,7 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 				// Update the session to include the game code
 				req.session.passport.user.doc = {
 					...req.session.passport.user.doc,
-					inGame: req.user.inGame,
-					game
+					inGame: req.user.inGame
 				};
 				
 				try {
