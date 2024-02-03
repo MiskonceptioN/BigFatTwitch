@@ -2,10 +2,10 @@ const Game = require("./models/gameModel.js");
 const axios = require("axios");
 
 const checkAuthenticated = (req, res, next) => {
-    if (req.isAuthenticated()) {
-        return next();
-    }
-    res.redirect("/login");
+	if (req.isAuthenticated()) {
+		return next();
+	}
+	res.redirect("/login");
 };
 
 async function generateGameCode() {
@@ -51,6 +51,18 @@ async function fetchTwitchChatColour (uid) {
 	return userInfo.color;
 }
 
+async function saveSession(req) {
+	await new Promise((resolve, reject) => {
+		req.session.save(err => {
+			if (err) {
+				reject(err);
+			} else {
+				resolve();
+			}
+		});
+	});
+}
+
 module.exports = {
-    checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatColour
+	checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession
 };
