@@ -70,6 +70,24 @@ function findTeammate(game, currentUser) {
     </section>
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
+	// Make sure .live-players accurately reflects the number of players waiting for the game to start
+	setLivePlayersSpan(<%- JSON.stringify(game) %>);
+
+	function setLivePlayersSpan(game) {
+		let totalLivePlayers = 0;
+
+		game.teams.forEach(team => {
+			team.players.forEach(player => {
+				if (player.inGame === game.code) {
+					totalLivePlayers++;
+				}
+			});
+		});
+
+		const livePlayerSpan = document.querySelector(".live-players");
+		livePlayerSpan.innerHTML = totalLivePlayers;
+	}
+
 	const socket = io();
 
 	socket.on('chat message', (msg) => {
