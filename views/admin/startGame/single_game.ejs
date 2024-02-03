@@ -84,6 +84,15 @@ Player two (19:54); U wot m8?</textarea>
 		// messages.appendChild(item);
 		// window.scrollTo(0, document.body.scrollHeight);
 	});
+
+	socket.on('player left', (gameCode, user) => {
+		if (gameCode === "<%- game.code %>") {
+			const playerIcon = document.getElementById(user.displayName + "-thumbnail");
+
+			playerIcon.classList.remove("player-logged-in");
+			playerIcon.classList.add("player-logged-out");
+		}
+	});
 	// socket.on('player disconnected', (gameCode, user) => {
 	// 	if (gameCode === "<%- game.code %>") {
 	// 		const playerIcon = document.getElementById(user.displayName + "-thumbnail");
