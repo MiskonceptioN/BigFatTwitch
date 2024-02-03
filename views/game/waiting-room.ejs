@@ -53,10 +53,6 @@
 	<script>
 	const socket = io();
 
-	socket.on("connect", () => {
-		socket.emit("player joined", "BCKM", <%- JSON.stringify(user) %>);
-	});
-
 	socket.on('chat message', (msg) => {
 		const item = document.createElement('li');
 		item.innerHTML = msg;
