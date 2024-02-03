@@ -14,7 +14,8 @@ const userSchema = new mongoose.Schema({
   chatColour: { type: String },
   showBroadcasterType: { type: Boolean, default: true },
   twitchChatColour: {type: String, default: ""},
-  customChatColour: {type: String, default: "#000000"}
+  customChatColour: {type: String, default: "#000000"},
+  inGame: {type: String, default: ""},
 });
 userSchema.plugin(findOrCreate);
 userSchema.set('timestamps', true);
