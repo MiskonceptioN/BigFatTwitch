@@ -46,6 +46,27 @@ router.get("/join", checkAuthenticated, (req, res) => {
 			for (let player of team.players) {
 				if (player.twitchId == user.twitchId) {
 					// req.flash("success", "You have joined the game!");
+
+					// Update the session to include the game code
+					req.session.passport.user.doc = {
+						...req.session.passport.user.doc,
+						inGame: gameCode,
+						game
+					};
+					// req.session.save();
+					try {
+						await saveSession(req);
+					} catch (err) {
+						console.log('Error saving session for ' + req.user + ':', err);
+					}
+
+					// Update the database to include game info in the User
+					try {await User.updateOne({twitchId: user.twitchId}, {inGame: gameCode, game})}
+					catch (error) {console.error(error)}
+
+					// Update listening frontend pages
+					io.emit("player joined", gameCode, user);
+				
 					return res.redirect("waiting-room");
 				}
 			}
