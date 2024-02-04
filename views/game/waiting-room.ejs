@@ -124,6 +124,12 @@ function findTeammate(game, currentUser) {
 			}
 		}
 	});
+
+	socket.on('start game', (gameCode) => {
+		if (gameCode === "<%- game.code %>") {
+			window.location.replace("/game/in-game");
+		}
+	});
 	</script>
 	<!-- <script src="js/ajaxFormHandler.js"></script> -->
 <%- include('../footer'); %>

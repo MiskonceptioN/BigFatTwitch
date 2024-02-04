@@ -7,6 +7,9 @@ const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
 const Question = require("../models/questionModel.js");
 
+// Pull in socket.io
+const io = require('../app');
+
 router.get("/gameManagement", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
@@ -259,6 +262,14 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 	} else {
 		res.redirect("/login")
 	}
+})
+.post("/startGame/:gameCode", checkAuthenticated, async function(req, res){
+	console.log(req.body);
+
+	// Update listening frontend pages
+	io.emit("start game", req.params.gameCode);
+
+	res.send({status: "success", content: "Game started"});
 });
 
 router.get("/teams", checkAuthenticated, async function(req, res){

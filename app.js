@@ -109,6 +109,11 @@ io.on('connection', (socket) => {
 
 		io.emit('player joined', gameCode, user);
 	});
+	socket.on('start game', async (gameCode) => {
+		// Set the state in the DB
+		console.log("Starting game " + gameCode);
+		io.emit('start game', gameCode);
+	});
 });
 
 function prepUserMessage(msg, user){

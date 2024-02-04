@@ -15,6 +15,13 @@ router.get("/audience", checkAuthenticated, (req, res) => {
 	res.render("game/audience", {user: req.user, failureMessage, successMessage});
 });
 
+router.get("/in-game", checkAuthenticated, (req, res) => {
+	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+	const successMessage = req.flash("success")[0]; // Retrieve the flash message
+
+	res.render("game/in-game", {user: req.user, failureMessage, successMessage});
+});
+
 router.get("/join", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 	const successMessage = req.flash("success")[0]; // Retrieve the flash message
