@@ -181,6 +181,15 @@ input#gameCode::placeholder {
 	animation: 2s anim-lineUp ease-out;
 }
 
+canvas {
+	background: white;
+	border: 1px solid black
+}
+
+canvas.disabled {
+	background: lightgray;
+}
+
 @keyframes anim-lineUp {
 	0% {
 		opacity: 0;
