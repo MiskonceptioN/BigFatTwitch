@@ -115,6 +115,9 @@ io.on('connection', (socket) => {
 		console.log("Starting game " + gameCode);
 		io.emit('start game', gameCode);
 	});
+	socket.on('update canvas', (canvasData) => {
+		io.emit('update canvas', canvasData);
+	})
 });
 
 function prepUserMessage(msg, user){
