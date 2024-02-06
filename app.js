@@ -29,7 +29,8 @@ const db = mongoose.connection;
 
 // App config
 app.set("view engine", "ejs");
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(express.static("public"));
 app.use(session({
 	secret: 'your-secret-key', // Change this to a secure secret
