@@ -6,6 +6,7 @@ const timestamps = require("mongoose-timestamp");
 const questionSchema = new mongoose.Schema({
 	question: { type: String, required: true },
 	answer: { type: String, required: true },
+	contestantAnswers: { type: Object, default: {} },
 	status: { type: String, enum: ["pending", "in-progress", "played"], default: "pending" },
 	type: { type: String, enum: ["text", "video", "image"], default: "text" },
 //	 game: { type: mongoose.Schema.Types.ObjectId, ref: "Game", required: true },
