@@ -85,12 +85,24 @@ router.get("/join", checkAuthenticated, (req, res) => {
 
 		// Check to see if the user joining the game is one of the players
 		for (let team of game.teams) {
-			for (let player of team.players) {
-				if (player.twitchId == user.twitchId) {
+			// for (let player of team.players) {
+			for (let i = 0; i < team.players.length; i++) {
+				// const player = team.players[i];
+				if (team.players[i].twitchId == user.twitchId) {
+					// If current player in for loop is the first player in the team, set the teammate to the second player
+					const teammate = team.players[i == 0 ? 1 : 0];
+
+					// req.session.passport.user.doc = {
+					// 	...req.session.passport.user.doc,
+					// 	teammate: teammate
+					// };
+
+
 					// Update the session to include the game code
 					req.session.passport.user.doc = {
 						...req.session.passport.user.doc,
-						inGame: gameCode
+						inGame: gameCode,
+						teammate
 					};
 					try {await saveSession(req)}
 					catch (err) {console.log('Error saving session for ' + req.user + ':', err)}
