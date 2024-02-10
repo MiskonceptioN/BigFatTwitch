@@ -1,8 +1,8 @@
 <%- include('../header'); %>
-    <section id="game" class="text-center">
-        <header>
-            <h1>You're in the game now, son!</h1>
-        </header>
+	<section id="game" class="text-center">
+		<header>
+			<h1 class="round-title">Round one</h1>
+		</header>
 		<% if (failureMessage) { %>
 			<div class="container">
 				<section>
@@ -16,11 +16,32 @@
 				</section>
 			</div>
 		<% } %>
+		<section>
+			<h2 class="question">Question goes here</h2>
+			<form method="post" action="/game/in-game">
+			<!-- <form method="post" action="https://webhook.site/1dfc56cf-8e6b-4332-bcdf-85f29abccc8a"> -->
+				<canvas id="answerCanvas" width="800" height="600"></canvas><br>
+				<input id="questionId" name="questionId" type="hidden">
+				<input id="answerField" name="answerField" type="hidden">
+				<input id="anotherAnswer" name="anotherAnswer" type="hidden" value="Sausages">
+				<input id="answer-button" type="submit">
+			</form>
+			<hr>
+			<h6><%- user.teammate.displayName %>'s answer:</h6>
+			<canvas id="teammateAnswer" width="600" height="450"></canvas>
+		</section>
+		<section>
+			<!-- Try https://jsfiddle.net/hqb26mgd/11/ ? -->
+			<!-- <div class="timer" style="--duration: 30;--size: 200;">
+				<div class="mask"></div>
+			</div> -->
+		</section>
 		<footer style="margin-top: 10em;">
-            <h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
-        </footer>
+			<h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
+			  </footer>
     </section>
 	<script src="/socket.io/socket.io.js"></script>
+	<script src="/js/answerHandler.js"></script>
 	<script>
 	const socket = io();
 
@@ -30,6 +51,143 @@
 		document.querySelector("h2").appendChild(item);
 		window.scrollTo(0, document.body.scrollHeight);
 	});
+
+	socket.on('next question', (question, questionId) => {
+		// console.log(question);
+		resetFormFields();
+		document.querySelector('h2').innerHTML = question;
+		document.querySelector('#questionId').value = questionId;
+		// restartAnimation();
+	});
+
+	socket.on('update canvas', (data) => {
+		// Update #serverCanvas with received data, and scale it down to 600x450
+		const serverCanvas = document.getElementById('teammateAnswer');
+		const ctx = serverCanvas.getContext('2d');
+		const img = new Image();
+		img.onload = () => {
+			ctx.drawImage(img, 0, 0, 600, 450);
+		}
+		img.src = data;
+
+	})
+
+	const answerCanvas = document.getElementById('answerCanvas');
+	const ctx = answerCanvas.getContext('2d');
+
+	const canvasOffset = answerCanvas.getBoundingClientRect();
+	const canvasOffsetX = answerCanvas.offsetLeft;
+	const canvasOffsetY = answerCanvas.offsetTop;
+
+	// answerCanvas.width = window.innerWidth - canvasOffsetX;
+	// answerCanvas.height = window.innerHeight - canvasOffsetY;
+	// answerCanvas.width = 800;
+	// answerCanvas.height = 600;
+
+	let isDrawing = false;
+	let lastX = 0;
+	let lastY = 0;
+
+	let lastCanvasData = "";
+
+    // Listen for mousedown then do the same for touchscreens
+    $(answerCanvas).on('mousedown', function(e) {
+		// Don't take any action if the canvas is disabled
+		if ($(answerCanvas).hasClass("disabled")) return;
+
+		if (e.which !== 1) return; // Check if it's the left mouse button only
+
+        e.preventDefault();
+        isDrawing = true;
+        [lastX, lastY] = [e.offsetX, e.offsetY];
+    });
+    $(answerCanvas).on('touchstart', function(e) {
+		// Don't take any action if the canvas is disabled
+		if ($(answerCanvas).hasClass("disabled")) return;
+
+		e.preventDefault();
+        isDrawing = true;
+        [lastX, lastY] = [e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY];
+    });
+
+    // Listen for mousemove then do the same for touchscreens
+    $(answerCanvas).on('mousemove', function(e) {
+		// Don't take any action if the canvas is disabled
+		if ($(answerCanvas).hasClass("disabled")) return;
+
+		if (isDrawing) {
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.offsetX, e.offsetY);
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = 'black';
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            [lastX, lastY] = [e.offsetX, e.offsetY];
+        }
+    });
+    $(answerCanvas).on('touchmove', function(e) {
+		// Don't take any action if the canvas is disabled
+		if ($(answerCanvas).hasClass("disabled")) return;
+        if (isDrawing) {
+            e.preventDefault();
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY);
+            ctx.lineWidth = 5;
+            ctx.strokeStyle = 'black';
+            ctx.lineCap = 'round';
+            ctx.stroke();
+            [lastX, lastY] = [e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY];
+        }
+    });
+
+    $(answerCanvas).on('mouseup mouseout touchend touchcancel', function() {
+		// Don't take any action if the canvas is disabled
+		if ($(answerCanvas).hasClass("disabled")) return;
+        isDrawing = false
+
+        // Send the image to the server
+        const data = answerCanvas.toDataURL();
+		if (lastCanvasData !== data) {
+        	socket.emit('update canvas', data, <%- user.twitchId %>);
+			lastCanvasData = data;
+		}
+    });
+    // $(answerCanvas).on('mouseout', function() {
+    //     isDrawing = false
+
+    //     // Send the image to the server
+    //     const data = answerCanvas.toDataURL();
+    //     socket.emit('update canvas', data);
+    // });
+    // $(answerCanvas).on('touchend', function() {
+    //     isDrawing = false
+
+    //     // Send the image to the server
+    //     const data = answerCanvas.toDataURL();
+    //     socket.emit('update canvas', data);
+    // });
+
+    // $(answerCanvas).on('touchcancel', function() {
+    //     isDrawing = false
+
+    //     // Send the image to the server
+    //     const data = answerCanvas.toDataURL();
+    //     socket.emit('update canvas', data);
+    // });
+
+	function restartAnimation() {
+		let circle = document.querySelector(".question");
+
+		circle.style.animationName = "none";
+
+		requestAnimationFrame(() => {
+			setTimeout(() => {
+				circle.style.animationName = ""
+			}, 0);
+		});
+	}
 
 	</script>
 <%- include('../footer'); %>
