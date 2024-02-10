@@ -7,6 +7,7 @@ const io = require('../app');
 
 const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
+const Question = require("../models/questionModel.js");
 
 router.get("/audience", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
@@ -20,7 +21,41 @@ router.get("/in-game", checkAuthenticated, (req, res) => {
 	const successMessage = req.flash("success")[0]; // Retrieve the flash message
 
 	res.render("game/in-game", {user: req.user, failureMessage, successMessage});
+})
+.post("/in-game", checkAuthenticated, async (req, res) => {
+	// Insert answer into the answers table using the question ID
+	const user = req.user;
+	const answer = req.body.answerField;
+	const questionId = req.body.questionId;
+
+	try {
+		const addAnswer = await Question.updateOne({_id: questionId}, { $set: { [`contestantAnswers.${user.twitchId}`]: answer } });
+
+		if (addAnswer.modifiedCount < 1) {
+			console.log(addAnswer);
+			res.send({
+				status: "danger",
+				content: "Something went wrong! Please let Danny know."
+			});
+			return;
+		} else {
+			res.send({
+				status: "success",
+				content: "Answer submitted!"
+			});
+			return;
+		}
+	} catch (error) {
+		res.send({
+			status: "danger",
+			content: "Something went wrong! Please let Danny know."
+		});
+		// console.log("shit went wrong");
+		console.error(error);
+		return;
+	}
 });
+
 
 router.get("/join", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
