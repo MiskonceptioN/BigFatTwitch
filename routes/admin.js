@@ -241,7 +241,6 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 				// Set the game's state to starting
 				try {
 					const updateGameStatusResult = await Game.updateOne({ code: req.params.gameCode }, { status: "starting" });
-					console.log({updateGameStatusResult});
 				} catch (error) {
 					console.error(error);
 					req.flash("error", "Unable to start game " + req.params.gameCode);
