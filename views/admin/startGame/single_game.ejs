@@ -26,11 +26,12 @@
 							<h2><%- team.name %></h2>
 						<% team.players.forEach(function(player) { %>
 							<div class="col">
-								<figure>
+								<figure class="mb-0">
 									<img id="<%- player.displayName %>-thumbnail" 
 									class="player-icon <% if (player.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- player.profileImageUrl %>" width="100" alt="<%- player.displayName %>'s thumbnail">
 									<figcaption><%- player.displayName %></figcaption>
 								</figure>
+								<canvas class="mb-3" id="<%- player.twitchId %>-canvas" width="100" height="75"></canvas>
 							</div>
 						<% }) %>
 						</div>
@@ -83,6 +84,7 @@ Player two (19:54); U wot m8?</textarea>
 			// 	$(teamContainer).addClass("team-ready");
 			// }
 		}
+
 		// const item = document.createElement('li');
 		// item.innerHTML = msg;
 		// messages.appendChild(item);
@@ -96,6 +98,21 @@ Player two (19:54); U wot m8?</textarea>
 			playerIcon.classList.remove("player-logged-in");
 			playerIcon.classList.add("player-logged-out");
 		}
+	});
+
+	socket.on('update canvas', (data, userID) => {
+		// Update #playerCanvas with received data, and scale it down to 100x75
+		const playerCanvas = document.getElementById(userID + '-canvas');
+		const ctx = playerCanvas.getContext('2d');
+		const img = new Image();
+
+		// Clear the canvas before importing the data
+		ctx.clearRect(0, 0, playerCanvas.width, playerCanvas.height);
+
+		img.onload = () => {
+			ctx.drawImage(img, 0, 0, 100, 75);
+		}
+		img.src = data;
 	});
 	// socket.on('player disconnected', (gameCode, user) => {
 	// 	if (gameCode === "<%- game.code %>") {
