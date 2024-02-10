@@ -7,6 +7,7 @@ const io = require('../app');
 
 const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
+const Question = require("../models/questionModel.js");
 
 router.get("/", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
@@ -14,6 +15,24 @@ router.get("/", checkAuthenticated, (req, res) => {
 	if (req.user.role == "admin") {res.render("admin", {user: req.user, failureMessage, successMessage})}
 	else {res.render("game", {user: req.user, failureMessage, successMessage})}
 });
+
+router.get("/debug", async (req, res) => {
+	const questions = await Question.find({});
+
+	res.render("debug", {user: req.user, questions})
+})
+.post("/debug", checkAuthenticated, async function(req, res){
+	// Sanitise inputs (later)
+	console.log(req.body);
+	if (req.body.sendQuestion) {
+		setTimeout(function(){
+			console.log("Sending next question...");
+			io.emit("next question", req.body.sendQuestion, req.body.questionId);
+			res.send({status: "success", content: "POST successful"});
+		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
+	}
+});
+
 
 router.get("/game", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message

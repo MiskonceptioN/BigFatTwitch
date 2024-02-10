@@ -1,0 +1,78 @@
+<%- include('header'); %>
+	<section id="game" class="text-center">
+		<header>
+			<h1>Debug</h1>
+		</header>
+		<section>
+			<h2>Send test question</h2>
+			<form method="post">
+				<input type="text" id="sendQuestion" name="sendQuestion" placeholder="Question"><br>
+				<input type="text" id="questionId" name="questionId" placeholder="Question ID" value="659745cd8d5933e057470938"><br>
+				Round: <input type="number" style="width: 2em;" id="roundNumber" name="roundNumber" value="1">
+				Question: <input type="number" style="width: 2em;" id="questionNumber" name="questionNumber" value="1"><br>
+				<input type="submit">
+			</form>
+		</section>
+		<section class="cards mt-5">
+			<div class="row row-cols-1 row-cols-md-4 g-4">
+			<% questions.forEach(function(question) { %>
+				<div class="col">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title"><%= question.question %></h5>
+							<p class="card-text">(<%= question.game %>)</p>
+							<form method="post" action="/debug" class="debug-question">
+								<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
+								<input type="hidden" id="sendQuestion" name="sendQuestion" value="<%= question.question %>">
+								<input type="submit" class="btn btn-primary" value="Send question">
+							</form>
+						</div>
+					</div>
+				</div>
+			<% }); %>
+			</div>
+		</section>
+    </section>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		$("form.debug-question").submit(function(e) {
+			e.preventDefault();
+			const questionId = $(this).find('input[name="questionId"]').val();
+			const question = $(this).find('input[name="question"]').val();
+			// $.post('/debug', { questionId, question }, function(data) {
+				console.log({questionId, question});
+			// });
+		});
+
+	const socket = io();
+
+	socket.on('chat message', (msg) => {
+		const item = document.createElement('li');
+		item.innerHTML = msg;
+		document.querySelector("h2").appendChild(item);
+		window.scrollTo(0, document.body.scrollHeight);
+	});
+
+	socket.on('next question'), (question) => {
+		document.getElementById('answer').value = '';
+		document.getElementById('teammateAnswer').value = '';
+		document.querySelector('h2').innerHTML = question;
+		restartAnimation();
+	}
+
+	function restartAnimation() {
+		let circle = document.querySelector(".question");
+
+		circle.style.animationName = "none";
+
+		requestAnimationFrame(() => {
+			setTimeout(() => {
+				circle.style.animationName = ""
+			}, 0);
+		});
+	}
+
+	</script>
+<script src="js/ajaxFormHandler.js"></script>
+<%- include('footer'); %>
