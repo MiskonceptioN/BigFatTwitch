@@ -42,7 +42,7 @@ Make nav work with Bootstrap 5
 Create audit on users {audit: created: DATE, updated: { profileImage: DATE, displayName: DATE }, banned: [DATE, DATE], unbanned: [DATE, DATE]}
 Show error messages on logins
 Link userid/sessioninfo
-Kill session upon ban
+Kill session upon ban and log out using socket.io redirect to logout page
 Move flashes into its own EJS template
 Make flashes dismissable
 Add unit tests!
