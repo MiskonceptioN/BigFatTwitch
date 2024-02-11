@@ -36,21 +36,45 @@
 				<div class="mask"></div>
 			</div> -->
 		</section>
+		<section>
+			<form id="form" action="">
+				<input id="input" autocomplete="off" /><button>Send</button>
+			</form>
+			<ul id="messages"></ul>
+			<script>
+			const form = document.getElementById('form');
+			const input = document.getElementById('input');
+			const messages = document.getElementById('messages');
+
+			form.addEventListener('submit', (e) => {
+				e.preventDefault();
+				if (input.value) {
+					socket.emit('chat message', input.value, <%- JSON.stringify(user) %>);
+					input.value = '';
+				}
+			});
+
+			</script>
+		</section>
 		<footer style="margin-top: 10em;">
 			<h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
-			  </footer>
+		</footer>
     </section>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/js/answerHandler.js"></script>
 	<script>
+	// console.log the user info for debugging
+	console.log(<%- JSON.stringify(user) %>);
+
 	// const socket = io();
 	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
 
 	socket.on('chat message', (msg) => {
 		const item = document.createElement('li');
 		item.innerHTML = msg;
-		document.querySelector("h2").appendChild(item);
-		window.scrollTo(0, document.body.scrollHeight);
+		document.querySelector("#messages").appendChild(item);
+		// document.querySelector("h2").appendChild(item);
+		// window.scrollTo(0, document.body.scrollHeight);
 	});
 
 	socket.on('next question', (question, questionId) => {
