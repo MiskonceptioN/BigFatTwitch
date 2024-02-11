@@ -24,6 +24,7 @@ Show a timer for each question and lock the input/canvas upon timeout
 Add round names?
 Show trophy next to logged in users names? *THIS IS A GOOD IDEA*
 Show player bios on hover?
+Auto-send player to ingame if they log out and back in mid-game
 
 Settings/preferences ideas
 ==========================
