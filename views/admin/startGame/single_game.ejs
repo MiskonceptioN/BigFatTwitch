@@ -68,7 +68,8 @@ Player two (19:54); U wot m8?</textarea>
 		$(this).scrollTop($(this)[0].scrollHeight);
 	});
 
-	const socket = io();
+	// const socket = io();
+	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
 
 	socket.on('player joined', (gameCode, user) => {
 		if (gameCode === "<%- game.code %>") {
