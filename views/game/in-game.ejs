@@ -43,7 +43,8 @@
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/js/answerHandler.js"></script>
 	<script>
-	const socket = io();
+	// const socket = io();
+	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
 
 	socket.on('chat message', (msg) => {
 		const item = document.createElement('li');

@@ -92,14 +92,26 @@ const { checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatCo
 
 // Socket.io listening
 io.on('connection', (socket) => {
-	// console.log('a user connected');
+	// Check if the user is admin or player
+	const role = socket.handshake.query.role;
+	const teamId = socket.handshake.query.teamId;
+
+    // Join the room corresponding to the team ID
+    (role === "admin") ? socket.join("admin") : socket.join(teamId);
+
 	socket.on('disconnect', () => {
 		// console.log('user disconnected');
 	});
 	socket.on('chat message', (msg, user) => {
 		msg = prepUserMessage(msg, user);
-		console.log('message: ' + msg);
-		io.emit('chat message', msg);
+		// console.log('message: ' + msg);
+		// const room = (role === "admin") ? "admin" : user.teamId;
+		const room = user.teamId;
+		console.log({msg, room});
+
+		// Send the message to the correct team, and also to the admin audit log
+		io.to(room).emit('chat message', msg);
+		io.to("admin").emit('chat message', msg, room);
 	});
 	socket.on('player joined', async (gameCode, user) => {
 		// console.log(gameCode, user.displayName);
