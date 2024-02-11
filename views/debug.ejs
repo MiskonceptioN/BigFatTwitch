@@ -36,6 +36,7 @@
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
+		console.log(<%- JSON.stringify(user) %>);
 		$("form.debug-question").submit(function(e) {
 			e.preventDefault();
 			const questionId = $(this).find('input[name="questionId"]').val();
