@@ -28,12 +28,16 @@
 							<div class="col">
 								<figure class="mb-0">
 									<img id="<%- player.displayName %>-thumbnail" 
-									class="player-icon <% if (player.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- player.profileImageUrl %>" width="100" alt="<%- player.displayName %>'s thumbnail">
+									class="player-icon <% if (player.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- player.profileImageUrl %>" width="150" alt="<%- player.displayName %>'s thumbnail">
 									<figcaption><%- player.displayName %></figcaption>
 								</figure>
-								<canvas class="mb-3" id="<%- player.twitchId %>-canvas" width="100" height="75"></canvas>
+								<canvas class="mb-3" id="<%- player.twitchId %>-canvas" width="150" height="112.5"></canvas>
 							</div>
 						<% }) %>
+						</div>
+						<div class="row">
+							<h3>Chat</h3>
+							<ul id="audit-<%- team._id %>" class="chat-audit text-start"></ul>
 						</div>
 					</div>
 					<% }) %>
@@ -46,20 +50,12 @@
 					</div>
 				</form>
 			</div>
-			<section>
-				<h2>Audits</h2>
-				<div class="row">
-					<% game.teams.forEach(function(team) { %>
-						<h3 class="mt-3"><%- team.name %>'s chat</h3>
-						<textarea readonly disabled>
-Player one (19:53): Lorem ipsum dolor sit amet consectetur adipisicing elit. Quas ducimus dicta asperiores deleniti explicabo vel eum assumenda, suscipit tenetur hic? Maiores sit reiciendis voluptate numquam tempore quasi, dolor quia beatae.
-Player two (19:54); U wot m8?</textarea>
-					<% }); %>
-				</div>
-			</section>
 			<% } else { %>
 			<h1 class="text-danger">You should not be here!</h1>
 		<% } %>
+	</section>
+	<section class="audit">
+
 	</section>
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
@@ -111,10 +107,23 @@ Player two (19:54); U wot m8?</textarea>
 		ctx.clearRect(0, 0, playerCanvas.width, playerCanvas.height);
 
 		img.onload = () => {
-			ctx.drawImage(img, 0, 0, 100, 75);
+			ctx.drawImage(img, 0, 0, 150, 112.5);
 		}
 		img.src = data;
 	});
+
+	
+	socket.on('chat message', (msg, room) => {
+		const item = document.createElement('li');
+		item.innerHTML = msg;
+
+		const target = document.getElementById('audit-' + room);
+		target.appendChild(item);
+
+		// Scroll to bottom of chat
+		target.scrollTop = target.scrollHeight;
+	});
+
 	// socket.on('player disconnected', (gameCode, user) => {
 	// 	if (gameCode === "<%- game.code %>") {
 	// 		const playerIcon = document.getElementById(user.displayName + "-thumbnail");
