@@ -11,7 +11,7 @@ const teamSchema = new mongoose.Schema({
 // Define the Game schema
 const gameSchema = new mongoose.Schema({
   code: { type: String, required: true },
-  status: { type: String, enum: ["pending", "in-progress", "played"], default: "pending" },
+  status: { type: String, enum: ["pending", "starting", "in-progress", "played"], default: "pending" },
   maxAudience: { type: Number, default: 0 },
   winner: { type: String, default: null },
   teams: [teamSchema], 
