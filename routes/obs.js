@@ -159,11 +159,6 @@ router.get("/teams/:teamIndex/points", async (req, res) => {
 			return res.status(200).send("Unable to find team number " + teamIndexValue + " in any active games");
 		}
 
-		// Check the team exists in the game
-		if (foundGame[0].teams.length < teamIndexValue) {
-			return res.status(200).send("Unable to find team number " + teamIndexValue + " in any active games");
-		}
-
 		// Check if the team's points exist in the table
 		if (foundGame[0].points === null || foundGame[0].points === undefined) {
 			return res.status(200).send("Unable to find team " + teamIndexValue + "'s points");
