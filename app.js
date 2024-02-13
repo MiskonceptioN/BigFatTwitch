@@ -144,6 +144,7 @@ app.use("/", require("./routes/index"));
 app.use("/admin", require("./routes/admin"));
 app.use("/auth", require("./routes/auth"));
 app.use("/game", require("./routes/game"));
+app.use("/obs", require("./routes/obs"));
 	
 app.route("/exampleAjaxPOST")
 	.post(function(req, res){
