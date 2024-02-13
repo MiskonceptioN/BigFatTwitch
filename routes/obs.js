@@ -219,7 +219,6 @@ router.get("/teams/:teamIndex/players/:playerIndex", async (req, res) => {
 	const teamIndexValue = Number(req.params.teamIndex);
 	const playerIndexValue = Number(req.params.playerIndex);
 
-
 	// Check if user input is a postive number
 	if (isNaN(teamIndexValue) || teamIndexValue < 1) {
 		return res.status(400).send("The team number must be 1 or higher");
@@ -262,6 +261,412 @@ router.get("/teams/:teamIndex/players/:playerIndex", async (req, res) => {
 		});
 
 		return res.status(200).send(foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex]);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+})
+
+router.get("/teams/:teamIndex/players/:playerIndex/broadcasterType", async (req, res) => {
+	// Convert teamIndex and playerIndex to number
+	const teamIndexValue = Number(req.params.teamIndex);
+	const playerIndexValue = Number(req.params.playerIndex);
+
+	// Check if user input is a postive number
+	if (isNaN(teamIndexValue) || teamIndexValue < 1) {
+		return res.status(400).send("The team number must be 1 or higher");
+	}
+	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
+		return res.splayer(400).send("The player number must be 1 or higher");
+	}
+
+	// Set the desired indices to be the user input minus 1
+	const desiredTeamIndex = teamIndexValue - 1;
+	const desiredPlayerIndex = playerIndexValue - 1;
+
+	try {
+		const foundGame = await Game.aggregate([
+			{ $match: { status: { $in: ["starting", "in-progress"] } } }
+		]).exec();
+		
+		// Check a game was found
+		if (foundGame === null  || foundGame.length === 0) {
+			return res.status(200).send("Unable to find any active games");
+		}
+
+		// Check the team exists in the game
+		if (foundGame[0].teams.length < teamIndexValue) {
+			return res.status(200).send("Unable to find team number " + teamIndexValue + " in any active games");
+		}
+
+		// Check the player exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players.length < playerIndexValue) {
+			return res.status(200).send("Unable to find player number " + playerIndexValue + " in team " + teamIndexValue);
+		}
+
+		// Check the broadcasterType exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].broadcasterType === null) {
+			return res.status(200).send("Unable to find player " + playerIndexValue + "'s broadcasterType");
+		}
+
+		// Populate the teams with the players
+		// No try/catch on this, as it will return just the player IDs if it fails
+		await Game.populate(foundGame, {
+			path: 'teams.players',
+			model: User,
+			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+			foreignField: 'twitchId'
+		});
+
+		return res.status(200).send(foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].broadcasterType);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+})
+
+router.get("/teams/:teamIndex/players/:playerIndex/twitchChatColour", async (req, res) => {
+	// Convert teamIndex and playerIndex to number
+	const teamIndexValue = Number(req.params.teamIndex);
+	const playerIndexValue = Number(req.params.playerIndex);
+
+	// Check if user input is a postive number
+	if (isNaN(teamIndexValue) || teamIndexValue < 1) {
+		return res.status(400).send("The team number must be 1 or higher");
+	}
+	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
+		return res.splayer(400).send("The player number must be 1 or higher");
+	}
+
+	// Set the desired indices to be the user input minus 1
+	const desiredTeamIndex = teamIndexValue - 1;
+	const desiredPlayerIndex = playerIndexValue - 1;
+
+	try {
+		const foundGame = await Game.aggregate([
+			{ $match: { status: { $in: ["starting", "in-progress"] } } }
+		]).exec();
+		
+		// Check a game was found
+		if (foundGame === null  || foundGame.length === 0) {
+			return res.status(200).send("Unable to find any active games");
+		}
+
+		// Check the team exists in the game
+		if (foundGame[0].teams.length < teamIndexValue) {
+			return res.status(200).send("Unable to find team number " + teamIndexValue + " in any active games");
+		}
+
+		// Check the player exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players.length < playerIndexValue) {
+			return res.status(200).send("Unable to find player number " + playerIndexValue + " in team " + teamIndexValue);
+		}
+
+		// Check the twitchChatColour exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].twitchChatColour === null) {
+			return res.status(200).send("Unable to find player " + playerIndexValue + "'s twitchChatColour");
+		}
+
+		// Populate the teams with the players
+		// No try/catch on this, as it will return just the player IDs if it fails
+		await Game.populate(foundGame, {
+			path: 'teams.players',
+			model: User,
+			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+			foreignField: 'twitchId'
+		});
+
+		return res.status(200).send(foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].twitchChatColour);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+})
+
+router.get("/teams/:teamIndex/players/:playerIndex/customChatColour", async (req, res) => {
+	// Convert teamIndex and playerIndex to number
+	const teamIndexValue = Number(req.params.teamIndex);
+	const playerIndexValue = Number(req.params.playerIndex);
+
+	// Check if user input is a postive number
+	if (isNaN(teamIndexValue) || teamIndexValue < 1) {
+		return res.status(400).send("The team number must be 1 or higher");
+	}
+	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
+		return res.splayer(400).send("The player number must be 1 or higher");
+	}
+
+	// Set the desired indices to be the user input minus 1
+	const desiredTeamIndex = teamIndexValue - 1;
+	const desiredPlayerIndex = playerIndexValue - 1;
+
+	try {
+		const foundGame = await Game.aggregate([
+			{ $match: { status: { $in: ["starting", "in-progress"] } } }
+		]).exec();
+		
+		// Check a game was found
+		if (foundGame === null  || foundGame.length === 0) {
+			return res.status(200).send("Unable to find any active games");
+		}
+
+		// Check the team exists in the game
+		if (foundGame[0].teams.length < teamIndexValue) {
+			return res.status(200).send("Unable to find team number " + teamIndexValue + " in any active games");
+		}
+
+		// Check the player exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players.length < playerIndexValue) {
+			return res.status(200).send("Unable to find player number " + playerIndexValue + " in team " + teamIndexValue);
+		}
+
+		// Check the customChatColour exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].customChatColour === null) {
+			return res.status(200).send("Unable to find player " + playerIndexValue + "'s customChatColour");
+		}
+
+		// Populate the teams with the players
+		// No try/catch on this, as it will return just the player IDs if it fails
+		await Game.populate(foundGame, {
+			path: 'teams.players',
+			model: User,
+			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+			foreignField: 'twitchId'
+		});
+
+		return res.status(200).send(foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].customChatColour);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+})
+
+router.get("/teams/:teamIndex/players/:playerIndex/twitchId", async (req, res) => {
+	// Convert teamIndex and playerIndex to number
+	const teamIndexValue = Number(req.params.teamIndex);
+	const playerIndexValue = Number(req.params.playerIndex);
+
+	// Check if user input is a postive number
+	if (isNaN(teamIndexValue) || teamIndexValue < 1) {
+		return res.status(400).send("The team number must be 1 or higher");
+	}
+	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
+		return res.splayer(400).send("The player number must be 1 or higher");
+	}
+
+	// Set the desired indices to be the user input minus 1
+	const desiredTeamIndex = teamIndexValue - 1;
+	const desiredPlayerIndex = playerIndexValue - 1;
+
+	try {
+		const foundGame = await Game.aggregate([
+			{ $match: { status: { $in: ["starting", "in-progress"] } } }
+		]).exec();
+		
+		// Check a game was found
+		if (foundGame === null  || foundGame.length === 0) {
+			return res.status(200).send("Unable to find any active games");
+		}
+
+		// Check the team exists in the game
+		if (foundGame[0].teams.length < teamIndexValue) {
+			return res.status(200).send("Unable to find team number " + teamIndexValue + " in any active games");
+		}
+
+		// Check the player exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players.length < playerIndexValue) {
+			return res.status(200).send("Unable to find player number " + playerIndexValue + " in team " + teamIndexValue);
+		}
+
+		// Check the twitchId exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].twitchId === null) {
+			return res.status(200).send("Unable to find player " + playerIndexValue + "'s twitchId");
+		}
+
+		// Populate the teams with the players
+		// No try/catch on this, as it will return just the player IDs if it fails
+		await Game.populate(foundGame, {
+			path: 'teams.players',
+			model: User,
+			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+			foreignField: 'twitchId'
+		});
+
+		return res.status(200).send(foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].twitchId);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+})
+
+router.get("/teams/:teamIndex/players/:playerIndex/displayName", async (req, res) => {
+	// Convert teamIndex and playerIndex to number
+	const teamIndexValue = Number(req.params.teamIndex);
+	const playerIndexValue = Number(req.params.playerIndex);
+
+	// Check if user input is a postive number
+	if (isNaN(teamIndexValue) || teamIndexValue < 1) {
+		return res.status(400).send("The team number must be 1 or higher");
+	}
+	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
+		return res.splayer(400).send("The player number must be 1 or higher");
+	}
+
+	// Set the desired indices to be the user input minus 1
+	const desiredTeamIndex = teamIndexValue - 1;
+	const desiredPlayerIndex = playerIndexValue - 1;
+
+	try {
+		const foundGame = await Game.aggregate([
+			{ $match: { status: { $in: ["starting", "in-progress"] } } }
+		]).exec();
+		
+		// Check a game was found
+		if (foundGame === null  || foundGame.length === 0) {
+			return res.status(200).send("Unable to find any active games");
+		}
+
+		// Check the team exists in the game
+		if (foundGame[0].teams.length < teamIndexValue) {
+			return res.status(200).send("Unable to find team number " + teamIndexValue + " in any active games");
+		}
+
+		// Check the player exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players.length < playerIndexValue) {
+			return res.status(200).send("Unable to find player number " + playerIndexValue + " in team " + teamIndexValue);
+		}
+
+		// Check the displayName exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].displayName === null) {
+			return res.status(200).send("Unable to find player " + playerIndexValue + "'s displayName");
+		}
+
+		// Populate the teams with the players
+		// No try/catch on this, as it will return just the player IDs if it fails
+		await Game.populate(foundGame, {
+			path: 'teams.players',
+			model: User,
+			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+			foreignField: 'twitchId'
+		});
+
+		return res.status(200).send(foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].displayName);
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+})
+
+router.get("/teams/:teamIndex/players/:playerIndex/profileImage", async (req, res) => {
+	// Convert teamIndex and playerIndex to number
+	const teamIndexValue = Number(req.params.teamIndex);
+	const playerIndexValue = Number(req.params.playerIndex);
+
+	// Check if user input is a postive number
+	if (isNaN(teamIndexValue) || teamIndexValue < 1) {
+		return res.status(400).send("The team number must be 1 or higher");
+	}
+	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
+		return res.splayer(400).send("The player number must be 1 or higher");
+	}
+
+	// Set the desired indices to be the user input minus 1
+	const desiredTeamIndex = teamIndexValue - 1;
+	const desiredPlayerIndex = playerIndexValue - 1;
+
+	try {
+		const foundGame = await Game.aggregate([
+			{ $match: { status: { $in: ["starting", "in-progress"] } } }
+		]).exec();
+		
+		// Check a game was found
+		if (foundGame === null  || foundGame.length === 0) {
+			return res.status(200).send("Unable to find any active games");
+		}
+
+		// Check the team exists in the game
+		if (foundGame[0].teams.length < teamIndexValue) {
+			return res.status(200).send("Unable to find team number " + teamIndexValue + " in any active games");
+		}
+
+		// Check the player exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players.length < playerIndexValue) {
+			return res.status(200).send("Unable to find player number " + playerIndexValue + " in team " + teamIndexValue);
+		}
+
+		// Check the profileImageUrl exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].profileImageUrl === null) {
+			return res.status(200).send("Unable to find player " + playerIndexValue + "'s profileImageUrl");
+		}
+
+		// Populate the teams with the players
+		// No try/catch on this, as it will return just the player IDs if it fails
+		await Game.populate(foundGame, {
+			path: 'teams.players',
+			model: User,
+			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+			foreignField: 'twitchId'
+		});
+
+		return res.status(200).send('<img src="' + foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].profileImageUrl + '" alt="Player ' + playerIndexValue + '\'s profile image">');
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+})
+
+router.get("/teams/:teamIndex/players/:playerIndex/profileImageUrl", async (req, res) => {
+	// Convert teamIndex and playerIndex to number
+	const teamIndexValue = Number(req.params.teamIndex);
+	const playerIndexValue = Number(req.params.playerIndex);
+
+	// Check if user input is a postive number
+	if (isNaN(teamIndexValue) || teamIndexValue < 1) {
+		return res.status(400).send("The team number must be 1 or higher");
+	}
+	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
+		return res.splayer(400).send("The player number must be 1 or higher");
+	}
+
+	// Set the desired indices to be the user input minus 1
+	const desiredTeamIndex = teamIndexValue - 1;
+	const desiredPlayerIndex = playerIndexValue - 1;
+
+	try {
+		const foundGame = await Game.aggregate([
+			{ $match: { status: { $in: ["starting", "in-progress"] } } }
+		]).exec();
+		
+		// Check a game was found
+		if (foundGame === null  || foundGame.length === 0) {
+			return res.status(200).send("Unable to find any active games");
+		}
+
+		// Check the team exists in the game
+		if (foundGame[0].teams.length < teamIndexValue) {
+			return res.status(200).send("Unable to find team number " + teamIndexValue + " in any active games");
+		}
+
+		// Check the player exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players.length < playerIndexValue) {
+			return res.status(200).send("Unable to find player number " + playerIndexValue + " in team " + teamIndexValue);
+		}
+
+		// Check the profileImageUrl exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].profileImageUrl === null) {
+			return res.status(200).send("Unable to find player " + playerIndexValue + "'s profileImageUrl");
+		}
+
+		// Populate the teams with the players
+		// No try/catch on this, as it will return just the player IDs if it fails
+		await Game.populate(foundGame, {
+			path: 'teams.players',
+			model: User,
+			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+			foreignField: 'twitchId'
+		});
+
+		return res.status(200).send(foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].profileImageUrl);
 	} catch (error) {
 		console.error(error);
 		return res.status(500).send("Couldn't handle the request. Please try again later.");
