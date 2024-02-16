@@ -85,11 +85,18 @@
 		// restartAnimation();
 	});
 
-	socket.on('update canvas', (data) => {
+	socket.on('update canvas', (data, userID) => {
+		// Only update serverCanvas if the data is not from the current user
+		if (userID === <%- user.twitchId %>) return;
+		
 		// Update #serverCanvas with received data, and scale it down to 600x450
 		const serverCanvas = document.getElementById('teammateAnswer');
 		const ctx = serverCanvas.getContext('2d');
 		const img = new Image();
+
+		// Clear the canvas before importing the data
+		ctx.clearRect(0, 0, serverCanvas.width, serverCanvas.height);
+
 		img.onload = () => {
 			ctx.drawImage(img, 0, 0, 600, 450);
 		}
