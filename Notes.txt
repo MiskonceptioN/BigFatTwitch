@@ -1,7 +1,5 @@
 Socket.io
 =========
-Use "rooms" to team up players
-Monitor rooms in admin panel
 Keep message in chat until promise is resolved?
 {user} is typing
 Add heartbeat to confirm health?
@@ -14,12 +12,10 @@ Audience vote on funniest answer?
 
 Admin ideas
 =============
-UI for creating games & dishing out points
 "Promote" a viewer to contestant role
 
 UI ideas
 ========
-Admin panel: show number of connected player
 Show a timer for each question and lock the input/canvas upon timeout
 Add round names?
 Show trophy next to logged in users names? *THIS IS A GOOD IDEA*
