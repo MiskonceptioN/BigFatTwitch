@@ -7,7 +7,6 @@ const io = require('../app');
 
 const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
-const Question = require("../models/questionModel.js");
 
 router.get("/", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
@@ -15,6 +14,28 @@ router.get("/", checkAuthenticated, (req, res) => {
 	if (req.user.role == "admin") {res.render("admin", {user: req.user, failureMessage, successMessage})}
 	else {res.render("game", {user: req.user, failureMessage, successMessage})}
 });
+
+router.get("/question", async (req, res) => {
+	try {
+		// Find the first Game where the Question status is "in-progress" and return just that question using an aggregate
+		const foundQuestion = await Game.aggregate([
+			{ $unwind: "$questions" },
+			{ $match: { "questions.status": "in-progress" } },
+			{ $project: { _id: 0, question: "$questions.question" } }
+		]).exec();
+
+		// Check a game was found
+		if (foundQuestion === null  || foundQuestion[0].length === 0) {
+			return res.status(200).send("Unable to find any active questions");
+		}
+
+		// return res.status(200).send(foundQuestion[0].question);
+		res.render("obs/question", {question: foundQuestion[0].question});
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+})
 
 router.get("/teams", async (req, res) => {
 	try {

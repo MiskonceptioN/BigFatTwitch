@@ -28,6 +28,7 @@ router.get("/debug", async (req, res) => {
 		setTimeout(function(){
 			console.log("Sending next question...");
 			io.emit("next question", req.body.sendQuestion, req.body.questionId);
+			io.emit("update question", req.body.sendQuestion);
 			res.send({status: "success", content: "POST successful"});
 		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	}
