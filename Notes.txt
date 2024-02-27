@@ -48,3 +48,4 @@ Ensure member ID in Teams table references Users table with objectID (currently 
 Wrap fetchTwitchChatColour() in try/catch
 Sanitise chat messages using innerText for chat message, and innerhtml for the username prefix
 Add authtoken to api requests?
+Make sure admin panel can be resumed if browser crashes during an active game
