@@ -1,0 +1,69 @@
+<%- include('../header'); %>
+	<section id="questions" class="text-center">
+		<header>
+			<h1>Questions</h1>
+		</header>
+		<section class="cards mt-5">
+			<div class="row row-cols-1 row-cols-md-4 g-4">
+			<% game.questions.forEach(function(question) { %>
+				<div class="col">
+					<div class="card">
+						<div class="card-body">
+							<h5 class="card-title"><%= question.question %></h5>
+							<p class="card-text">(<%= question.game %>)</p>
+							<form method="post" action="/admin/in-game" class="debug-question">
+								<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
+								<input type="hidden" id="sendQuestion" name="sendQuestion" value="<%= question.question %>">
+								<input type="submit" class="btn btn-primary" value="Send question">
+							</form>
+						</div>
+					</div>
+				</div>
+			<% }); %>
+			</div>
+		</section>
+    </section>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+		console.log(<%- JSON.stringify(user) %>);
+		$("form.debug-question").submit(function(e) {
+			e.preventDefault();
+			const questionId = $(this).find('input[name="questionId"]').val();
+			const question = $(this).find('input[name="sendQuestion"]').val();
+			// $.post('/debug', { questionId, question }, function(data) {
+				console.log({questionId, question});
+			// });
+		});
+
+	const socket = io();
+
+	socket.on('chat message', (msg) => {
+		const item = document.createElement('li');
+		item.innerHTML = msg;
+		document.querySelector("h2").appendChild(item);
+		window.scrollTo(0, document.body.scrollHeight);
+	});
+
+	socket.on('next question'), (question) => {
+		document.getElementById('answer').value = '';
+		document.getElementById('teammateAnswer').value = '';
+		document.querySelector('h2').innerHTML = question;
+		restartAnimation();
+	}
+
+	function restartAnimation() {
+		let circle = document.querySelector(".question");
+
+		circle.style.animationName = "none";
+
+		requestAnimationFrame(() => {
+			setTimeout(() => {
+				circle.style.animationName = ""
+			}, 0);
+		});
+	}
+
+	</script>
+<script src="/js/ajaxFormHandler.js"></script>
+<%- include('../footer'); %>
