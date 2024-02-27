@@ -6,7 +6,7 @@ const questionSchema = new mongoose.Schema({
 	question: { type: String, required: true },
 	answer: { type: String, required: true },
 	contestantAnswers: { type: Object, default: {} },
-	status: { type: String, enum: ["pending", "in-progress", "played"], default: "pending" },
+	status: { type: String, enum: ["pending", "starting", "in-progress", "played"], default: "pending" },
 	type: { type: String, enum: ["text", "video", "image"], default: "text" },
 	game: { type: "String", required: true },
 	round: { type: Number, required: true },
