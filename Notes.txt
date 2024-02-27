@@ -13,6 +13,9 @@ Audience vote on funniest answer?
 Admin ideas
 =============
 "Promote" a viewer to contestant role
+Add ability to delete questions
+Add ability to skip questions
+Add ability to move questions between rounds
 
 UI ideas
 ========
