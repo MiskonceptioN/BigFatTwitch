@@ -22,8 +22,6 @@ const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
 const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env.MONGODB_PASS + "@" + process.env.MONGODB_URL + "/gameshow?retryWrites=true&w=majority";
 const User = require("./models/userModel.js");
-const Game = require("./models/gameModel.js");
-const Question = require("./models/questionModel.js");
 mongoose.connect(mongoUri);
 const db = mongoose.connection;
 
