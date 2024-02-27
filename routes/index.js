@@ -17,7 +17,18 @@ router.get("/", checkAuthenticated, (req, res) => {
 });
 
 router.get("/debug", async (req, res) => {
-	const questions = await Question.find({});
+	const questions = [];
+	// const questions = await Question.find({});
+	// Pull all the questions from the Game model
+	// const questions = await Game.find({}).sort({createdAt: -1}).limit(1).select("questions");
+	const allGames = await Game.find({});
+	allGames.forEach(game => {
+		game.questions.forEach(question => {
+			questions.push(question);
+		});
+	});
+
+	console.log(questions);
 
 	res.render("debug", {user: req.user, questions})
 })
@@ -127,6 +138,94 @@ post("/settings", checkAuthenticated, async function(req, res){
 	// } else {
 		// res.redirect("/login")
 	// }
+});
+
+router.get("/nologin", async function(req, res){
+    // Check the twitchId query param
+    if (req.query.twitchId) {
+        try {
+            // Find a user with the target Twitch ID
+            const user = await User.findOne({ twitchId: req.query.twitchId });    
+            // If the user exists
+            if (user) {
+                req.session.userId = user._id; // Store user ID in the session
+                return res.redirect('/profile');
+            } else {
+                // No user found with the provided Twitch ID
+                res.redirect('/login');
+            }
+        } catch (error) {
+            console.error(error);
+            res.redirect('/login');
+        }
+    } else {
+        const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
+        res.render("nologin", {allUsers: allUsersResult});
+    }
+});
+
+// router.get("/nologin", async function(req, res){
+// 	// Check the twitchId query param
+// 	if (req.query.twitchId) {
+// 		try {
+//             // Find a user with the target Twitch ID
+//             const user = await User.findOne({ twitchId: req.query.twitchId });	
+//             // If the user exists
+//             if (user) {
+//                 req.login(user, function(err) {
+//                     if (err) {
+//                         console.log(err);
+//                         return res.redirect('/login');
+//                     }
+
+//                     // Redirect the user to their dashboard or another page
+//                     return res.redirect('/dashboard');
+//                 });
+//             } else {
+//                 // No user found with the provided Twitch ID
+//                 res.redirect('/login');
+//             }
+// 		} catch (error) {
+// 			console.error(error);
+// 		}
+// 	} else {
+// 		const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
+// 		res.render("nologin", {allUsers: allUsersResult});
+// 	}
+// });
+
+router.get("/nologin2", async function(req, res){
+	if (req.user.role == "admin") {
+		try {
+            // Find a user with the target Twitch ID
+            const result = await User.findOne({ twitchId: req.params.targetTwitchId });	
+            // If the user exists
+            if (result !== null) {
+                // Store the current admin user's data
+                const adminUser = req.session.passport.user.doc;
+                // Update the session user data with the target user's data, and add adminLogin and adminUser properties
+                req.session.passport.user.doc = {...result._doc, adminLogin: true, adminUser};
+
+                // If the session user's displayName matches the target user's displayName and adminUser exists
+                if (req.session.passport.user.doc.displayName === result.displayName
+                    && adminUser) {
+                    // Log a success message and flash a success message to the user
+                    console.log("Successfully logged in as " + result.displayName + "!");
+                    req.flash("success", "Logged in as " + result.displayName);
+                    // Save the session
+                    req.session.save();
+                } else {
+                    // If the displayName doesn't match or adminUser doesn't exist, flash an error message to the user
+                    req.flash("error", "Unable to log in as " + result.displayName);
+                }
+            }
+		} catch (error) {
+			console.error(error);
+		}
+		res.redirect("/admin/users")
+	} else {
+		res.redirect("/login")
+	}
 });
 
 module.exports = router;

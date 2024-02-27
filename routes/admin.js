@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios").default;
-const { checkAuthenticated, generateGameCode, createErrorHTML } = require("../helpers");
+const { checkAuthenticated, generateGameCode, createErrorHTML, saveSession } = require("../helpers");
 
 const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
@@ -15,7 +15,8 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
 			const allGamesResult = await Game.find({}).sort({createdAt: "asc"});
-			const aggregationResult = await Question.aggregate([{$group: {_id: '$game',total: { $sum: 1 }}}]);
+			const aggregationResult = allGamesResult.map(game => ({_id: game.code, total: game.questions.length}));
+
 
 			// Convert the result array to an object with game codes as keys
 			const questionTotals = aggregationResult.reduce((acc, item) => {
@@ -56,7 +57,13 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 			} else {
 				const failureMessage = req.flash("error"); // Retrieve the flash message
 				const successMessage = req.flash("success")[0]; // Retrieve the flash message
-				const allQuestionsResult = await Question.find({game: req.params.gameCode}).sort([/*["round", "asc"], */["order","asc"]]);
+
+				// Find all questions from the Game model
+				const allQuestionsResult = result.questions.sort((a, b) => a.round - b.round || a.order - b.order);
+				
+
+				// Pull questions from Game model instead
+				// const allQuestionsResultFromGame = await Game.find({game: req.params.gameCode}).
 
 				const questionsByRound = allQuestionsResult.reduce((acc, question) => {
 					const round = question.round;
@@ -90,13 +97,18 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 
 			// Try to add the question if there are no validation errors
 			if (errors.length === 0) {
-				const result = await Question.create({
-					question: req.body.question,
-					answer: req.body.answer,
-					type: req.body.type,
-					game: req.body.game,
-					round: req.body.round,
-					order: req.body.order,
+				// Add a Question to the Game
+				const result = await Game.updateOne({ code: req.params.gameCode }, { 
+					$push: { 
+						questions: {
+							question: req.body.question,
+							answer: req.body.answer,
+							type: req.body.type,
+							game: req.body.game,
+							round: req.body.round,
+							order: req.body.order,
+						}
+					}
 				});
 				console.log(result);
 				// if (!result._id) {
@@ -104,7 +116,8 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 				// } else {
 				// 	console.log("Question <em>&quot;" + req.body.question + "&quot;</em> added");
 				// }
-				res.send({status: "success", content: result._id.toHexString()});
+				// res.send({status: "success", content: result._id.toHexString()});
+				res.send({status: "success", content: result.modifiedCount});
 			} else {
 				res.send({status: "failure", content: createErrorHTML(errors)});
 			}
@@ -130,17 +143,13 @@ router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async 
 		console.log(req.body)
 		if (errors.length === 0) {
 			const amount = (req.body.direction == "up" ? -1 : 1);
-			const updateQuestionResult = await Question.updateOne({ _id: req.body.questionId }, { $inc: { order: amount } });
 
-			// res.render("admin_users", {user: req.user, allUsers: allUsersResult,  failureMessage, successMessage});
-			// const result = await Question.create({
-			// 	question: req.body.question,
-			// 	answer: req.body.answer,
-			// 	type: req.body.type,
-			// 	game: req.body.game,
-			// 	round: req.body.round,
-			// 	order: req.body.order,
-			// });
+			// Update the question in the relevant Game
+			const updateQuestionResult = await Game.updateOne({ 
+				code: req.params.gameCode,
+				"questions._id": req.body.questionId
+			}, { $inc: { "questions.$.order": amount } });
+
 			console.log(updateQuestionResult);
 			// if (!result._id) {
 			// 	errors.push("Unable to create question due to database error");
@@ -181,6 +190,29 @@ router.post("/gameManagement/delete/:gameCode", checkAuthenticated, async functi
 		}
 	});
 
+router.get("/in-game", checkAuthenticated, async function(req, res){
+	if (req.user.role == "admin") {
+		// ADD ERROR HANDLING
+		const foundGame = await Game.findOne({ code: req.user.inGame });
+		
+		res.render("admin/in-game", {user: req.user, game: foundGame, failureMessage: "", successMessage: "Let's fuggin' do this"});
+	} else {
+		res.redirect("/login")
+	}
+})
+.post("/in-game", checkAuthenticated, async function(req, res){
+	// Sanitise inputs (later)
+	console.log(req.body);
+	if (req.body.sendQuestion) {
+		setTimeout(function(){
+			console.log("Sending next question...");
+			io.emit("next question", req.body.sendQuestion, req.body.questionId);
+			io.emit("update question", req.body.sendQuestion);
+			res.send({status: "success", content: "POST successful"});
+		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
+	}
+});
+	
 router.get("/release-user", checkAuthenticated, function(req, res){
 	if (req.user.adminLogin === true) {
 		const currentUser = req.session.passport.user.doc;
@@ -210,7 +242,9 @@ router.get("/startGame", checkAuthenticated, async function(req, res){
 		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 		const successMessage = req.flash("success")[0]; // Retrieve the flash message
 		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"});
-		const aggregationResult = await Question.aggregate([{$group: {_id: '$game',total: { $sum: 1 }}}]);
+		const aggregationResult = allGamesResult.map(game => ({_id: game.code, total: game.questions.length}));
+		console.log(aggregationResult);
+
 
 		// Convert the result array to an object with game codes as keys
 		const questionTotals = aggregationResult.reduce((acc, item) => {
@@ -241,6 +275,7 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 				// Set the game's state to starting
 				try {
 					const updateGameStatusResult = await Game.updateOne({ code: req.params.gameCode }, { status: "starting" });
+					// ACTUALLY HANDLE THIS LATER, YOU DING-DONG
 				} catch (error) {
 					console.error(error);
 					req.flash("error", "Unable to start game " + req.params.gameCode);
@@ -263,12 +298,39 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 	}
 })
 .post("/startGame/:gameCode", checkAuthenticated, async function(req, res){
-	console.log(req.body);
+	const gameCode = req.params.gameCode;
 
-	// Update listening frontend pages
-	io.emit("start game", req.params.gameCode);
+	const foundGame = await Game.findOne({ code: gameCode });
 
-	res.send({status: "success", content: "Game started"});
+	if (foundGame === null) {
+		req.flash("error", "Unable to find game " + gameCode);
+		return res.redirect("/admin/gameManagement");
+	}
+
+	const updateGameStatusResult = await Game.updateOne({ code: gameCode }, { status: "in-progress" });
+
+	// Check modifiedCount of updateGameStatusResult
+	if (updateGameStatusResult.modifiedCount === 0) {
+		req.flash("error", "Unable to start game " + gameCode);
+		return res.redirect("/admin/startGame/" + gameCode);
+	}
+
+	try {
+		req.user.inGame = gameCode;
+		saveSession(req);
+
+		// Update listening frontend pages
+		io.emit("start game", req.params.gameCode);
+
+		// Render the in-game admin panel
+		res.render("admin/in-game", {user: req.user, game: foundGame, failureMessage: "", successMessage: "Let's fuggin' do this"});
+	}
+	catch (error) {
+		console.error(error);
+		req.flash("error", "Unable to save session");
+		return res.redirect("/admin/startGame/" + gameCode);
+	}
+
 });
 
 router.get("/teams", checkAuthenticated, async function(req, res){

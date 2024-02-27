@@ -29,7 +29,8 @@ router.get("/in-game", checkAuthenticated, (req, res) => {
 	const questionId = req.body.questionId;
 
 	try {
-		const addAnswer = await Question.updateOne({_id: questionId}, { $set: { [`contestantAnswers.${user.twitchId}`]: answer } });
+		// Add the user's answer into Game
+		const addAnswer = await Game.updateOne( { code: user.inGame,"questions._id": questionId }, { $set: { "questions.$.contestantAnswers": { [user.twitchId]: answer } } });
 
 		if (addAnswer.modifiedCount < 1) {
 			console.log(addAnswer);
@@ -50,7 +51,6 @@ router.get("/in-game", checkAuthenticated, (req, res) => {
 			status: "danger",
 			content: "Something went wrong! Please let Danny know."
 		});
-		// console.log("shit went wrong");
 		console.error(error);
 		return;
 	}

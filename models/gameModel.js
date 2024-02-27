@@ -1,6 +1,18 @@
 const mongoose = require('mongoose');
 const timestamps  = require('mongoose-timestamp');
 
+// Define the Question schema
+const questionSchema = new mongoose.Schema({
+	question: { type: String, required: true },
+	answer: { type: String, required: true },
+	contestantAnswers: { type: Object, default: {} },
+	status: { type: String, enum: ["pending", "in-progress", "played"], default: "pending" },
+	type: { type: String, enum: ["text", "video", "image"], default: "text" },
+	game: { type: "String", required: true },
+	round: { type: Number, required: true },
+	order: { type: Number, required: true },
+});
+
 // Define the Team schema
 const teamSchema = new mongoose.Schema({
   name: { type: String, default: "Team" },
@@ -15,6 +27,7 @@ const gameSchema = new mongoose.Schema({
   maxAudience: { type: Number, default: 0 },
   winner: { type: String, default: null },
   teams: [teamSchema], 
+  questions: [questionSchema], 
   // team1: { type: mongoose.Schema.Types.ObjectId, ref: "Team" }
 });
 // gameSchema.plugin(timestamps);
