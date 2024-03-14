@@ -3,7 +3,46 @@
 		<header>
 			<h1>Questions</h1>
 		</header>
-		  <% Object.keys(questionsByRound).forEach(round => { %>
+		<div class="btn-toolbar mt-5" role="toolbar" aria-label="Toolbar with button groups">
+			<!-- Create pending group -->
+			<% const rounds = {}; %>
+			
+			<% Object.keys(questionsByRound).forEach(round => { %>
+				<% let thisRoundStatus = "pending"; %>
+				<% questionsByRound[round].forEach(function(question) { %>
+					<!-- Check if the round contains any questions in the played state -->
+					<% if (question.status === "played" && thisRoundStatus !== "in-progress") { thisRoundStatus = "played" } %>
+					<% if (question.status === "in-progress") { thisRoundStatus = "in-progress" } %>
+				<% }); %>
+
+				<!-- Push the round number into the rounds[thisRoundStatus] -->
+				<% if (rounds[thisRoundStatus]) { rounds[thisRoundStatus].push(round) } else { rounds[thisRoundStatus] = [round] } %>
+			<% }); %>
+				<!-- <script>console.log((<%- JSON.stringify(rounds) %>))</script> -->
+
+			<!-- Create the buttons -->
+				<% if (rounds.played) { %>
+					<div class="btn-group me-2" role="group" aria-label="Played rounds">
+						<% rounds.played.forEach(round => { %>
+							<button type="button" class="btn btn-secondary round-selector" data-round="<%= round %>">Round <%= round %></button>
+						<% }); %>
+					</div>
+				<% } %>
+				<% if (rounds["in-progress"]) { %>
+					<div class="btn-group me-2" role="group" aria-label="Current round">
+						<% rounds["in-progress"].forEach(round => { %>
+							<button type="button" class="btn btn-success round-selector" data-round="<%= round %>">Round <%= round %></button>
+						<% }); %>
+					</div>
+				<% } %>
+				<% if (rounds.pending) { %>
+					<div class="btn-group" role="group" aria-label="Pending rounds">
+						<% rounds.pending.forEach(round => { %>
+							<button type="button" class="btn btn-primary round-selector" data-round="<%= round %>">Round <%= round %></button>
+						<% }); %>
+					</div>
+				<% } %>
+			</div>		  <% Object.keys(questionsByRound).forEach(round => { %>
 		<section class="cards mt-3 d-none round" data-round="<%- round %>">
 			<h3 class="text-start">Round <%- round %></h3>
 			<div class="row row-cols-1 row-cols-md-4 g-4">
@@ -24,48 +63,10 @@
 							</div>
 					</div>
 					<% }); %>
-				</div>
 			</section>
 			<% }); %>
-			<div class="btn-toolbar mt-5" role="toolbar" aria-label="Toolbar with button groups">
-				<!-- Create pending group -->
-				<% const rounds = {}; %>
-				
-				<% Object.keys(questionsByRound).forEach(round => { %>
-					<% let thisRoundStatus = "pending"; %>
-					<% questionsByRound[round].forEach(function(question) { %>
-						<!-- Check if the round contains any questions in the played state -->
-						<% if (question.status === "played" && thisRoundStatus !== "in-progress") { thisRoundStatus = "played" } %>
-						<% if (question.status === "in-progress") { thisRoundStatus = "in-progress" } %>
-					<% }); %>
+	
 
-					<!-- Push the round number into the rounds[thisRoundStatus] -->
-					<% if (rounds[thisRoundStatus]) { rounds[thisRoundStatus].push(round) } else { rounds[thisRoundStatus] = [round] } %>
-				<% }); %>
-					<!-- <script>console.log((<%- JSON.stringify(rounds) %>))</script> -->
-
-				<!-- Create the buttons -->
-					<% if (rounds.played) { %>
-						<div class="btn-group me-2" role="group" aria-label="Played rounds">
-							<% rounds.played.forEach(round => { %>
-								<button type="button" class="btn btn-secondary round-selector" data-round="<%= round %>">Round <%= round %></button>
-							<% }); %>
-						</div>
-					<% } %>
-					<% if (rounds["in-progress"]) { %>
-						<div class="btn-group me-2" role="group" aria-label="Current round">
-							<% rounds["in-progress"].forEach(round => { %>
-								<button type="button" class="btn btn-success round-selector" data-round="<%= round %>">Round <%= round %></button>
-							<% }); %>
-						</div>
-					<% } %>
-					<% if (rounds.pending) { %>
-						<div class="btn-group" role="group" aria-label="Pending rounds">
-							<% rounds.pending.forEach(round => { %>
-								<button type="button" class="btn btn-primary round-selector" data-round="<%= round %>">Round <%= round %></button>
-							<% }); %>
-						</div>
-					<% } %>
     </section>
 
 	<script src="/socket.io/socket.io.js"></script>
