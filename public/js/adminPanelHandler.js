@@ -19,6 +19,24 @@ $("button.send-question").on("click", function(event){
 });
 /*/
 
+// Handle display of rounds
+$(document).ready(function(){
+	// Show the first round
+	$(".round").first().removeClass("d-none");
+
+	// Handle the click event
+	$(".round-selector").on("click", function(){
+		// Hide all rounds
+		$(".round").addClass("d-none");
+
+		// Get the round number
+		const roundNumber = $(this).attr("data-round");
+
+		// Show the selected round
+		$(".round[data-round='" + roundNumber + "']").removeClass("d-none");
+	});
+});
+
 let previousQuestion = null;
 
 $("form").on("submit", function(event){
