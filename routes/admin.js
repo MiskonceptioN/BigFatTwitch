@@ -193,9 +193,32 @@ router.post("/gameManagement/delete/:gameCode", checkAuthenticated, async functi
 router.get("/in-game", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		// ADD ERROR HANDLING
-		const foundGame = await Game.findOne({ code: req.user.inGame });
+		// const foundGame = await Game.findOne({ code: req.user.inGame });
+		const foundGame = await Game.findOne({ status: "in-progress" });
+		if (foundGame === null) {
+			// Make sure the flash saves before redirecting
+			req.flash("error", "Unable to find any games in the 'in-progress' state");
+			await saveSession(req);
+
+			res.redirect("/admin/startGame");
+			return
+		}
+
+		// Find all questions from the Game model
+		const allQuestionsResult = foundGame.questions.sort((a, b) => a.round - b.round || a.order - b.order);
 		
-		res.render("admin/in-game", {user: req.user, game: foundGame, failureMessage: "", successMessage: "Let's fuggin' do this"});
+
+		// Pull questions from Game model instead
+		// const allQuestionsResultFromGame = await Game.find({game: req.params.gameCode}).
+
+		const questionsByRound = allQuestionsResult.reduce((acc, question) => {
+			const round = question.round;
+			if (!acc[round]) {acc[round] = []};
+			acc[round].push(question); // Push the current question to the array corresponding to its round
+			return acc;
+			}, {});
+			
+		res.render("admin/in-game", {user: req.user, questionsByRound, game: foundGame, failureMessage: "", successMessage: "Let's fuggin' do this"});
 	} else {
 		res.redirect("/login")
 	}
@@ -204,6 +227,17 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 	// Sanitise inputs (later)
 	console.log(req.body);
 	if (req.body.sendQuestion) {
+		// Set the question status to "in-progress" in the database
+		const updateQuestionResult = await Game.updateOne({ 
+			code: req.body.gameCode,
+			"questions._id": req.body.questionId
+		}, { $set: { "questions.$.status": "in-progress" } });
+
+		if (updateQuestionResult.modifiedCount !== 1){
+			console.log("Unable to update question status");
+		}
+
+		// Send the question to the frontend
 		setTimeout(function(){
 			console.log("Sending next question...");
 			io.emit("next question", req.body.sendQuestion, req.body.questionId);
@@ -211,6 +245,45 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			res.send({status: "success", content: "POST successful"});
 		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	}
+})
+.post("/in-game/set-question-state", checkAuthenticated, async function(req, res){
+	// Sanitise inputs (later)
+
+	// Check all required params have been sent
+	if (!req.body.questionId || !req.body.state || !req.body.gameId ) {
+		console.log("Missing required parameters");
+		console.log(req.body);
+		return res.status(400).send({status: "danger", content: "Missing required parameters"});
+	}
+
+	// Update the database
+		// Set the question status to "in-progress" in the database
+		try {
+			const updateQuestionResult = await Game.updateOne({ 
+			code: req.body.gameId,
+			"questions._id": req.body.questionId
+		}, { $set: { "questions.$.status": req.body.state } });
+
+		if (updateQuestionResult.modifiedCount !== 1){
+			console.log("Unable to update question status");
+			throw new Error("Unable to update question status");
+		} else {
+			return res.status(200).send();
+		}
+	} catch (error) {
+		console.error("Failed to update question status to " + req.body.state, error);
+		// return res.status(500).send({status: "danger", content: "Failed to update question status to " + req.body.state + " for question ID " + req.body.questionId});
+		return res.status(500).send();
+	}
+
+	// 	// Send the question to the frontend
+	// 	setTimeout(function(){
+	// 		console.log("Sending next question...");
+	// 		io.emit("next question", req.body.sendQuestion, req.body.questionId);
+	// 		io.emit("update question", req.body.sendQuestion);
+	// 		res.send({status: "success", content: "POST successful"});
+	// 	}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
+	// }
 });
 	
 router.get("/release-user", checkAuthenticated, function(req, res){
@@ -304,6 +377,7 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 
 	if (foundGame === null) {
 		req.flash("error", "Unable to find game " + gameCode);
+		saveSession(req);
 		return res.redirect("/admin/gameManagement");
 	}
 
@@ -316,14 +390,11 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 	}
 
 	try {
-		req.user.inGame = gameCode;
-		saveSession(req);
-
 		// Update listening frontend pages
 		io.emit("start game", req.params.gameCode);
 
-		// Render the in-game admin panel
-		res.render("admin/in-game", {user: req.user, game: foundGame, failureMessage: "", successMessage: "Let's fuggin' do this"});
+		// Redirect to the in-game admin panel
+		res.redirect("/admin/in-game/");
 	}
 	catch (error) {
 		console.error(error);

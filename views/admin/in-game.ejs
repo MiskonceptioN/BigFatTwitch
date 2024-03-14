@@ -4,29 +4,33 @@
 			<h1>Questions</h1>
 		</header>
 		<section class="cards mt-5">
+			<% Object.keys(questionsByRound).forEach(round => { %>
+				<h3 class="text-start">Round <%- round %></h3>
 			<div class="row row-cols-1 row-cols-md-4 g-4">
-			<% game.questions.forEach(function(question) { %>
-				<div class="col">
-					<div class="card">
-						<div class="card-body">
-							<h5 class="card-title"><%= question.question %></h5>
-							<p class="card-text">(<%= question.game %>)</p>
-							<form method="post" action="/admin/in-game" class="debug-question">
-								<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
-								<input type="hidden" id="sendQuestion" name="sendQuestion" value="<%= question.question %>">
-								<input type="submit" class="btn btn-primary" value="Send question">
-							</form>
-						</div>
+					<% questionsByRound[round].forEach(function(question) { %>
+						<div class="col">
+							<div class="card <% if (question.status == "in-progress") { %>bg-success<% } if (question.status == "played") { %>bg-secondary<% } %>" id="<%= question._id %>">
+								<div class="card-body">
+									<h5 class="card-title"><%= question.question %></h5>
+									<p class="card-text answer">(<%= question.answer %>)</p>
+									<form method="post" action="/admin/in-game" class="debug-question">
+										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
+										<input type="hidden" id="gameCode" name="gameCode" value="<%= question.game %>">
+										<input type="hidden" id="sendQuestion" name="sendQuestion" value="<%= question.question %>">
+										<!-- <span class="send-question"><input type="submit" class="btn btn-primary" value="Send question"></span> -->
+										<button class="send-question btn btn-primary" <% if (question.status == "played") { %>disabled<% } %>>Send question</button>
+									</form>
+								</div>
+							</div>
 					</div>
+					<% }); %>
 				</div>
-			<% }); %>
-			</div>
+				<% }); %>
 		</section>
     </section>
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
-		console.log(<%- JSON.stringify(user) %>);
 		$("form.debug-question").submit(function(e) {
 			e.preventDefault();
 			const questionId = $(this).find('input[name="questionId"]').val();
@@ -65,5 +69,5 @@
 	}
 
 	</script>
-<script src="/js/ajaxFormHandler.js"></script>
+<script src="/js/adminPanelHandler.js"></script>
 <%- include('../footer'); %>

@@ -257,3 +257,17 @@ canvas.disabled {
 	-webkit-transform: rotate(-180deg);
 	}
 }
+
+.card-text.answer {
+	color: black;
+	background: black;
+}
+.card-text.answer:hover {
+	color: white;
+}
+
+button>div.spinner-border{
+    --bs-spinner-width: 1rem;
+    --bs-spinner-height: 1rem;
+	--bs-spinner-border-width: 0.15rem;
+}
