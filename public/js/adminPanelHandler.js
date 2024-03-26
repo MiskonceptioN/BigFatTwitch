@@ -52,6 +52,9 @@ $("form").on("submit", function(event){
 	const inputButton = $(form).find(".send-question");
 	const inputButtonContent = $(inputButton).html();
 	const questionID = $(form).find("input[name='questionId']").val();
+	const roundNumber = $(form).find("input[name='roundNumber']").val();
+	const $navButton = $("#round-nav").find("button[data-round='" + roundNumber + "']");
+	const roundType = $navButton.parent().data('round-type');
 
     $.ajax({
         method: formMethod,
@@ -73,7 +76,21 @@ $("form").on("submit", function(event){
 				previousQuestion = questionID;
 				// $(form).find("input[name='questionId']").val();
 			}
-        },
+
+			// Rearrange #round-nav
+			// if all questions have been played
+
+
+			// if it's the first question in a new round
+			if (roundType !== "in-progress"){
+				// Style the button as in-progress
+				$navButton.removeClass("btn-secondary").removeClass("btn-primary").addClass("btn-success");
+		
+				// Move the button to the "in-progress" section of the nav
+				$navButton.detach().appendTo('[data-round-type="in-progress"]');
+			}
+		
+		},
         error: function(err) {
 			// Log and show error message
 			console.log("Request failed", err);
@@ -108,9 +125,26 @@ function disablePrevious(uid, gameId) {
 				$(this).attr("disabled", "disabled");
 			});
 		
-			// Set the card to be bg-secondary
+			// Set the card to the "played" state
 			$(targetCard).removeClass().addClass("card bg-secondary");
-		
+			$(targetCard).data("state", "played")
+
+			// Loop through all cards in a round and check if they have all been played
+			const allQuestionStates = [];
+			// Find the round number from the form inside the card
+			const roundNumber = $(targetCard).find("input[name='roundNumber']").val();
+
+			$(".round[data-round='" + roundNumber + "']").find(".card").each(function(){
+				allQuestionStates.push($(this).data("state"));		
+			});
+			const allPlayed = allQuestionStates.every( (val) => val === "played");
+
+			if (allPlayed) {
+				// Move the round button to the "played" section of the nav
+				const $navButton = $("#round-nav").find("button[data-round='" + roundNumber + "']");
+				$navButton.removeClass("btn-secondary").removeClass("btn-success").addClass("btn-secondary");
+				$navButton.detach().appendTo('[data-round-type="played"]');
+			}
 		},
         error: function(err) {
 			// Log and show error message

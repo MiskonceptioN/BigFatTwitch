@@ -3,7 +3,7 @@
 		<header>
 			<h1>Questions</h1>
 		</header>
-		<div class="btn-toolbar mt-5" role="toolbar" aria-label="Toolbar with button groups">
+		<div id="round-nav" class="btn-toolbar mt-5" role="toolbar" aria-label="Toolbar with button groups">
 			<!-- Create pending group -->
 			<% const rounds = {}; %>
 			
@@ -21,39 +21,40 @@
 				<!-- <script>console.log((<%- JSON.stringify(rounds) %>))</script> -->
 
 			<!-- Create the buttons -->
-				<% if (rounds.played) { %>
-					<div class="btn-group me-2" role="group" aria-label="Played rounds">
+			<div class="btn-group me-2" role="group" data-round-type="played" aria-label="Played rounds">
+						<% if (rounds.played) { %>
 						<% rounds.played.forEach(round => { %>
 							<button type="button" class="btn btn-secondary round-selector" data-round="<%= round %>">Round <%= round %></button>
 						<% }); %>
+						<% } %>
 					</div>
-				<% } %>
-				<% if (rounds["in-progress"]) { %>
-					<div class="btn-group me-2" role="group" aria-label="Current round">
+					<div class="btn-group me-2" role="group" data-round-type="in-progress" aria-label="Current round">
+						<% if (rounds["in-progress"]) { %>
 						<% rounds["in-progress"].forEach(round => { %>
 							<button type="button" class="btn btn-success round-selector" data-round="<%= round %>">Round <%= round %></button>
 						<% }); %>
+						<% } %>
 					</div>
-				<% } %>
-				<% if (rounds.pending) { %>
-					<div class="btn-group" role="group" aria-label="Pending rounds">
+					<div class="btn-group" role="group" data-round-type="pending" aria-label="Pending rounds">
+						<% if (rounds.pending) { %>
 						<% rounds.pending.forEach(round => { %>
 							<button type="button" class="btn btn-primary round-selector" data-round="<%= round %>">Round <%= round %></button>
 						<% }); %>
+						<% } %>
 					</div>
-				<% } %>
 			</div>		  <% Object.keys(questionsByRound).forEach(round => { %>
 		<section class="cards mt-3 d-none round" data-round="<%- round %>">
 			<h3 class="text-start">Round <%- round %></h3>
 			<div class="row row-cols-1 row-cols-md-4 g-4">
 					<% questionsByRound[round].forEach(function(question) { %>
 						<div class="col">
-							<div class="card <% if (question.status == "in-progress") { %>bg-success<% } if (question.status == "played") { %>bg-secondary<% } %>" id="<%= question._id %>">
+							<div class="card <% if (question.status == "in-progress") { %>bg-success<% } if (question.status == "played") { %>bg-secondary<% } %>" id="<%= question._id %>" <% if (question.status == "in-progress") { %>data-state="in-progress"<% } if (question.status == "played") { %>data-state="played"<% } if (question.status == "pending") { %>data-state="pending"<% } %>>
 								<div class="card-body">
 									<h5 class="card-title"><%= question.question %></h5>
 									<p class="card-text answer">(<%= question.answer %>)</p>
 									<form method="post" action="/admin/in-game" class="debug-question">
 										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
+										<input type="hidden" id="roundNumber" name="roundNumber" value="<%= round %>">
 										<input type="hidden" id="gameCode" name="gameCode" value="<%= question.game %>">
 										<input type="hidden" id="sendQuestion" name="sendQuestion" value="<%= question.question %>">
 										<!-- <span class="send-question"><input type="submit" class="btn btn-primary" value="Send question"></span> -->
