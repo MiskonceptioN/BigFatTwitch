@@ -52,17 +52,24 @@ function findTeammate(game, currentUser) {
 		</section>
 		<hr>
 		<section>
-			<h2>Team chat:</h2>
-			<div class="row">
-				<input type="text">
-				<input type="submit" value="Send">
-			</div>
-			<div class="row">
-				<ul id="messages">
-					<li>dannyvalz (21:12): You ready?</li>
-					<li>AlexStarbelle (21:13): You betcha!</li>
-				</ul>
-			</div>
+			<form id="form" action="">
+				<input id="input" autocomplete="off" /><button>Send</button>
+			</form>
+			<ul id="messages"></ul>
+			<script>
+			const form = document.getElementById('form');
+			const input = document.getElementById('input');
+			const messages = document.getElementById('messages');
+
+			form.addEventListener('submit', (e) => {
+				e.preventDefault();
+				if (input.value) {
+					socket.emit('chat message', input.value, <%- JSON.stringify(user) %>);
+					input.value = '';
+				}
+			});
+
+			</script>
 		</section>
 		<footer style="margin-top: 10em;">
             <h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
@@ -88,13 +95,14 @@ function findTeammate(game, currentUser) {
 		livePlayerSpan.innerHTML = totalLivePlayers;
 	}
 
-	const socket = io();
+	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
 
 	socket.on('chat message', (msg) => {
 		const item = document.createElement('li');
 		item.innerHTML = msg;
-		document.querySelector("h2").appendChild(item);
-		window.scrollTo(0, document.body.scrollHeight);
+		document.querySelector("#messages").appendChild(item);
+		// document.querySelector("h2").appendChild(item);
+		// window.scrollTo(0, document.body.scrollHeight);
 	});
 
 	socket.on('player joined', (gameCode, user) => {
