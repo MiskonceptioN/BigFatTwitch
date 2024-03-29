@@ -42,7 +42,11 @@
 						<% }); %>
 						<% } %>
 					</div>
-			</div>		  <% Object.keys(questionsByRound).forEach(round => { %>
+			</div>
+			<div class="d-grid mt-3">
+				<button id="reset-questions" class="btn btn-danger" type="button" data-game-code="<%= game.code %>">Set ALL questions to pending</button>
+			</div>
+				<% Object.keys(questionsByRound).forEach(round => { %>
 		<section class="cards mt-3 d-none round" data-round="<%- round %>">
 			<h3 class="text-start">Round <%- round %></h3>
 			<div class="row row-cols-1 row-cols-md-4 g-4">

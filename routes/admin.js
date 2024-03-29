@@ -310,6 +310,44 @@ router.get("/release-user", checkAuthenticated, function(req, res){
 	}
 });
 
+router.post("/reset-questions/:gameCode", checkAuthenticated, async function(req, res){
+	const gameCode = req.params.gameCode;
+	if (req.user.role != "admin") {
+		res.send({status: "failure", content: "You're not an admin!"});
+		console.log("User attempted to reset game " + gameCode + " but they're not an admin!")
+		return;
+	}
+
+	try {
+		const foundGame = await Game.findOne({ code: gameCode });
+
+		if (foundGame === null) {
+			console.log("Unable to find game " + gameCode);
+			res.send({status: "failure", content: "Unable to find game " + gameCode});
+			return;
+		}
+	
+		try {
+			const updateQuestionStatusResult = await Game.updateOne({ code: gameCode }, { $set: { "questions.$[].status": "pending" } });
+	
+			// Check modifiedCount of updateQuestionStatusResult
+			if (updateQuestionStatusResult.modifiedCount === 0) {
+				res.send({status: "failure", content: "Unable to update game " + gameCode});
+				return;
+			}
+		
+			res.send({status: "Success", content: "Successfully reset game " + gameCode});
+			return; 
+		} catch (error) {
+			console.log("Unable to update game " + gameCode);
+			res.send({status: "failure", content: "Unable to update game " + gameCode});
+		}
+	} catch (error) {
+		console.log("Error finding game "+ gameCode, error)
+		res.send({status: "failure", content: "Unable to find game " + gameCode});
+	}
+});
+
 router.get("/startGame", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		const failureMessage = req.flash("error")[0]; // Retrieve the flash message

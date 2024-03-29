@@ -19,6 +19,15 @@ $("button.send-question").on("click", function(event){
 });
 /*/
 
+// Click handler for the reset-questions button
+$("#reset-questions").on("click", function(event){
+	event.preventDefault(); // Prevent the form from being submitted automagically
+
+	if (confirm("Are you sure you want to reset all questions? This will reset all questions to the 'pending' state?")){
+		resetQuestions();
+	}
+});
+
 // Handle display of rounds
 $(document).ready(function(){
 	// Show the first round
@@ -103,6 +112,33 @@ $("form").on("submit", function(event){
         }
     });
 });
+
+function resetQuestions(){
+	// Disable the button
+	$("#reset-questions").attr("disabled", "disabled");
+
+	// Capture data-game-code from the button
+	const gameCode = $("#reset-questions").data("game-code");
+
+	// Send the request to the backend
+	$.ajax({
+		method: "POST",
+		url: "/admin/reset-questions/" + gameCode,
+	
+		success: function(response) {
+			if (response.status === "failure"){
+				console.log("Request failed: ", response.content);
+			} else {
+				// Refresh the page
+				location.reload();
+			}
+		},
+		error: function(err) {
+			// Log error message
+			console.log("Request failed", err);
+		}
+	});
+}
 
 function disablePrevious(uid, gameId) {
 	if (previousQuestion === null) return;
