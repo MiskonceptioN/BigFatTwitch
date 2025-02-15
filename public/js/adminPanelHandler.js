@@ -28,21 +28,37 @@ $("#reset-questions").on("click", function(event){
 	}
 });
 
+// Click handler for the reset-questions button
+$("#end-round").on("click", function(event){
+	event.preventDefault(); // Prevent the form from being submitted automagically
+
+	const allCards = $(".current-round .card");
+	const allCardsValid = allCards.toArray().every(card => {
+		return $(card).hasClass("bg-success") || $(card).hasClass("bg-secondary");
+	});
+
+	if (!allCardsValid) {
+		// Thanks Endergamer... muh true bebbeh... Not Cezz
+		if (!confirm("Not all questions have been asked!\nAre you sure you want to end the round?")){return}
+	}
+	endRound();
+});
+
 // Handle display of rounds
 $(document).ready(function(){
 	// Show the first round
-	$(".round").first().removeClass("d-none");
+	$(".round").first().removeClass("d-none").addClass("current-round");
 
 	// Handle the click event
 	$(".round-selector").on("click", function(){
 		// Hide all rounds
-		$(".round").addClass("d-none");
+		$(".round").addClass("d-none").removeClass("current-round");
 
 		// Get the round number
 		const roundNumber = $(this).attr("data-round");
 
 		// Show the selected round
-		$(".round[data-round='" + roundNumber + "']").removeClass("d-none");
+		$(".round[data-round='" + roundNumber + "']").removeClass("d-none").addClass("current-round");
 	});
 });
 
@@ -81,7 +97,7 @@ $("form").on("submit", function(event){
 
 			// Set the previousQuestion
 			if (previousQuestion !== questionID){
-				disablePrevious(previousQuestion, gameCode);
+				updatePrevious(previousQuestion, gameCode);
 				previousQuestion = questionID;
 				// $(form).find("input[name='questionId']").val();
 			}
@@ -140,7 +156,7 @@ function resetQuestions(){
 	});
 }
 
-function disablePrevious(uid, gameId) {
+function updatePrevious(uid, gameId) {
 	if (previousQuestion === null) return;
 	console.log("Disabling previous question for game " + gameId);
 	// if (previousQuestion === uid) return;
@@ -158,7 +174,8 @@ function disablePrevious(uid, gameId) {
 
 			// Use a jquery foreach to set all buttons within targetCard to disabled
 			$(targetCard).find("button").each(function(){
-				$(this).attr("disabled", "disabled");
+				// $(this).attr("disabled", "disabled");
+				$(this).text("Resend question");
 			});
 		
 			// Set the card to the "played" state
@@ -193,4 +210,34 @@ function disablePrevious(uid, gameId) {
 			// $(inputButton).html(inputButtonContent);
         }
     });
+}
+
+function endRound(){
+	// Disable the button
+	$("#end-round").attr("disabled", "disabled");
+
+	// Capture data-game-code from the button
+	const gameCode = $("#end-round").data("game-code");
+
+	// Capture the round number from .current-round
+	const roundNumber = $(".current-round").data("round");
+
+	// Send the request to the backend
+	$.ajax({
+		method: "POST",
+		url: "/admin/end-round/" + gameCode + "/" + roundNumber,
+	
+		success: function(response) {
+			if (response.status === "failure"){
+				console.log("Request failed: ", response.content);
+			} else {
+				// Refresh the page
+				location.reload();
+			}
+		},
+		error: function(err) {
+			// Log error message
+			console.log("Request failed", err);
+		}
+	});
 }

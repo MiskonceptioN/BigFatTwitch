@@ -44,7 +44,7 @@
 					</div>
 			</div>
 			<div class="d-grid mt-3">
-				<button id="reset-questions" class="btn btn-danger" type="button" data-game-code="<%= game.code %>">Set ALL questions to pending</button>
+				<button id="reset-questions" class="btn btn-danger" type="button" data-game-code="<%= game.code %>">DEBUG: Set ALL questions to pending</button>
 			</div>
 				<% Object.keys(questionsByRound).forEach(round => { %>
 		<section class="cards mt-3 d-none round" data-round="<%- round %>">
@@ -62,7 +62,8 @@
 										<input type="hidden" id="gameCode" name="gameCode" value="<%= question.game %>">
 										<input type="hidden" id="sendQuestion" name="sendQuestion" value="<%= question.question %>">
 										<!-- <span class="send-question"><input type="submit" class="btn btn-primary" value="Send question"></span> -->
-										<button class="send-question btn btn-primary" <% if (question.status == "played") { %>disabled<% } %>>Send question</button>
+										<button class="send-question btn btn-primary"
+										>Send question</button>
 									</form>
 								</div>
 							</div>
@@ -70,6 +71,9 @@
 					<% }); %>
 			</section>
 			<% }); %>
+			<div class="d-grid mt-3">
+				<button id="end-round" class="btn btn-danger" type="button" data-game-code="<%= game.code %>">End round</button>
+			</div>
 	
 
     </section>
