@@ -39,7 +39,7 @@ router.get("/debug", async (req, res) => {
 		});
 	});
 
-	console.log(questions);
+	// console.log(questions);
 
 	res.render("debug", {user: req.user, game: currentlyRunningGame, questions})
 })
