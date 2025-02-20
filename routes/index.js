@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { checkAuthenticated } = require("../helpers");
+const { checkAuthenticated, checkForRunningGame } = require("../helpers");
 
 // Pull in socket.io
 const io = require('../app');
@@ -9,14 +9,25 @@ const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
 const Question = require("../models/questionModel.js");
 
-router.get("/", checkAuthenticated, (req, res) => {
+router.get("/", checkAuthenticated, async (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 	const successMessage = req.flash("success")[0]; // Retrieve the flash message
-	if (req.user.role == "admin") {res.render("admin", {user: req.user, failureMessage, successMessage})}
+	if (req.user.role == "admin") {
+		const currentlyRunningGame = await checkForRunningGame();
+
+		res.render("admin", {
+			user: req.user,
+			game: currentlyRunningGame,
+			failureMessage,
+			successMessage
+		})
+	}
 	else {res.render("game", {user: req.user, failureMessage, successMessage})}
 });
 
 router.get("/debug", async (req, res) => {
+	const currentlyRunningGame = await checkForRunningGame();
+
 	const questions = [];
 	// const questions = await Question.find({});
 	// Pull all the questions from the Game model
@@ -30,7 +41,7 @@ router.get("/debug", async (req, res) => {
 
 	console.log(questions);
 
-	res.render("debug", {user: req.user, questions})
+	res.render("debug", {user: req.user, game: currentlyRunningGame, questions})
 })
 .post("/debug", checkAuthenticated, async function(req, res){
 	// Sanitise inputs (later)
@@ -77,12 +88,18 @@ router.get("/logout", async (req, res) => {
 	});
 });
 
-router.get("/profile", checkAuthenticated, function(req, res){
-	res.render("profile", {user: req.user});
+router.get("/profile", checkAuthenticated, async (req, res) => {
+	if (req.user.role == "admin") {
+		const currentlyRunningGame = await checkForRunningGame();
+		res.render("profile", {user: req.user, game: currentlyRunningGame})
+	} else res.render("profile", {user: req.user});
 });
 
-router.get("/settings", checkAuthenticated, function(req, res){
-	res.render("settings", {user: req.user});
+router.get("/settings", checkAuthenticated, async (req, res) => {
+	if (req.user.role == "admin") {
+		const currentlyRunningGame = await checkForRunningGame();
+		res.render("settings", {user: req.user, game: currentlyRunningGame})
+	} else {res.render("settings", {user: req.user})}
 }).
 post("/settings", checkAuthenticated, async function(req, res){
 	// Sanitise inputs (later)
