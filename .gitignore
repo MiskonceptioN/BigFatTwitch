@@ -118,4 +118,4 @@ dist
 # Mac bullshit
 .DS_Store
 
-*sandbox\.*
+*sandbox*\.*
