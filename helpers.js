@@ -8,6 +8,22 @@ const checkAuthenticated = (req, res, next) => {
 	res.redirect("/login");
 };
 
+/**
+ * Asynchronously checks for a currently running game.
+ *
+ * This function queries the database to find a game with the status "in-progress".
+ * If a game is found, it returns the game object. If an error occurs during the
+ * query, it logs the error to the console.
+ *
+ * @returns {Promise<Object|null>} A promise that resolves to the currently running game object, or null if no game is found.
+ */
+const checkForRunningGame = async () => {
+	let currentlyRunningGame;
+	try {currentlyRunningGame = await Game.findOne({ status: "in-progress" })}
+		catch (error) {console.error("Error finding currently running game:", error)}
+	return currentlyRunningGame;
+};
+
 async function generateGameCode() {
 	const chars = ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "X", "Z"];
 	let gameCode = "";
@@ -64,5 +80,5 @@ async function saveSession(req) {
 }
 
 module.exports = {
-	checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession
+	checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession
 };
