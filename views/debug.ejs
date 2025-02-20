@@ -36,13 +36,13 @@
 
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
-		console.log(<%- JSON.stringify(user) %>);
+		// console.log(<%- JSON.stringify(user) %>);
 		$("form.debug-question").submit(function(e) {
 			e.preventDefault();
 			const questionId = $(this).find('input[name="questionId"]').val();
 			const question = $(this).find('input[name="question"]').val();
 			// $.post('/debug', { questionId, question }, function(data) {
-				console.log({questionId, question});
+				// console.log({questionId, question});
 			// });
 		});
 
