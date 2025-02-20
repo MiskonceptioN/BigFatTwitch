@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios").default;
-const { checkAuthenticated, generateGameCode, createErrorHTML, saveSession } = require("../helpers");
+const { checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHTML, saveSession } = require("../helpers");
 
 const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
@@ -16,7 +16,7 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
 			const allGamesResult = await Game.find({}).sort({createdAt: "asc"});
 			const aggregationResult = allGamesResult.map(game => ({_id: game.code, total: game.questions.length}));
-
+			const currentlyRunningGame = await checkForRunningGame();
 
 			// Convert the result array to an object with game codes as keys
 			const questionTotals = aggregationResult.reduce((acc, item) => {
@@ -25,7 +25,7 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 			}, {});
 			console.log(questionTotals);
 			  
-			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
+			res.render("admin/game/manage", {user: req.user, game: currentlyRunningGame, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
 		}
@@ -490,7 +490,8 @@ router.get("/teams", checkAuthenticated, async function(req, res){
 		const successMessage = req.flash("success")[0]; // Retrieve the flash message
 		const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
 		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"});
-		res.render("admin/teams", {user: req.user, allUsers: allUsersResult, allGames: allGamesResult, failureMessage, successMessage});
+		const currentlyRunningGame = await checkForRunningGame();
+		res.render("admin/teams", {user: req.user, game: currentlyRunningGame, allUsers: allUsersResult, allGames: allGamesResult, failureMessage, successMessage});
 	} else {
 		res.redirect("/login")
 	}
@@ -521,7 +522,8 @@ router.get("/users", checkAuthenticated, async function(req, res){
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
 			const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
-			res.render("admin/users", {user: req.user, allUsers: allUsersResult,  failureMessage, successMessage});
+			const currentlyRunningGame = await checkForRunningGame();
+			res.render("admin/users", {user: req.user, allUsers: allUsersResult, game: currentlyRunningGame, failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
 		}
