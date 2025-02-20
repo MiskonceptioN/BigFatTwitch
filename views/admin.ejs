@@ -18,10 +18,15 @@
 		<% } %>
 		<% if(user.role == "admin"){ %>
 			<div class="d-grid gap-2 col-6 mx-auto">
-				<a class="btn btn-success" role="button" href="admin/startGame">Start game</a>
+				<% if (typeof game !== 'undefined' && game.status === "in-progress") { %>
+					<a class="btn btn-success" role="button" href="admin/in-game">Administrate current game (<%- game.code -%>)</a>
+					<% } else { %>
+					<a class="btn btn-success" role="button" href="admin/startGame">Start game</a>
+				<% } %>
 				<a class="btn btn-primary" role="button" href="admin/gameManagement">Create/manage games</a>
 				<a class="btn btn-primary" role="button" href="admin/teams">Team management</a>
 				<a class="btn btn-primary" role="button" href="admin/users">User management</a>
+				<a class="btn btn-info" role="button" href="debug">Go to debug menu</a>
 			</div>
 		<% } else { %>
 			<h1 class="text-danger">You should not be here!</h1>
