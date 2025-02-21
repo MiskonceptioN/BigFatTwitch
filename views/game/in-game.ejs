@@ -86,6 +86,15 @@
 		// restartAnimation();
 	});
 
+	socket.on('lock canvas', (question, questionId) => {
+		console.log("Locking canvas");
+		lockCanvas();
+	});
+	socket.on('unlock canvas', (question, questionId) => {
+		console.log("Unlocking canvas");
+		unlockCanvas();
+	});
+
 	socket.on('update canvas', (data, userID) => {
 		// Only update serverCanvas if the data is not from the current user
 		if (userID === <%- user.twitchId %>) return;

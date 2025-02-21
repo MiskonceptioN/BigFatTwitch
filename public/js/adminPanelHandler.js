@@ -23,6 +23,14 @@ $("#end-round").on("click", function(event){
 	endRound();
 });
 
+// Click handler for the lock/unlock canvas buttons
+$("#lock-canvas").on("click", async function(event){
+	sendCanvasState("lock");
+});
+$("#unlock-canvas").on("click", async function(event){
+	sendCanvasState("unlock");
+});
+
 // Handle display of rounds
 $(document).ready(function(){
 	// Show the first round
@@ -107,6 +115,28 @@ $("form").on("submit", function(event){
         }
     });
 });
+
+async function sendCanvasState(toggle){
+	// Send the request to the backend
+	$.ajax({
+		method: "POST",
+		url: "/admin/canvas/" + toggle,
+
+		success: function(response) {
+			if (response.status === "failure"){
+				console.log("Request failed: ", response.content);
+				return false;
+			} else {
+				return true;
+			}
+		},
+		error: function(err) {
+			// Log error message
+			console.log("Request failed", err);
+			return false;
+		}
+	});
+}
 
 function resetQuestions(){
 	// Disable the button

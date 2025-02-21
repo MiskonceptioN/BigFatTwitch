@@ -101,9 +101,18 @@ function lockFormFields() {
 }
 
 function unlockFormFields() {
-	document.getElementById('answerCanvas').disabled = false;
+	unlockCanvas();
 	document.getElementById('answer-button').disabled = false;
+}
+
+function unlockCanvas() {
+	document.getElementById('answerCanvas').disabled = false;
 	$("#answerCanvas").removeClass("disabled");
+}
+
+function lockCanvas() {
+	document.getElementById('answerCanvas').disabled = true;
+	$("#answerCanvas").addClass("disabled");
 }
 
 function resetFormFields() {

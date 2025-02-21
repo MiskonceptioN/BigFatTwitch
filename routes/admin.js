@@ -10,6 +10,18 @@ const Question = require("../models/questionModel.js");
 // Pull in socket.io
 const io = require('../app');
 
+router.post("/canvas/:toggle", checkAuthenticated, async function(req, res){
+	const lockState = req.params.toggle;
+	if (lockState !== "lock" && lockState !== "unlock") {
+		res.send({status: "failure", content: "Invalid lock state"});
+		console.log("Invalid lock state: " + lockState);
+		return;
+	}
+
+	io.emit(lockState + " canvas");
+	res.send({status: "success", content: "Socket event sent"});
+})
+
 router.get("/gameManagement", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
@@ -636,6 +648,19 @@ router.get("/users/login/:targetTwitchId", checkAuthenticated, async function(re
 			console.error(error);
 		}
 		res.redirect("/admin/users")
+	} else {
+		res.redirect("/login")
+	}
+});
+
+router.get("/sandbox", checkAuthenticated, async function(req, res){
+	if (req.user.role == "admin") {
+		res.render("admin/sandbox", {
+			user: req.user,
+			game: typeof foundGame !== 'undefined' ? foundGame : {inProgress: true},
+			failureMessage: "",
+			successMessage: "Let's fuggin' do this"
+		});
 	} else {
 		res.redirect("/login")
 	}
