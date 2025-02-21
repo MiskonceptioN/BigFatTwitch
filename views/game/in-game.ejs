@@ -80,6 +80,7 @@
 	socket.on('next question', (question, questionId) => {
 		// console.log(question);
 		resetFormFields();
+		unlockFormFields();
 		document.querySelector('h2').innerHTML = question;
 		document.querySelector('#questionId').value = questionId;
 		// restartAnimation();

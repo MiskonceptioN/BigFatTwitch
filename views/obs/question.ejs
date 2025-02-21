@@ -7,6 +7,7 @@
 const socket = io({ query: { teamId: 'question' , role: 'question' } });
 
 socket.on('update question', (question) => {
-	document.getElementById('question').innerText = question;
+	document.getElementById('question-text').innerText = question;
+	$("#answer-button").attr("disabled", false);
 });
 </script>

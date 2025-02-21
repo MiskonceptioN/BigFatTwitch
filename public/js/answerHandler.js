@@ -30,8 +30,10 @@ $("form").on("submit", function(event){
 				$("#message").removeClass().addClass("alert").addClass("alert-" + msg.status).html(msg.content);
 				$("#message").collapse("show");
 			} else {
-				unlockFormFields();
-				resetFormFields();
+				// Re-enable the form via `socket.on('next question')` in `in-game.ejs`
+
+				// unlockFormFields();
+				// resetFormFields();
 			}
         },
         error: function(err) {
