@@ -1,5 +1,11 @@
 $("form").on("submit", function(event){
 	event.preventDefault(); //prevent default action
+
+	// Check that we have a question before allowing the form to submit
+	const questionText = $("#question-text").text();
+	const questionId = $("#questionId").val();
+	if (questionText == "" || typeof questionId === "undefined" ) {return}
+
 	const destUrl = $(this).attr("action"); //get form action url
 	const formMethod = $(this).attr("method"); //get form GET/POST method
 
