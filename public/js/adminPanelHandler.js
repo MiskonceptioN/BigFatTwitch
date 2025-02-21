@@ -1,24 +1,3 @@
-/*/
-$("button.send-question").on("click", function(event){
-	event.preventDefault(); // Prevent the form from being submitted automagically
-	// $(this).parent().submit();
-
-	const oldHtml = $(this).html();
-	$(this).html('<div class="spinner-border" role="status"></div>');
-	
-
-
-
-
-	// const destUrl = $(this).parent().attr("action"); //get form action url
-	// const formMethod = $(this).parent().attr("method"); //get form GET/POST method
-	
-
-
-	// Change the card colour
-});
-/*/
-
 // Click handler for the reset-questions button
 $("#reset-questions").on("click", function(event){
 	event.preventDefault(); // Prevent the form from being submitted automagically
