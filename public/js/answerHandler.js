@@ -95,7 +95,7 @@ $("form").on("submit", function(event){
 
 function lockFormFields() {
 	$("#answer-button").attr("disabled", true);
-	$("#answerCanvas").addClass("disabled");
+	lockCanvas();
 	// document.getElementById('answerCanvas').disabled = true;
 	// document.getElementById('answer-button').disabled = true;
 }
