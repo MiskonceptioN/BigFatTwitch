@@ -326,7 +326,7 @@ router.get("/release-user", checkAuthenticated, function(req, res){
 	}
 });
 
-router.post("/reset-questions/:gameCode", checkAuthenticated, async function(req, res){
+router.post("/reset-game-questions/:gameCode", checkAuthenticated, async function(req, res){
 	const gameCode = req.params.gameCode;
 	if (req.user.role != "admin") {
 		res.send({status: "failure", content: "You're not an admin!"});

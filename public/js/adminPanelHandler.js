@@ -1,5 +1,5 @@
-// Click handler for the reset-questions button
-$("#reset-questions").on("click", function(event){
+// Click handler for the reset-game-questions button
+$("#reset-game-questions").on("click", function(event){
 	event.preventDefault(); // Prevent the form from being submitted automagically
 
 	if (confirm("Are you sure you want to reset all questions? This will reset all questions to the 'pending' state?")){
@@ -7,7 +7,7 @@ $("#reset-questions").on("click", function(event){
 	}
 });
 
-// Click handler for the reset-questions button
+// Click handler for the end-round button
 $("#end-round").on("click", function(event){
 	event.preventDefault(); // Prevent the form from being submitted automagically
 
@@ -51,23 +51,24 @@ $("form").on("submit", function(event){
 	event.preventDefault(); //prevent default action
 	const destUrl = $(this).attr("action"); //get form action url
 	const formMethod = $(this).attr("method"); //get form GET/POST method
-	const formData = $(this).serialize(); //Encode form elements for submission
-
+	// const formData = $(this).serialize(); //Encode form elements for submission
 	// Grab gameCode from the form
 	const gameCode = $(this).find("input[name='gameCode']").val();
 
 	const form = $(this);
 	const inputButton = $(form).find(".send-question");
 	const inputButtonContent = $(inputButton).html();
-	const questionID = $(form).find("input[name='questionId']").val();
+	const questionId = $(this).find('input[name="questionId"]').val();
+	const question = $(this).find('input[name="sendQuestion"]').val();
 	const roundNumber = $(form).find("input[name='roundNumber']").val();
 	const $navButton = $("#round-nav").find("button[data-round='" + roundNumber + "']");
 	const roundType = $navButton.parent().data('round-type');
-
     $.ajax({
         method: formMethod,
         url: destUrl,
-        data: formData,
+		data: JSON.stringify({questionId, roundNumber, gameCode, sendQuestion: question}),
+		contentType: "application/json",
+        // data: formData,
         beforeSend: function() {
 			// Show loading spinner before sending the form
 			$(inputButton).html('<div class="spinner-border" role="status"></div>');
@@ -79,9 +80,9 @@ $("form").on("submit", function(event){
 			$(inputButton).html(inputButtonContent);
 
 			// Set the previousQuestion
-			if (previousQuestion !== questionID){
+			if (previousQuestion !== questionId){
 				updatePrevious(previousQuestion, gameCode);
-				previousQuestion = questionID;
+				previousQuestion = questionId;
 				// $(form).find("input[name='questionId']").val();
 			}
 
@@ -136,15 +137,15 @@ async function sendCanvasState(toggle){
 
 function resetQuestions(){
 	// Disable the button
-	$("#reset-questions").attr("disabled", "disabled");
+	$("#reset-game-questions").attr("disabled", "disabled");
 
 	// Capture data-game-code from the button
-	const gameCode = $("#reset-questions").data("game-code");
+	const gameCode = $("#reset-game-questions").data("game-code");
 
 	// Send the request to the backend
 	$.ajax({
 		method: "POST",
-		url: "/admin/reset-questions/" + gameCode,
+		url: "/admin/reset-game-questions/" + gameCode,
 	
 		success: function(response) {
 			if (response.status === "failure"){
