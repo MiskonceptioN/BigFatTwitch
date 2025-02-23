@@ -22,6 +22,14 @@ $("#end-round").on("click", function(event){
 	endRound();
 });
 
+// Click handler for the restart round button
+$("#restart-round").on("click", function(event){
+	if (!confirm("Are you sure you want to restart the round?")){return}
+	const currentRoundNumber = $(".current-round").data("round");
+
+	restartRound(currentRoundNumber)
+});
+
 // Click handler for the lock/unlock canvas buttons
 $("#lock-canvas").on("click", async function(event){sendCanvasState("lock")});
 $("#unlock-canvas").on("click", async function(event){sendCanvasState("unlock")});
@@ -226,6 +234,33 @@ function updatePrevious(uid, gameId) {
 			// $(inputButton).html(inputButtonContent);
         }
     });
+}
+
+function restartRound(roundNumber){
+	// Disable the button
+	$("#restart-round").attr("disabled", "disabled");
+
+	// Capture data-game-code from the button
+	const gameCode = $("#end-round").data("game-code");
+
+	// Send the request to the backend
+	$.ajax({
+		method: "POST",
+		url: "/admin/restart-round/" + gameCode + "/" + roundNumber,
+	
+		success: function(response) {
+			if (response.status === "failure"){
+				console.log("Request failed: ", response.content);
+			} else {
+				// Refresh the page
+				location.reload();
+			}
+		},
+		error: function(err) {
+			// Log error message
+			console.log("Request failed", err);
+		}
+	});
 }
 
 function endRound(){
