@@ -237,7 +237,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 })
 .post("/in-game", checkAuthenticated, async function(req, res){
 	// Sanitise inputs (later)
-	console.log(req.body);
+	// console.log(req.body);
 	if (req.body.sendQuestion) {
 		// Set the question status to "in-progress" in the database
 		const updateQuestionResult = await Game.updateOne({ 
