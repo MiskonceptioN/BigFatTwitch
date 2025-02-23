@@ -252,8 +252,20 @@ function restartRound(roundNumber){
 			if (response.status === "failure"){
 				console.log("Request failed: ", response.content);
 			} else {
-				// Refresh the page
-				location.reload();
+				// Refresh the cards
+				// Set the data-state for each card in the current round to "pending"
+				$(".current-round .card").each(function(){
+					$(this).removeClass("bg-secondary").removeClass("bg-success");
+					$(this).data("state", "pending");
+				});
+
+				// Move the round button back to the "in-progress" section of the nav
+				const $navButton = $("#round-nav").find("button[data-round='" + roundNumber + "']");
+				$navButton.removeClass("btn-secondary").removeClass("btn-success").addClass("btn-primary");
+				$navButton.detach().appendTo('[data-round-type="in-progress"]');
+
+				// Reenable the button
+				$("#restart-round").removeAttr("disabled");
 			}
 		},
 		error: function(err) {
