@@ -24,12 +24,8 @@ $("#end-round").on("click", function(event){
 });
 
 // Click handler for the lock/unlock canvas buttons
-$("#lock-canvas").on("click", async function(event){
-	sendCanvasState("lock");
-});
-$("#unlock-canvas").on("click", async function(event){
-	sendCanvasState("unlock");
-});
+$("#lock-canvas").on("click", async function(event){sendCanvasState("lock")});
+$("#unlock-canvas").on("click", async function(event){sendCanvasState("unlock")});
 
 // Handle display of rounds
 $(document).ready(function(){
