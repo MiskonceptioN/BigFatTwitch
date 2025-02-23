@@ -102,13 +102,6 @@
 		window.scrollTo(0, document.body.scrollHeight);
 	});
 
-	socket.on('next question'), (question) => {
-		document.getElementById('answer').value = '';
-		document.getElementById('teammateAnswer').value = '';
-		document.querySelector('h2').innerHTML = question;
-		restartAnimation();
-	}
-
 	function restartAnimation() {
 		let circle = document.querySelector(".question");
 
