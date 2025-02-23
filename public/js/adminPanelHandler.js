@@ -3,8 +3,6 @@ $("#next-round").on("click", function(){navigateRound("next")});
 
 // Click handler for the reset-game-questions button
 $("#reset-game-questions").on("click", function(event){
-	event.preventDefault(); // Prevent the form from being submitted automagically
-
 	if (confirm("Are you sure you want to reset all questions? This will reset all questions to the 'pending' state?")){
 		resetQuestions();
 	}
