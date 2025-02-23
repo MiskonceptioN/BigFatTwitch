@@ -10,8 +10,6 @@ $("#reset-game-questions").on("click", function(event){
 
 // Click handler for the end-round button
 $("#end-round").on("click", function(event){
-	event.preventDefault(); // Prevent the form from being submitted automagically
-
 	const allCards = $(".current-round .card");
 	const allCardsValid = allCards.toArray().every(card => {
 		return $(card).hasClass("bg-success") || $(card).hasClass("bg-secondary");
