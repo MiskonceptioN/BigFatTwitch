@@ -1,22 +1,5 @@
-// Click handler for previous round button
-$("#previous-round").on("click", function(event){
-	const currentRoundNumber = $(".current-round").data("round");
-	
-	// If it's not the first round, click the previous round button
-	if (currentRoundNumber > 1){
-		$("#round-nav").find("button[data-round='" + (currentRoundNumber - 1) + "']").click();
-	}
-});
-
-// Click handler for next round button
-$("#next-round").on("click", function(event){
-	const currentRoundNumber = $(".current-round").data("round");
-	
-	// If it's not the last round, click the next round button
-	if (currentRoundNumber < $(".round").length){
-		$("#round-nav").find("button[data-round='" + (currentRoundNumber + 1) + "']").click();
-	}
-});
+$("#previous-round").on("click", function(){navigateRound("previous")});
+$("#next-round").on("click", function(){navigateRound("next")});
 
 // Click handler for the reset-game-questions button
 $("#reset-game-questions").on("click", function(event){
@@ -132,6 +115,17 @@ $("form").on("submit", function(event){
         }
     });
 });
+
+// Function to handle round navigation
+function navigateRound(direction) {
+	const currentRoundNumber = $(".current-round").data("round");
+	const newRoundNumber = direction === "previous" ? currentRoundNumber - 1 : currentRoundNumber + 1;
+
+	// Ensure the new round number is within valid range
+	if (newRoundNumber >= 1 && newRoundNumber <= $(".round").length) {
+		$("#round-nav").find("button[data-round='" + newRoundNumber + "']").click();
+	}
+}
 
 async function sendCanvasState(toggle){
 	// Send the request to the backend
