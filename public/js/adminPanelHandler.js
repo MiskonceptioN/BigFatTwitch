@@ -262,7 +262,7 @@ function restartRound(roundNumber){
 				// Move the round button back to the "in-progress" section of the nav
 				const $navButton = $("#round-nav").find("button[data-round='" + roundNumber + "']");
 				$navButton.removeClass("btn-secondary").removeClass("btn-success").addClass("btn-primary");
-				$navButton.detach().appendTo('[data-round-type="in-progress"]');
+				$navButton.detach().appendTo('[data-round-type="pending"]');
 
 				// Reenable the button
 				$("#restart-round").removeAttr("disabled");
