@@ -34,6 +34,15 @@ $("#restart-round").on("click", function(event){
 $("#lock-canvas").on("click", async function(event){sendCanvasState("lock")});
 $("#unlock-canvas").on("click", async function(event){sendCanvasState("unlock")});
 
+// Click handler for the user logout buttons
+$(".logout-button").on("click", function(event){
+	const playerId = $(this).data("player-id");
+	const gameCode = $(this).data("game-code");
+	if (confirm("Are you sure you want to log out this user? "+ playerId + " " + gameCode)){
+		logOutUser(playerId, gameCode);
+	}
+});
+
 // Handle display of rounds
 $(document).ready(function(){
 	// Show the first round
@@ -171,6 +180,30 @@ function resetQuestions(){
 			} else {
 				// Refresh the page
 				location.reload();
+			}
+		},
+		error: function(err) {
+			// Log error message
+			console.log("Request failed", err);
+		}
+	});
+}
+
+function logOutUser(playerId, gameCode) {
+	// Send POST request to the backend
+	$.ajax({
+		method: "POST",
+		url: "/admin/in-game/log-out-user",
+		data: JSON.stringify({playerId, gameCode}),
+		contentType: "application/json",
+	
+		success: function(response) {
+			if (response.status === "failure"){
+				console.log("Request failed: ", response.content);
+			} else {
+				// Refresh the page
+				// location.reload();
+				alert("User logged out successfully");
 			}
 		},
 		error: function(err) {
