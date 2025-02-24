@@ -307,6 +307,53 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 	// 		res.send({status: "success", content: "POST successful"});
 	// 	}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	// }
+})
+.post("/in-game/log-out-user", checkAuthenticated, async function(req, res){
+	// Sanitise inputs (later)
+
+	// Check all required params have been sent
+	if (!req.body.playerId || !req.body.gameCode ) {
+		console.log("Missing required parameters");
+		console.log(req.body);
+		return res.status(400).send({status: "danger", content: "Missing required parameters"});
+	}
+
+	if (req.body.playerId === "all") {
+		// Remove the in-game property from all players where inGame === req.body.gameCode
+		try {
+			const updatePlayerResult = await User.updateMany({ inGame
+				: req.body.gameCode }, { $set: { inGame: "" } });
+				if (updatePlayerResult.modifiedCount <= 0){
+					console.log("Unable to update users");
+					throw new Error("Unable to update users");
+				} else {
+					console.log("Successfully logged out all players from game " + req.body.gameCode);
+					return res.status(200).send();
+				}
+		} catch (error) {
+			console.error("Failed to update question status to " + req.body.state, error);
+			// return res.status(500).send({status: "danger", content: "Failed to update question status to " + req.body.state + " for question ID " + req.body.questionId});
+			return res.status(500).send();
+		}
+	} else {
+		// Remove the in-game property from the player
+		try {
+			const updatePlayerResult = await User.updateOne({
+				_id: req.body.playerId
+			}, { $set: { inGame: "" } });
+			if (updatePlayerResult.modifiedCount <= 0){
+				console.log("Unable to update user");
+				throw new Error("Unable to update user");
+			} else {
+				console.log("Successfully logged out user " + req.body.playerId + " from game " + req.body.gameCode);
+				return res.status(200).send();
+			}
+		} catch (error) {
+			console.error("Failed to update question status to " + req.body.state, error);
+			// return res.status(500).send({status: "danger", content: "Failed to update question status to " + req.body.state + " for question ID " + req.body.questionId});
+			return res.status(500).send();
+		}
+	}
 });
 	
 router.get("/release-user", checkAuthenticated, function(req, res){
