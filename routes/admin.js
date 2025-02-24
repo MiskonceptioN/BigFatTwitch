@@ -206,7 +206,14 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		// ADD ERROR HANDLING
 		// const foundGame = await Game.findOne({ code: req.user.inGame });
-		const foundGame = await Game.findOne({ status: "in-progress" });
+		const foundGame = await Game.findOne({ status: "in-progress" })
+		.populate({
+			path: 'teams.players',
+			model: User,
+			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+			foreignField: 'twitchId',
+		});
+
 		if (foundGame === null) {
 			// Make sure the flash saves before redirecting
 			req.flash("error", "Unable to find any games in the 'in-progress' state");
