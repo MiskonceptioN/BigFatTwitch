@@ -329,6 +329,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 				} else {
 					console.log("Successfully logged out all players from game " + req.body.gameCode);
 					return res.status(200).send();
+					// To do: Send a logout event to the players via Socket.io
 				}
 		} catch (error) {
 			console.error("Failed to update question status to " + req.body.state, error);
@@ -347,6 +348,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			} else {
 				console.log("Successfully logged out user " + req.body.playerId + " from game " + req.body.gameCode);
 				return res.status(200).send();
+				// To do: Send a logout event to the player via Socket.io
 			}
 		} catch (error) {
 			console.error("Failed to update question status to " + req.body.state, error);
