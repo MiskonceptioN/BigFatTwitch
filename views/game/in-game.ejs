@@ -95,6 +95,15 @@
 		unlockCanvas();
 	});
 
+	socket.on('lock submit button', (question, questionId) => {
+		console.log("Locking submit button");
+		lockSubmitButton();
+	});
+	socket.on('unlock submit button', (question, questionId) => {
+		console.log("Unlocking submit button");
+		unlockSubmitButton();
+	});
+
 	socket.on('update canvas', (data, userID) => {
 		// Only update serverCanvas if the data is not from the current user
 		if (userID === <%- user.twitchId %>) return;

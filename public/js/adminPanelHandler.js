@@ -34,6 +34,10 @@ $("#restart-round").on("click", function(event){
 $("#lock-canvas").on("click", async function(event){sendCanvasState("lock")});
 $("#unlock-canvas").on("click", async function(event){sendCanvasState("unlock")});
 
+// Click handler for the lock/unlock submit buttons
+$("#lock-submit-button").on("click", async function(event){sendSubmitState("lock")});
+$("#unlock-submit-button").on("click", async function(event){sendSubmitState("unlock")});
+
 // Click handler for the user logout buttons
 $(".logout-button").on("click", function(event){
 	const playerId = $(this).data("player-id");
@@ -145,6 +149,28 @@ async function sendCanvasState(toggle){
 	$.ajax({
 		method: "POST",
 		url: "/admin/canvas/" + toggle,
+
+		success: function(response) {
+			if (response.status === "failure"){
+				console.log("Request failed: ", response.content);
+				return false;
+			} else {
+				return true;
+			}
+		},
+		error: function(err) {
+			// Log error message
+			console.log("Request failed", err);
+			return false;
+		}
+	});
+}
+
+async function sendSubmitState(toggle){
+	// Send the request to the backend
+	$.ajax({
+		method: "POST",
+		url: "/admin/submit-button/" + toggle,
 
 		success: function(response) {
 			if (response.status === "failure"){

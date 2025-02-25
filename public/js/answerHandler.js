@@ -94,15 +94,13 @@ $("form").on("submit", function(event){
 // });
 
 function lockFormFields() {
-	$("#answer-button").attr("disabled", true);
 	lockCanvas();
-	// document.getElementById('answerCanvas').disabled = true;
-	// document.getElementById('answer-button').disabled = true;
+	lockSubmitButton();
 }
 
 function unlockFormFields() {
 	unlockCanvas();
-	document.getElementById('answer-button').disabled = false;
+	unlockSubmitButton();
 }
 
 function unlockCanvas() {
@@ -113,6 +111,14 @@ function unlockCanvas() {
 function lockCanvas() {
 	document.getElementById('answerCanvas').disabled = true;
 	$("#answerCanvas").addClass("disabled");
+}
+
+function unlockSubmitButton() {
+	document.getElementById('answer-button').disabled = false;
+}
+
+function lockSubmitButton() {
+	document.getElementById('answer-button').disabled = true;
 }
 
 function resetFormFields() {
