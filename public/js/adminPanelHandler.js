@@ -1,10 +1,18 @@
 $("#previous-round").on("click", function(){navigateRound("previous")});
 $("#next-round").on("click", function(){navigateRound("next")});
 
+// Click handler for the reset-round-questions button
+$("#reset-round-questions").on("click", function(event){
+	const roundNumber = $(".current-round").data("round");
+
+	if (confirm("Are you sure you want to reset all questions for round " + roundNumber + "?\nThis will reset all questions to the 'pending' state?")){
+		resetQuestions(roundNumber);
+	}
+});
 // Click handler for the reset-game-questions button
 $("#reset-game-questions").on("click", function(event){
-	if (confirm("Are you sure you want to reset all questions? This will reset all questions to the 'pending' state?")){
-		resetQuestions();
+	if (confirm("Are you sure you want to reset ALL questions for EVERY round?\nThis will reset all questions to the 'pending' state?")){
+		resetQuestions("all");
 	}
 });
 
@@ -188,7 +196,7 @@ async function sendSubmitState(toggle){
 	});
 }
 
-function resetQuestions(){
+function resetQuestions(roundNumber){
 	// Disable the button
 	$("#reset-game-questions").attr("disabled", "disabled");
 
@@ -199,7 +207,9 @@ function resetQuestions(){
 	$.ajax({
 		method: "POST",
 		url: "/admin/reset-game-questions/" + gameCode,
-	
+		data: JSON.stringify({roundNumber}),
+		contentType: "application/json",
+
 		success: function(response) {
 			if (response.status === "failure"){
 				console.log("Request failed: ", response.content);

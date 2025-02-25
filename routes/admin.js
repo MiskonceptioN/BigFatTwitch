@@ -396,6 +396,10 @@ router.get("/release-user", checkAuthenticated, function(req, res){
 
 router.post("/reset-game-questions/:gameCode", checkAuthenticated, async function(req, res){
 	const gameCode = req.params.gameCode;
+	const roundNumber = req.body.roundNumber;
+
+	// Todo add validation
+
 	if (req.user.role != "admin") {
 		res.send({status: "failure", content: "You're not an admin!"});
 		console.log("User attempted to reset game " + gameCode + " but they're not an admin!")
@@ -412,8 +416,21 @@ router.post("/reset-game-questions/:gameCode", checkAuthenticated, async functio
 		}
 	
 		try {
-			const updateQuestionStatusResult = await Game.updateOne({ code: gameCode }, { $set: { "questions.$[].status": "pending" } });
-	
+			let dbEntriesMatching = {code: gameCode};
+			let valuesToSet = {"questions.$[].status": "pending"};
+			let matchingArrayFilters = [];
+
+			if (roundNumber !== "all") {
+				dbEntriesMatching = {"questions.round": roundNumber, ...dbEntriesMatching};
+				valuesToSet = { "questions.$[elem].status": "pending" }
+				matchingArrayFilters = [{ "elem.round": roundNumber }];
+			} 
+
+			const updateQuestionStatusResult = await Game.updateOne(
+				dbEntriesMatching,
+				{ $set: valuesToSet },
+				{ arrayFilters: matchingArrayFilters });
+
 			// Check modifiedCount of updateQuestionStatusResult
 			if (updateQuestionStatusResult.modifiedCount === 0) {
 				res.send({status: "failure", content: "Unable to update game " + gameCode});
@@ -425,10 +442,12 @@ router.post("/reset-game-questions/:gameCode", checkAuthenticated, async functio
 		} catch (error) {
 			console.log("Unable to update game " + gameCode);
 			res.send({status: "failure", content: "Unable to update game " + gameCode});
+			console.error(error);
 		}
 	} catch (error) {
 		console.log("Error finding game "+ gameCode, error)
 		res.send({status: "failure", content: "Unable to find game " + gameCode});
+		console.error(error);
 	}
 });
 
