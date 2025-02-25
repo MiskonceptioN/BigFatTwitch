@@ -583,7 +583,7 @@ router.get("/startGame", checkAuthenticated, async function(req, res){
 		const successMessage = req.flash("success")[0]; // Retrieve the flash message
 		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"});
 		const aggregationResult = allGamesResult.map(game => ({_id: game.code, total: game.questions.length}));
-		console.log(aggregationResult);
+		// console.log(aggregationResult);
 
 
 		// Convert the result array to an object with game codes as keys
