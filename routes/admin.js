@@ -451,6 +451,47 @@ router.post("/reset-game-questions/:gameCode", checkAuthenticated, async functio
 	}
 });
 
+router.post("/end-game/:gameCode", checkAuthenticated, async function(req, res){
+	const gameCode = req.params.gameCode;
+
+	if (req.user.role != "admin") {
+		res.send({status: "failure", content: "You're not an admin!"});
+		console.log("User attempted to reset game " + gameCode + " but they're not an admin!")
+		return;
+	}
+
+	try {
+		const foundGame = await Game.findOne({ code: gameCode });
+
+		if (foundGame === null) {
+			console.log("Unable to find game " + gameCode);
+			res.send({status: "failure", content: "Unable to find game " + gameCode});
+			return;
+		}
+	
+		try {
+			const updateGameStatusResult = await Game.updateOne({ code: gameCode }, { status: "pending" });
+
+			// Check modifiedCount of updateGameStatusResult
+			if (updateGameStatusResult.modifiedCount === 0) {
+				res.send({status: "failure", content: "Unable to set game " + gameCode + " to 'pending'"});
+				return res.redirect("/admin/startGame/" + gameCode);
+			}
+			
+			res.send({status: "Success", content: "Successfully reset game " + gameCode});
+			return; 
+		} catch (error) {
+			console.log("Unable to update game " + gameCode);
+			res.send({status: "failure", content: "Unable to update game " + gameCode});
+			console.error(error);
+		}
+	} catch (error) {
+		console.log("Error finding game "+ gameCode, error)
+		res.send({status: "failure", content: "Unable to find game " + gameCode});
+		console.error(error);
+	}
+});
+
 
 router.post("/restart-round/:gameCode/:roundNumber", checkAuthenticated, async function(req, res){
 	const { gameCode, roundNumber } = req.params;

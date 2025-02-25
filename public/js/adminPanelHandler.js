@@ -16,6 +16,13 @@ $("#reset-game-questions").on("click", function(event){
 	}
 });
 
+// Click handler for the reset-game-questions button
+$("#end-game").on("click", function(event){
+	if (confirm("Are you sure you want to set this game to 'pending' state?")){
+		endGame();
+	}
+});
+
 // Click handler for the end-round button
 $("#end-round").on("click", function(event){
 	const allCards = $(".current-round .card");
@@ -240,6 +247,28 @@ function logOutUser(playerId, gameCode) {
 				// Refresh the page
 				// location.reload();
 				alert("User logged out successfully");
+			}
+		},
+		error: function(err) {
+			// Log error message
+			console.log("Request failed", err);
+		}
+	});
+}
+
+function endGame() {
+	const gameCode = $("#end-game").data("game-code");
+	// Send POST request to the backend
+	$.ajax({
+		method: "POST",
+		url: "/admin/end-game/" + gameCode,
+	
+		success: function(response) {
+			if (response.status === "failure"){
+				console.log("Request failed: ", response.content);
+			} else {
+				// Refresh the page
+				location.reload();
 			}
 		},
 		error: function(err) {
