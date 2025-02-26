@@ -104,6 +104,13 @@
 		unlockSubmitButton();
 	});
 
+	socket.on("ltfo", (gameCode, playerId) => {
+		if (playerId === "<%- user._id %>") {
+			alert("You're being logged out.\nSucks to be youuuuu bish!");
+			location.href = "/game/ltfo";
+		}
+	});
+
 	socket.on('update canvas', (data, userID) => {
 		// Only update serverCanvas if the data is not from the current user
 		if (userID === <%- user.twitchId %>) return;

@@ -359,6 +359,12 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 				throw new Error("Unable to update user");
 			} else {
 				console.log("Successfully logged out user " + req.body.playerId + " from game " + req.body.gameCode);
+
+				
+				// Send a "log the fuck out of game" event to the affected user
+				io.emit("ltfo", req.params.gameCode, req.body.playerId);
+
+				
 				return res.status(200).send();
 				// To do: Send a logout event to the player via Socket.io
 			}

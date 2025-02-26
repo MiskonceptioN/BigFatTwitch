@@ -20,6 +20,12 @@ router.get("/in-game", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 	const successMessage = req.flash("success")[0]; // Retrieve the flash message
 
+	if (req.user.inGame === "" || !req.user.inGame || req.user.inGame === undefined) {
+		req.flash("error", "You're not in a game!");
+		res.redirect("/");
+		return;
+	}
+
 	res.render("game/in-game", {user: req.user, failureMessage, successMessage});
 })
 .post("/in-game", checkAuthenticated, async (req, res) => {
@@ -132,6 +138,17 @@ router.get("/join", checkAuthenticated, (req, res) => {
 		return;
 	}
 });
+
+router.get("/ltfo", checkAuthenticated, (req, res) => {
+	req.flash("error", "You've been kicked from the game!");
+	// Update the session to remove the game code
+	req.session.passport.user.doc = {
+		...req.session.passport.user.doc,
+		inGame: ""
+	};
+
+	res.redirect("/");
+})
 
 router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
