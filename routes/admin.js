@@ -334,15 +334,27 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		// Remove the in-game property from all players where inGame === req.body.gameCode
 		try {
 			const updatePlayerResult = await User.updateMany({ inGame
-				: req.body.gameCode }, { $set: { inGame: "" } });
-				if (updatePlayerResult.modifiedCount <= 0){
-					console.log("Unable to update users");
-					throw new Error("Unable to update users");
-				} else {
-					console.log("Successfully logged out all players from game " + req.body.gameCode);
-					return res.status(200).send();
-					// To do: Send a logout event to the players via Socket.io
+				: req.body.gameCode }, { $set: { inGame: "", loggedOutOf: req.body.gameCode } });
+			if (updatePlayerResult.modifiedCount <= 0){
+				console.log("Unable to update users");
+				throw new Error("Unable to update users");
+			} else {
+				console.log("Successfully logged out all players from game " + req.body.gameCode);
+				
+				try {
+					// If we have logged players out via the backend, log the fuckers out via the frontend.
+					const affectedPlayers = await User.find({loggedOutOf: req.body.gameCode});
+
+					affectedPlayers.forEach(player => {
+						io.emit("ltfo", req.body.gameCode, player._id);
+					});
+				} catch (error) {
+					console.log("Unable to remove `inGame` from Users");
+					return res.status(500).send();
 				}
+				
+				return res.status(200).send();
+			}
 		} catch (error) {
 			console.error("Failed to update question status to " + req.body.state, error);
 			// return res.status(500).send({status: "danger", content: "Failed to update question status to " + req.body.state + " for question ID " + req.body.questionId});

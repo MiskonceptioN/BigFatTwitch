@@ -16,6 +16,7 @@ const userSchema = new mongoose.Schema({
   twitchChatColour: {type: String, default: ""},
   customChatColour: {type: String, default: "#000000"},
   inGame: {type: String, default: ""},
+  loggedOutOf: {type: String, default: ""},
 });
 userSchema.plugin(findOrCreate);
 userSchema.set('timestamps', true);
