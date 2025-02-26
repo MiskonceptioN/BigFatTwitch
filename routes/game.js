@@ -16,13 +16,29 @@ router.get("/audience", checkAuthenticated, (req, res) => {
 	res.render("game/audience", {user: req.user, failureMessage, successMessage});
 });
 
-router.get("/in-game", checkAuthenticated, (req, res) => {
+router.get("/in-game", checkAuthenticated, async (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 	const successMessage = req.flash("success")[0]; // Retrieve the flash message
 
 	if (req.user.inGame === "" || !req.user.inGame || req.user.inGame === undefined) {
 		req.flash("error", "You're not in a game!");
 		res.redirect("/");
+		return;
+	}
+
+	// Check if the game is in progress
+	try {
+		const game = await Game.findOne({ code: req.user.inGame, status: "in-progreszzzzzs" });
+		console.log({game});
+		if (!game) {
+			req.flash("error", "The game has not started yet!");
+			res.redirect("/game/waiting-room");
+			return;
+		}
+	} catch (error) {
+		console.error(error);
+		req.flash("error", "Something went wrong!");
+		res.redirect("/game/waiting-room");
 		return;
 	}
 
