@@ -400,6 +400,8 @@ router.get("/release-user", checkAuthenticated, function(req, res){
 			// Log a success message and flash a success message to the user
 			console.log("Successfully logged out of " + currentUser.displayName + "!");
 			req.flash("success", "Logged out of " + currentUser.displayName);
+			// Send the logout event if the player is in a game
+			if (currentUser.inGame) {io.emit("player left", currentUser.inGame, currentUser)}
 			// Save the session
 			req.session.save();
 		} else {
