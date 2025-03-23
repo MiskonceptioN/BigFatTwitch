@@ -33,9 +33,13 @@
 					<li class="nav-item dropdown">
 						<a class="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" aria-expanded="false">Admin</a>
 							<ul class="dropdown-menu">
-								<% if (typeof game !== 'undefined' && game.status === "in-progress") { %>
+								<% if (
+									typeof game !== 'undefined'
+									&& game !== null
+									&& game.status === "in-progress")
+								{ %>
 									<li><a class="dropdown-item" href="/admin/in-game">Administrate current game (<%- game.code -%>)</a></li>
-									<% } else { %>
+								<% } else { %>
 									<li><a class="dropdown-item" href="/admin/startGame">Start game</a></li>
 								<% } %>
 								<li><hr class="dropdown-divider"></li>
