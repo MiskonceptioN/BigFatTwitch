@@ -1,8 +1,12 @@
 <%- include('../header'); %>
 	<video autoplay muted loop id="ingame-background">
+		<!-- <source src="https://assets.danny-valentine.com/video/upload/h_720,e_accelerate:-50/q_auto,f_auto/BigFatTwitch/anibak.mov"> -->
 		<source src="https://assets.danny-valentine.com/video/upload/h_1080,e_accelerate:-50/q_auto,f_auto/BigFatTwitch/anibak.mov">
 	</video>
+	<section id="game" class="text-white">
+		<header id="headings" class="text-center">
 			<h1 class="round-title">Round one</h1>
+			<h2 class="question" id="question-text">-</h2>
 		</header>
 		<% if (failureMessage) { %>
 			<div class="container">
@@ -18,7 +22,30 @@
 			</div>
 		<% } %>
 		<section>
+			<div class="row mt-4">
+				<div class="col-9">
 					<form id="answer-form" method="post" action="/game/in-game" class="text-center">
+					<!-- <form method="post" action="https://webhook.site/1dfc56cf-8e6b-4332-bcdf-85f29abccc8a"> -->
+						<canvas id="answerCanvas" class="canvas-container disabled" width="900" height="506" disabled></canvas><br>
+						<input id="questionId" name="questionId" type="hidden">
+						<input id="answerField" name="answerField" type="hidden">
+						<input id="anotherAnswer" name="anotherAnswer" type="hidden" value="Sausages">
+						<button class="btn btn-primary in-game w-100 mt-2" id="answer-button" type="submit" disabled>Submit answer</button>
+					</form>
+				</div>
+				<div class="col-3 d-flex flex-column">
+					<h4><%- user.teammate.displayName %>'s answer</h4>
+					<canvas id="teammateAnswer" class="canvas-container" style="height: auto;"></canvas>
+					<h4 class="mt-4">Chat</h4>
+					<div id="chat-message-container" class="chat-log w-100">
+						<ul id="chat-messages" class="list-unstyled"></ul>
+					</div>
+					<form id="form">
+						<input id="input" type="text" class="in-game form-control mt-2" placeholder="Type a message..." autocomplete="off">
+						<button class="btn btn-secondary in-game w-100 mt-2">Send</button>
+					</form>
+				</div>
+			</div>
 		</section>
 		<section>
 			<!-- Try https://jsfiddle.net/hqb26mgd/11/ ? -->
@@ -26,15 +53,9 @@
 				<div class="mask"></div>
 			</div> -->
 		</section>
-		<section>
-			<form id="form" action="">
-				<input id="input" autocomplete="off" /><button>Send</button>
-			</form>
-			<ul id="messages"></ul>
-			<script>
+		<script>
 			const form = document.getElementById('form');
 			const input = document.getElementById('input');
-			const messages = document.getElementById('messages');
 
 			form.addEventListener('submit', (e) => {
 				e.preventDefault();
@@ -43,12 +64,7 @@
 					input.value = '';
 				}
 			});
-
-			</script>
-		</section>
-		<footer style="margin-top: 10em;">
-			<h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
-		</footer>
+		</script>
     </section>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/js/answerHandler.js"></script>
@@ -62,7 +78,9 @@
 	socket.on('chat message', (msg) => {
 		const item = document.createElement('li');
 		item.innerHTML = msg;
-		document.querySelector("#messages").appendChild(item);
+		document.querySelector("#chat-messages").appendChild(item);
+		const chatMessageContainer = document.querySelector("#chat-message-container");
+		chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 		// document.querySelector("h2").appendChild(item);
 		// window.scrollTo(0, document.body.scrollHeight);
 	});
