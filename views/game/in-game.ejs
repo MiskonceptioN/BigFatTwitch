@@ -17,18 +17,7 @@
 			</div>
 		<% } %>
 		<section>
-			<h2 class="question" id="question-text"></h2>
-			<form method="post" action="/game/in-game">
-			<!-- <form method="post" action="https://webhook.site/1dfc56cf-8e6b-4332-bcdf-85f29abccc8a"> -->
-				<canvas id="answerCanvas" width="800" height="600"></canvas><br>
-				<input id="questionId" name="questionId" type="hidden">
-				<input id="answerField" name="answerField" type="hidden">
-				<input id="anotherAnswer" name="anotherAnswer" type="hidden" value="Sausages">
-				<input id="answer-button" type="submit" disabled>
-			</form>
-			<hr>
-			<h6><%- user.teammate.displayName %>'s answer:</h6>
-			<canvas id="teammateAnswer" width="600" height="450"></canvas>
+					<form id="answer-form" method="post" action="/game/in-game" class="text-center">
 		</section>
 		<section>
 			<!-- Try https://jsfiddle.net/hqb26mgd/11/ ? -->
