@@ -271,3 +271,47 @@ button>div.spinner-border{
     --bs-spinner-height: 1rem;
 	--bs-spinner-border-width: 0.15rem;
 }
+
+/* Fancy styles for in-game page */
+:root {
+	--in-game-border-size: 20px;
+}
+
+#ingame-background {
+	position: fixed;
+	right: 0;
+	bottom: 0;
+	min-width: 100%;
+	min-height: 100%;
+	z-index: -100;
+	user-select: none;
+	pointer-events: none;
+}
+
+.canvas-container {
+	aspect-ratio: 16 / 9;
+	max-width: 100%;
+	border-radius: var(--in-game-border-size);
+	background-color: #f8f9fa;
+}
+
+#chat-message-container {
+	overflow-y: auto;
+	height: 200px;
+	background-color: #f8f9fa;
+	padding: 10px;
+	border-radius: var(--in-game-border-size);
+}
+
+#chat-messages {
+	margin: 0;
+}
+
+button.in-game, input.in-game {
+	border-radius: var(--in-game-border-size) !important;
+}
+
+#chat-messages li {
+	color: black;
+	word-break: break-word;
+}
