@@ -388,7 +388,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 	}
 });
 	
-router.get("/release-user", checkAuthenticated, function(req, res){
+router.get("/release-user", checkAuthenticated, async function(req, res){
 	if (req.user.adminLogin === true) {
 		const currentUser = req.session.passport.user.doc;
 		const adminUser = currentUser.adminUser;
@@ -402,13 +402,19 @@ router.get("/release-user", checkAuthenticated, function(req, res){
 			req.flash("success", "Logged out of " + currentUser.displayName);
 			// Send the logout event if the player is in a game
 			if (currentUser.inGame) {io.emit("player left", currentUser.inGame, currentUser)}
-			// Save the session
-			req.session.save();
 		} else {
 			// If the displayName doesn't match, flash an error message to the user
 			req.flash("error", "Unable to log out of " + currentUser.displayName);
 		}
-		res.redirect("/")
+
+		// Save the session
+		try {
+			await req.session.save();
+			res.redirect("/"); // Perform the redirect only after the session is successfully saved
+		} catch (err) {
+			console.error("Error saving session:", err);
+			res.redirect("/"); // Redirect even if there's an error, or handle it differently if needed
+		}
 	} else {
 		res.redirect("/")
 	}
