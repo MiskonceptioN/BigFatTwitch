@@ -131,7 +131,6 @@ function resetFormFields() {
 	ctx.clearRect(0, 0, answerCanvas.width, answerCanvas.height);
 
 	const serverCanvas = document.getElementById('teammateAnswer');
-	const ctx2 = serverCanvas.getContext('2d');
-	ctx2.clearRect(0, 0, serverCanvas.width, serverCanvas.height);
+	serverCanvas.setAttribute("src", "");
 }
 
