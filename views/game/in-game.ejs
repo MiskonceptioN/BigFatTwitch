@@ -1,6 +1,5 @@
 <%- include('../header'); %>
 	<video autoplay muted loop id="ingame-background">
-		<!-- <source src="https://assets.danny-valentine.com/video/upload/h_720,e_accelerate:-50/q_auto,f_auto/BigFatTwitch/anibak.mov"> -->
 		<source src="https://assets.danny-valentine.com/video/upload/h_1080,e_accelerate:-50/q_auto,f_auto/BigFatTwitch/anibak.mov">
 	</video>
 	<section id="game" class="text-white">
@@ -35,8 +34,8 @@
 				</div>
 				<div class="col-3 d-flex flex-column">
 					<h4><%- user.teammate.displayName %>'s answer</h4>
-					<canvas id="teammateAnswer" class="canvas-container" style="height: auto;"></canvas>
-					<h4 class="mt-4">Chat</h4>
+					<img id="teammateAnswer" class="canvas-container" src="" style="height: auto;" />
+					<h4 class="mt-4">Team chat</h4>
 					<div id="chat-message-container" class="chat-log w-100">
 						<ul id="chat-messages" class="list-unstyled"></ul>
 					</div>
@@ -119,23 +118,15 @@
 		}
 	});
 
-	socket.on('update canvas', (data, userID) => {
-		// Only update serverCanvas if the data is not from the current user
-		if (userID === <%- user.twitchId %>) return;
-		
-		// Update #serverCanvas with received data, and scale it down to 600x450
-		const serverCanvas = document.getElementById('teammateAnswer');
-		const ctx = serverCanvas.getContext('2d');
-		const img = new Image();
-
-		// Clear the canvas before importing the data
-		ctx.clearRect(0, 0, serverCanvas.width, serverCanvas.height);
-
-		img.onload = () => {
-			ctx.drawImage(img, 0, 0, 600, 450);
+	socket.on('update canvas', (canvasData, userID) => {
+		// Only update serverCanvas if the canvasData is from the current user's teammate
+		if (userID !== <%- user.teammate.twitchId %>) {
+			return;
 		}
-		img.src = data;
-
+		
+		// Update #serverCanvas with received canvasData
+		const serverCanvas = document.getElementById('teammateAnswer');
+		serverCanvas.setAttribute("src", canvasData);
 	})
 
 	const answerCanvas = document.getElementById('answerCanvas');
@@ -220,6 +211,40 @@
 			lastCanvasData = data;
 		}
     });
+	let originalCanvasData = null; // Store the original high-resolution canvas data
+
+	$(window).on('resize', function() {
+		const canvas = $('#answerCanvas')[0];
+		const ctx = canvas.getContext('2d');
+		const img = new Image();
+
+		// Save the current canvas content at its original resolution if not already saved
+		if (!originalCanvasData) {
+			originalCanvasData = canvas.toDataURL();
+		}
+
+		// Adjust canvas size while maintaining 16:9 aspect ratio
+		const parentWidth = $(canvas).parent().width();
+		const newWidth = Math.min(parentWidth, 900); // Maximum width is 900
+		const newHeight = newWidth * 9 / 16; // Maintain 16:9 aspect ratio
+
+		canvas.width = newWidth;
+		canvas.height = newHeight;
+
+		// Redraw the saved high-resolution content onto the resized canvas
+		img.onload = function() {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+		};
+		img.src = originalCanvasData;
+	}).trigger('resize');
+
+	// Update the originalCanvasData whenever the user draws on the canvas
+	$(answerCanvas).on('mouseup mouseout touchend touchcancel', function() {
+		if (!$(answerCanvas).hasClass("disabled")) {
+			originalCanvasData = answerCanvas.toDataURL();
+		}
+	});
     // $(answerCanvas).on('mouseout', function() {
     //     isDrawing = false
 
