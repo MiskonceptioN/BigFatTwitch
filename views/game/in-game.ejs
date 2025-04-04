@@ -120,9 +120,7 @@
 
 	socket.on('update canvas', (canvasData, userID) => {
 		// Only update serverCanvas if the canvasData is from the current user's teammate
-		if (userID !== <%- user.teammate.twitchId %>) {
-			return;
-		}
+		if (userID !== <%- user.teammate.twitchId %>) return;
 		
 		// Update #serverCanvas with received canvasData
 		const serverCanvas = document.getElementById('teammateAnswer');
