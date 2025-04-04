@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios").default;
-const { checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHTML, saveSession } = require("../helpers");
+const { checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHTML, saveSession, fetchTwitchChatColour } = require("../helpers");
 
 const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
@@ -761,13 +761,23 @@ router.post("/users/add/", checkAuthenticated, async function(req, res){
 					"Client-Id": process.env.TWITCH_CLIENT_ID
 				}
 			})
-				.then(response => {
+				.then(async response => {
 					const userInfo = response.data.data[0];
+					userInfo.twitchChatColour = ""; // Default value
+
+					try {
+						const twitchChatColour = await fetchTwitchChatColour(userInfo.id)
+						userInfo.twitchChatColour = twitchChatColour;
+					}
+					catch (error) {
+						console.error("Unable to fetch Twitch chat colour for user " + userInfo.display_name, error);
+					}
 
 					User.updateOne({ twitchId: userInfo.id }, {
 						displayName: userInfo.display_name,
 						profileImageUrl: userInfo.profile_image_url,
 						broadcasterType: userInfo.broadcaster_type,
+						twitchChatColour: userInfo.twitchChatColour
 					}, { upsert: true })
 						.then(result => {
 							if (result.upsertedCount === 1) {
