@@ -78,15 +78,27 @@
 					<div class="col text-center">
 						<h5 class="mt-1 mb-0"><%- team.name %></h5>
 						<% team.players.forEach(player => { %>
-							<div class="col">
-								<h6 class="mt-1 mb-0"><%- player.displayName %></h6>
-								<img
-									id="<%- player.twitchId %>-Answer"
-									class="canvas-container w-100 border border-dark"
-									src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j//z8ABf4C/qc1gYQAAAAASUVORK5CYII="
-									style="height: auto;"
-								>
+							<div class="row">
+								<div class="col">
+									<h6 class="mt-1 mb-0"><%- player.displayName %></h6>
+									<img
+										id="<%- player.twitchId %>-Answer"
+										class="canvas-container w-100 border border-dark"
+										src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j//z8ABf4C/qc1gYQAAAAASUVORK5CYII="
+										style="height: auto;"
+									>
+								</div>
 							</div>
+							<div class="row">
+								<form>
+									<div class="input-group mb-3">
+										<input type="number" min="0" max="100" class="form-control text-center" placeholder="How many points?">
+										<button class="btn btn-primary" type="button">⮞</button>
+									  </div>
+								</form>
+
+							</div>
+
 						<% }); %>
 					</div>
 				<% }); %>
