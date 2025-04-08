@@ -7,7 +7,6 @@ const contestantAnswersSchema = new mongoose.Schema({
   points: { type: Number, default: 0 },
 });
 
-
 // Define the Question schema
 const questionSchema = new mongoose.Schema({
 	question: { type: String, required: true },
