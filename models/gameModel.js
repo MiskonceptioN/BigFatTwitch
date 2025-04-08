@@ -1,11 +1,18 @@
 const mongoose = require('mongoose');
 const timestamps  = require('mongoose-timestamp');
 
+const contestantAnswersSchema = new mongoose.Schema({
+  contestantId: { type: String, required: true },
+  answer: { type: String, required: true },
+  points: { type: Number, default: 0 },
+});
+
+
 // Define the Question schema
 const questionSchema = new mongoose.Schema({
 	question: { type: String, required: true },
 	answer: { type: String, required: true },
-	contestantAnswers: { type: Object, default: {} },
+	contestantAnswers: [contestantAnswersSchema],
 	status: { type: String, enum: ["pending", "in-progress", "played"], default: "pending" },
 	type: { type: String, enum: ["text", "video", "image"], default: "text" },
 	game: { type: "String", required: true },

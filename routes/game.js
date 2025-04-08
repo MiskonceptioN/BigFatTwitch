@@ -52,7 +52,10 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 
 	try {
 		// Add the user's answer into Game
-		const addAnswer = await Game.updateOne( { code: user.inGame,"questions._id": questionId }, { $set: { "questions.$.contestantAnswers": { [user.twitchId]: answer } } });
+		const addAnswer = await Game.updateOne(
+			{ code: user.inGame, "questions._id": questionId },
+			{ $set: { [`questions.$.contestantAnswers.${user.twitchId}.answer`]: answer } }
+		);
 
 		if (addAnswer.modifiedCount < 1) {
 			console.log(addAnswer);
