@@ -72,7 +72,26 @@
 	<section id="admin-functions" class="mt-3">
 		<h3>Game admin</h3>
 		<div class="d-grid">
-			<h4>Round</h4>
+			<h4>Contestant answers</h4>
+			<div class="row">
+				<% game.teams.forEach(team => { %>
+					<div class="col text-center">
+						<h5 class="mt-1 mb-0"><%- team.name %></h5>
+						<% team.players.forEach(player => { %>
+							<div class="col">
+								<h6 class="mt-1 mb-0"><%- player.displayName %></h6>
+								<img
+									id="<%- player.twitchId %>-Answer"
+									class="canvas-container w-100 border border-dark"
+									src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j//z8ABf4C/qc1gYQAAAAASUVORK5CYII="
+									style="height: auto;"
+								>
+							</div>
+						<% }); %>
+					</div>
+				<% }); %>
+			</div>
+			<h4 class="mt-3">Round</h4>
 			<div class="row">
 				<div class="col"><button id="previous-round" class="btn btn-primary w-100" type="button"><i class="fa-solid fa-arrow-left"></i> Previous round</button></div>
 				<div class="col"><button id="next-round" class="btn btn-primary w-100" type="button">Next round <i class="fa-solid fa-arrow-right"></i></button></div>
@@ -138,6 +157,14 @@
 		document.querySelector("h2").appendChild(item);
 		window.scrollTo(0, document.body.scrollHeight);
 	});
+
+	// Update player canvases
+	socket.on('update canvas', (canvasData, userID) => {
+		const targetCanvas = document.getElementById(userID + "-Answer");
+		if (targetCanvas !== null) {
+			targetCanvas.setAttribute("src", canvasData);
+		}
+	})
 
 	function restartAnimation() {
 		let circle = document.querySelector(".question");
