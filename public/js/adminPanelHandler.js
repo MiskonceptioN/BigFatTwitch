@@ -109,6 +109,11 @@ $("form.send-question").on("submit", function(event){
 			$(inputButton).html('<div class="spinner-border" role="status"></div>');
         },
         success: function(msg) {
+			// Update the current question disaply on the admin panel
+			const currentQuestion = $("#current-question");
+			currentQuestion.text(question);
+			currentQuestion.data("question-id", questionId);
+
 			$(form).parent().parent().addClass("bg-success");
 
 			// Reset the button contents
@@ -134,6 +139,50 @@ $("form.send-question").on("submit", function(event){
 				$navButton.detach().appendTo('[data-round-type="in-progress"]');
 			}
 		
+		},
+        error: function(err) {
+			// Log and show error message
+			console.log("Request failed", err);
+			$("#loading").removeClass("d-flex").addClass("d-none");
+			$("#message").removeClass().addClass("alert").addClass("alert-danger").html("Request failed with status " + err.status);
+			$("#message").collapse("show");
+
+			// Reset the button contents
+			$(inputButton).html(inputButtonContent);
+        }
+    });
+});
+
+$("form.points-form").on("submit", function(event){
+	event.preventDefault(); //prevent default action
+	const destUrl = $(this).attr("action"); //get form action url
+	const formMethod = $(this).attr("method"); //get form GET/POST method
+
+	const form = $(this);
+	const inputButton = $(form).find("button");
+	const inputButtonContent = $(inputButton).html();
+
+	// Grab the relevant data to be submitted
+	const gameCode = $(this).find("input[name='gameCode']").val();
+	const userId = $(this).find("input[name='userId']").val();
+	const questionId = $("#current-question").data("question-id");
+	const points = $(form).find('input[name="points"]').val();
+
+    $.ajax({
+        method: formMethod,
+        url: destUrl,
+		data: JSON.stringify({gameCode, userId, questionId, points}),
+		contentType: "application/json",
+
+        beforeSend: function() {
+			// Show loading spinner before sending the form
+			$(inputButton).html('<div class="spinner-border" role="status"></div>');
+        },
+        success: function(msg) {
+			alert("Points updated successfully"); // This ain't elegant. TODO: Make it nicer and send a socket.io event to inform other admins
+
+			// Reset the button contents
+			$(inputButton).html(inputButtonContent);
 		},
         error: function(err) {
 			// Log and show error message
