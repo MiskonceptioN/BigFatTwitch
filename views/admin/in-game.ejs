@@ -91,8 +91,8 @@
 							</div>
 							<div class="row">
 								<form>
-									<div class="input-group mb-3">
-										<input type="number" min="0" max="100" class="form-control text-center" placeholder="How many points?">
+									<div class="input-group mb-3" id="<%- player.twitchId %>-Points-Form">
+										<input type="number" min="0" max="100" class="form-control text-center point-input" placeholder="How many points?">
 										<button class="btn btn-primary" type="button">⮞</button>
 									  </div>
 								</form>
@@ -163,13 +163,6 @@
 
 	const socket = io();
 
-	socket.on('chat message', (msg) => {
-		const item = document.createElement('li');
-		item.innerHTML = msg;
-		document.querySelector("h2").appendChild(item);
-		window.scrollTo(0, document.body.scrollHeight);
-	});
-
 	// Update player canvases
 	socket.on('update canvas', (canvasData, userID) => {
 		const targetCanvas = document.getElementById(userID + "-Answer");
@@ -177,6 +170,45 @@
 			targetCanvas.setAttribute("src", canvasData);
 		}
 	})
+
+	// Lock point form when another admin is modifying points
+	socket.on('block points', (pointFormID, userID) => {
+		if (userID !== "<%- user.twitchId %>") {
+			togglePointForm(pointFormID, "disable");
+		}
+	})
+
+	// Unlock point form when another admin is modifying points
+	socket.on('unblock points', (pointFormID, userID) => {
+		if (userID !== "<%- user.twitchId %>") {
+			togglePointForm(pointFormID, "enable");
+		}
+	})
+
+	// Update the point score for other players
+	socket.on('update points', (pointFormID, points, userID) => {
+		if (userID !== "<%- user.twitchId %>") {
+			updatePointAmount(pointFormID, points);
+		}
+	})
+
+	// Disable point input for other admins when in focus
+	$(".point-input").on("focus", function(){
+		const pointFormID = $(this).parent().attr("id");
+		socket.emit('block points', pointFormID, "<%- user.twitchId %>");
+	});
+
+	$(".point-input").on("blur", function(){
+		const pointFormID = $(this).parent().attr("id");
+		socket.emit('unblock points', pointFormID, "<%- user.twitchId %>");
+	});
+
+	$(".point-input").on("input", function(){
+		const pointFormID = $(this).parent().attr("id");
+		const amount = $(this).val();
+
+		socket.emit('update points', pointFormID, amount, "<%- user.twitchId %>");
+	});
 
 	function restartAnimation() {
 		let circle = document.querySelector(".question");
