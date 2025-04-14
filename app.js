@@ -127,7 +127,16 @@ io.on('connection', (socket) => {
 	});
 	socket.on('update canvas', (canvasData, userID) => {
 		io.emit('update canvas', canvasData, userID);
-	})
+	});
+	socket.on('block points', (pointFormID, userID) => {
+		io.emit('block points', pointFormID, userID);
+	});
+	socket.on('unblock points', (pointFormID, userID) => {
+		io.emit('unblock points', pointFormID, userID);
+	});
+	socket.on('update points', (pointFormID, points, userID) => {
+		io.emit('update points', pointFormID, points, userID);
+	});
 });
 
 function prepUserMessage(msg, user){
