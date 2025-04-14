@@ -82,7 +82,7 @@ $(document).ready(function(){
 
 let previousQuestion = null;
 
-$("form").on("submit", function(event){
+$("form.send-question").on("submit", function(event){
 	event.preventDefault(); //prevent default action
 	const destUrl = $(this).attr("action"); //get form action url
 	const formMethod = $(this).attr("method"); //get form GET/POST method
@@ -332,6 +332,28 @@ function updatePrevious(uid, gameId) {
 			// $(inputButton).html(inputButtonContent);
         }
     });
+}
+
+// Allow individual point forms to be disabled/enabled
+// when the point input is focused/unfocused
+function togglePointForm(pointFormID, disable) {
+	const pointForm = document.getElementById(pointFormID);
+	if (pointForm !== null) {
+		if (disable == "disable") {
+			pointForm.querySelector(".point-input").setAttribute("disabled", true);
+			pointForm.querySelector("button").setAttribute("disabled", true);
+		}
+		if (disable == "enable") {
+			pointForm.querySelector(".point-input").removeAttribute("disabled");
+			pointForm.querySelector("button").removeAttribute("disabled");
+		}
+	}
+}
+
+// Update the point form with the points from other admins
+function updatePointAmount(pointFormID, points) {
+	const pointForm = document.getElementById(pointFormID);
+	pointForm.querySelector(".point-input").value = points;
 }
 
 function restartRound(roundNumber){
