@@ -281,6 +281,42 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	}
 })
+.post("/in-game/points", checkAuthenticated, async (req, res) => {
+	// Prepare the inputs
+	const gameCode = req.body.gameCode;
+	const userId = req.body.userId;
+	const questionId = req.body.questionId;
+	const points = req.body.points;
+
+	try {
+		// Add the user's points to their answer
+		const addPoints = await Game.updateOne(
+			{ code: gameCode, "questions._id": questionId },
+			{ $set: { [`questions.$.contestantAnswers.${userId}.points`]: points } }
+		);
+
+		if (addPoints.modifiedCount < 1) {
+			res.send({
+				status: "danger",
+				content: "Something went wrong! Please let Danny know."
+			});
+			return;
+		} else {
+			res.send({
+				status: "success",
+				content: "Points added!"
+			});
+			return;
+		}
+	} catch (error) {
+		res.send({
+			status: "danger",
+			content: "Something went wrong! Please let Danny know."
+		});
+		console.error(error);
+		return;
+	}
+})
 .post("/in-game/set-question-state", checkAuthenticated, async function(req, res){
 	// Sanitise inputs (later)
 
