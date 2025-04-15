@@ -180,6 +180,11 @@
 		}
 	})
 
+	// Update the question preview when it's set by the admin
+	socket.on("next question", (question, questionId) => {
+		updateQuestionPreview(question, questionId);
+	});
+
 	// Lock point form when another admin is modifying points
 	socket.on('block points', (pointFormID, userID) => {
 		if (userID !== "<%- user.twitchId %>") {

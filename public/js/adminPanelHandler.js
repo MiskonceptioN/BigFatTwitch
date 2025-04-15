@@ -109,11 +109,6 @@ $("form.send-question").on("submit", function(event){
 			$(inputButton).html('<div class="spinner-border" role="status"></div>');
         },
         success: function(msg) {
-			// Update the current question disaply on the admin panel
-			const currentQuestion = $("#current-question");
-			currentQuestion.text(question);
-			currentQuestion.data("question-id", questionId);
-
 			$(form).parent().parent().addClass("bg-success");
 
 			// Reset the button contents
@@ -196,6 +191,13 @@ $("form.points-form").on("submit", function(event){
         }
     });
 });
+
+function updateQuestionPreview(question, questionId){
+	// Update the current question display on the admin panel
+	const currentQuestion = $("#current-question");
+	currentQuestion.text(question);
+	currentQuestion.data("question-id", questionId);
+}
 
 // Function to handle round navigation
 function navigateRound(direction) {
