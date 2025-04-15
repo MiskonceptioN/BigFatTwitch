@@ -162,11 +162,12 @@ $("form.points-form").on("submit", function(event){
 	const userId = $(this).find("input[name='userId']").val();
 	const questionId = $("#current-question").data("question-id");
 	const points = $(form).find('input[name="points"]').val();
+	const pointFormID = $(form).find('input[name="pointFormID"]').val();
 
     $.ajax({
         method: formMethod,
         url: destUrl,
-		data: JSON.stringify({gameCode, userId, questionId, points}),
+		data: JSON.stringify({gameCode, userId, questionId, points, pointFormID}),
 		contentType: "application/json",
 
         beforeSend: function() {
@@ -385,16 +386,22 @@ function updatePrevious(uid, gameId) {
     });
 }
 
+// Set input to green with check mark when points are succesfully added
+function markAsPointsAdded(pointFormID) {
+	const pointForm = document.getElementById(pointFormID);
+	pointForm.querySelector(".point-input").classList.add("is-valid");
+}
+
 // Allow individual point forms to be disabled/enabled
 // when the point input is focused/unfocused
-function togglePointForm(pointFormID, disable) {
+function togglePointForm(pointFormID, state) {
 	const pointForm = document.getElementById(pointFormID);
 	if (pointForm !== null) {
-		if (disable == "disable") {
+		if (state == "disable") {
 			pointForm.querySelector(".point-input").setAttribute("disabled", true);
 			pointForm.querySelector("button").setAttribute("disabled", true);
 		}
-		if (disable == "enable") {
+		if (state == "enable") {
 			pointForm.querySelector(".point-input").removeAttribute("disabled");
 			pointForm.querySelector("button").removeAttribute("disabled");
 		}

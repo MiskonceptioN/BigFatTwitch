@@ -287,6 +287,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 	const userId = req.body.userId;
 	const questionId = req.body.questionId;
 	const points = req.body.points;
+	const pointFormID = req.body.pointFormID;
 
 	try {
 		// Add the user's points to their answer
@@ -306,6 +307,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 				status: "success",
 				content: "Points added!"
 			});
+			io.emit('points added', pointFormID);
 			return;
 		}
 	} catch (error) {
