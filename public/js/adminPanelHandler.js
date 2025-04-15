@@ -111,6 +111,11 @@ $("form.send-question").on("submit", function(event){
         success: function(msg) {
 			$(form).parent().parent().addClass("bg-success");
 
+			// Re-enable and empty all the point forms, removing any instance of .is-valid
+			resetPointForms();
+			// Reset the canvas states
+			resetCanvases();
+
 			// Reset the button contents
 			$(inputButton).html(inputButtonContent);
 
@@ -395,17 +400,45 @@ function markAsPointsAdded(pointFormID) {
 // Allow individual point forms to be disabled/enabled
 // when the point input is focused/unfocused
 function togglePointForm(pointFormID, state) {
-	const pointForm = document.getElementById(pointFormID);
-	if (pointForm !== null) {
-		if (state == "disable") {
-			pointForm.querySelector(".point-input").setAttribute("disabled", true);
-			pointForm.querySelector("button").setAttribute("disabled", true);
-		}
-		if (state == "enable") {
-			pointForm.querySelector(".point-input").removeAttribute("disabled");
-			pointForm.querySelector("button").removeAttribute("disabled");
+	if (pointFormID === "all") {
+		document.querySelectorAll(".points-form").forEach(function (pointInput) {
+			if (state == "disable") {
+				pointInput.querySelector(".point-input").setAttribute("disabled", true);
+				pointInput.querySelector("button").setAttribute("disabled", true);
+			}
+			if (state == "enable") {
+				pointInput.querySelector(".point-input").removeAttribute("disabled");
+				pointInput.querySelector("button").removeAttribute("disabled");
+			}
+		})
+	} else {
+		const pointForm = document.getElementById(pointFormID);
+		if (pointForm !== null) {
+			if (state == "disable") {
+				pointForm.querySelector(".point-input").setAttribute("disabled", true);
+				pointForm.querySelector("button").setAttribute("disabled", true);
+			}
+			if (state == "enable") {
+				pointForm.querySelector(".point-input").removeAttribute("disabled");
+				pointForm.querySelector("button").removeAttribute("disabled");
+			}
 		}
 	}
+}
+
+function resetPointForms() {
+	togglePointForm("all", "enable");
+
+	document.querySelectorAll(".point-input").forEach(function (pointInput) {
+		pointInput.value="";
+		pointInput.classList.remove("is-valid");
+	});
+}
+
+function resetCanvases() {
+	document.querySelectorAll(".canvas-container").forEach(function (canvasContainer) {
+		canvasContainer.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j//z8ABf4C/qc1gYQAAAAASUVORK5CYII=");
+	});
 }
 
 // Update the point form with the points from other admins
