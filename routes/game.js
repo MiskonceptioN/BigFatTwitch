@@ -69,6 +69,10 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 				status: "success",
 				content: "Answer submitted!"
 			});
+				// Add the player's answer to the User in the database
+				try {await User.updateOne({twitchId: user.twitchId}, {answer: answer})}
+				catch (error) {console.error(error)}
+			
 			return;
 		}
 	} catch (error) {
