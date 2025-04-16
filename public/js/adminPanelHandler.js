@@ -180,8 +180,6 @@ $("form.points-form").on("submit", function(event){
 			$(inputButton).html('<div class="spinner-border" role="status"></div>');
         },
         success: function(msg) {
-			alert("Points updated successfully"); // This ain't elegant. TODO: Make it nicer and send a socket.io event to inform other admins
-
 			// Reset the button contents
 			$(inputButton).html(inputButtonContent);
 		},
@@ -400,29 +398,18 @@ function markAsPointsAdded(pointFormID) {
 // Allow individual point forms to be disabled/enabled
 // when the point input is focused/unfocused
 function disablePointForm(pointFormID, bool) {
-	if (pointFormID === "all") {
-		document.querySelectorAll(".points-form").forEach(function (pointInput) {
-			if (bool === true) {
-				pointInput.querySelector(".point-input").setAttribute("disabled", true);
-				pointInput.querySelector("button").setAttribute("disabled", true);
-			}
-			if (bool === false) {
-				pointInput.querySelector(".point-input").removeAttribute("disabled");
-				pointInput.querySelector("button").removeAttribute("disabled");
-			}
-		})
-	} else {
-		const pointForm = document.getElementById(pointFormID);
-		if (pointForm !== null) {
-			if (bool == true) {
-				pointForm.querySelector(".point-input").setAttribute("disabled", true);
-				pointForm.querySelector("button").setAttribute("disabled", true);
-			} else {
-				pointForm.querySelector(".point-input").removeAttribute("disabled");
-				pointForm.querySelector("button").removeAttribute("disabled");
-			}
+	const target = (pointFormID === "all") ? ".points-form" : "#" + pointFormID;
+	console.log({target, pointFormID});
+	document.querySelectorAll(target).forEach(function (pointInput) {
+	// $(target).each(function (pointInput) {
+	if (bool === true) {
+			pointInput.querySelector(".point-input").setAttribute("disabled", true);
+			pointInput.querySelector("button").setAttribute("disabled", true);
+		} else {
+			pointInput.querySelector(".point-input").removeAttribute("disabled");
+			pointInput.querySelector("button").removeAttribute("disabled");
 		}
-	}
+	})
 }
 
 function resetPointForms() {

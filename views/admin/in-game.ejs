@@ -99,9 +99,9 @@
 								<form method="post" action="/admin/in-game/points" class="points-form">
 									<input type="hidden" name="userId" value="<%- player.twitchId %>">
 									<input type="hidden" name="gameCode" value="<%= game.code %>">
-									<input type="hidden" name="pointFormID" value="<%- player.twitchId %>-Points-Form">
+									<input type="hidden" name="pointFormID" value="player-<%- player.twitchId %>-Points-Form">
 
-									<div class="input-group mb-3" id="<%- player.twitchId %>-Points-Form">
+									<div class="input-group mb-3" id="player-<%- player.twitchId %>-Points-Form">
 										<input name="points" type="number" min="0" max="100" class="form-control text-center point-input" placeholder="How many points?" disabled>
 										<button class="btn btn-primary" type="submit" disabled>⮞</button>
 									  </div>
