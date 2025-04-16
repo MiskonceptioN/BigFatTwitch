@@ -399,14 +399,14 @@ function markAsPointsAdded(pointFormID) {
 
 // Allow individual point forms to be disabled/enabled
 // when the point input is focused/unfocused
-function togglePointForm(pointFormID, state) {
+function disablePointForm(pointFormID, bool) {
 	if (pointFormID === "all") {
 		document.querySelectorAll(".points-form").forEach(function (pointInput) {
-			if (state == "disable") {
+			if (bool === true) {
 				pointInput.querySelector(".point-input").setAttribute("disabled", true);
 				pointInput.querySelector("button").setAttribute("disabled", true);
 			}
-			if (state == "enable") {
+			if (bool === false) {
 				pointInput.querySelector(".point-input").removeAttribute("disabled");
 				pointInput.querySelector("button").removeAttribute("disabled");
 			}
@@ -414,11 +414,10 @@ function togglePointForm(pointFormID, state) {
 	} else {
 		const pointForm = document.getElementById(pointFormID);
 		if (pointForm !== null) {
-			if (state == "disable") {
+			if (bool == true) {
 				pointForm.querySelector(".point-input").setAttribute("disabled", true);
 				pointForm.querySelector("button").setAttribute("disabled", true);
-			}
-			if (state == "enable") {
+			} else {
 				pointForm.querySelector(".point-input").removeAttribute("disabled");
 				pointForm.querySelector("button").removeAttribute("disabled");
 			}
@@ -427,7 +426,7 @@ function togglePointForm(pointFormID, state) {
 }
 
 function resetPointForms() {
-	togglePointForm("all", "enable");
+	disablePointForm("all", false);
 
 	document.querySelectorAll(".point-input").forEach(function (pointInput) {
 		pointInput.value="";

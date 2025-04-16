@@ -184,19 +184,20 @@
 	// Update the question preview when it's set by the admin
 	socket.on("next question", (question, questionId) => {
 		updateQuestionPreview(question, questionId);
+		resetPointForms();
 	});
 
 	// Lock point form when another admin is modifying points
 	socket.on('block points', (pointFormID, userID) => {
 		if (userID !== "<%- user.twitchId %>") {
-			togglePointForm(pointFormID, "disable");
+			disablePointForm(pointFormID, true);
 		}
 	})
 
 	// Unlock point form when another admin is modifying points
 	socket.on('unblock points', (pointFormID, userID) => {
 		if (userID !== "<%- user.twitchId %>") {
-			togglePointForm(pointFormID, "enable");
+			disablePointForm(pointFormID, false);
 		}
 	})
 
@@ -210,7 +211,7 @@
 	// Update the inputs when points are successfully added.
 	socket.on('points added', (pointFormID) => {
 		markAsPointsAdded(pointFormID);
-		togglePointForm(pointFormID, "disable");
+		disablePointForm(pointFormID, true);
 	});
 
 	// Disable point input for other admins when in focus
