@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
   customChatColour: {type: String, default: "#000000"},
   inGame: {type: String, default: ""},
   loggedOutOf: {type: String, default: ""},
+  answer: {type: String, default: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j//z8ABf4C/qc1gYQAAAAASUVORK5CYII="}, // base64 of the most recent answer
 });
 userSchema.plugin(findOrCreate);
 userSchema.set('timestamps', true);
