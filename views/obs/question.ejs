@@ -2,12 +2,9 @@
 
 <script src="/socket.io/socket.io.js"></script>
 <script>
-
-// const socket = io();
 const socket = io({ query: { teamId: 'question' , role: 'question' } });
 
-socket.on('update question', (question) => {
-	document.getElementById('question-text').innerText = question;
-	$("#answer-button").attr("disabled", false);
+socket.on('next question', (question) => {
+	document.getElementById('question').innerText = question;
 });
 </script>
