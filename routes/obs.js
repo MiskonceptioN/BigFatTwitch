@@ -347,6 +347,64 @@ router.get("/teams/:teamIndex/players/:playerIndex/broadcasterType", async (req,
 	}
 })
 
+router.get("/teams/:teamIndex/players/:playerIndex/answer", async (req, res) => {
+	// Convert teamIndex and playerIndex to number
+	const teamIndexValue = Number(req.params.teamIndex);
+	const playerIndexValue = Number(req.params.playerIndex);
+
+	// Check if user input is a postive number
+	if (isNaN(teamIndexValue) || teamIndexValue < 1) {
+		return res.status(400).send("The team number must be 1 or higher");
+	}
+	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
+		return res.status(400).send("The player number must be 1 or higher");
+	}
+
+	// Set the desired indices to be the user input minus 1
+	const desiredTeamIndex = teamIndexValue - 1;
+	const desiredPlayerIndex = playerIndexValue - 1;
+
+	try {
+		const foundGame = await Game.aggregate([
+			{ $match: { status: { $in: ["starting", "in-progress"] } } }
+		]).exec();
+		
+		// Check a game was found
+		if (foundGame === null  || foundGame.length === 0) {
+			return res.status(200).send("Unable to find any active games");
+		}
+
+		// Check the team exists in the game
+		if (foundGame[0].teams.length < teamIndexValue) {
+			return res.status(200).send("Unable to find team number " + teamIndexValue + " in any active games");
+		}
+
+		// Check the player exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players.length < playerIndexValue) {
+			return res.status(200).send("Unable to find player number " + playerIndexValue + " in team " + teamIndexValue);
+		}
+
+		// Check the answer exists in the game
+		if (foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].answer === null) {
+			return res.status(200).send("Unable to find player " + playerIndexValue + "'s answer");
+		}
+
+		// Populate the teams with the players
+		// No try/catch on this, as it will return just the player IDs if it fails
+		await Game.populate(foundGame, {
+			path: 'teams.players',
+			model: User,
+			select: 'answer',
+			foreignField: 'twitchId'
+		});
+
+		return res.status(200).send("<img src='" + foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].answer + "' alt='Answer' width='900' height='506' />");
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+})
+
 router.get("/teams/:teamIndex/players/:playerIndex/twitchChatColour", async (req, res) => {
 	// Convert teamIndex and playerIndex to number
 	const teamIndexValue = Number(req.params.teamIndex);
