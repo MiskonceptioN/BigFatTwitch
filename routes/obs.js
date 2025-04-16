@@ -25,15 +25,16 @@ router.get("/question", async (req, res) => {
 		]).exec();
 
 		// Check a game was found
-		if (foundQuestion === null  || foundQuestion[0].length === 0) {
-			return res.status(200).send("Unable to find any active questions");
+		console.log({foundQuestion});
+		console.log(typeof foundQuestion);
+		if (foundQuestion === null || foundQuestion[0] === undefined || foundQuestion[0].length === 0) {
+			return res.render("obs/question", {question: ""});
 		}
 
-		// return res.status(200).send(foundQuestion[0].question);
 		res.render("obs/question", {question: foundQuestion[0].question});
 	} catch (error) {
 		console.error(error);
-		return res.status(500).send("Couldn't handle the request. Please try again later.");
+		return res.render("obs/question", {question: ""});
 	}
 })
 
