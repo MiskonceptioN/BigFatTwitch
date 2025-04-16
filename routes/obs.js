@@ -225,7 +225,7 @@ router.get("/teams/:teamIndex/players", async (req, res) => {
 		await Game.populate(foundGame, {
 			path: 'teams.players',
 			model: User,
-			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame answer',
 			foreignField: 'twitchId'
 		});
 
@@ -246,7 +246,7 @@ router.get("/teams/:teamIndex/players/:playerIndex", async (req, res) => {
 		return res.status(400).send("The team number must be 1 or higher");
 	}
 	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
-		return res.splayer(400).send("The player number must be 1 or higher");
+		return res.status(400).send("The player number must be 1 or higher");
 	}
 
 	// Set the desired indices to be the user input minus 1
@@ -278,7 +278,7 @@ router.get("/teams/:teamIndex/players/:playerIndex", async (req, res) => {
 		await Game.populate(foundGame, {
 			path: 'teams.players',
 			model: User,
-			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame answer',
 			foreignField: 'twitchId'
 		});
 
@@ -299,7 +299,7 @@ router.get("/teams/:teamIndex/players/:playerIndex/broadcasterType", async (req,
 		return res.status(400).send("The team number must be 1 or higher");
 	}
 	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
-		return res.splayer(400).send("The player number must be 1 or higher");
+		return res.status(400).send("The player number must be 1 or higher");
 	}
 
 	// Set the desired indices to be the user input minus 1
@@ -357,7 +357,7 @@ router.get("/teams/:teamIndex/players/:playerIndex/twitchChatColour", async (req
 		return res.status(400).send("The team number must be 1 or higher");
 	}
 	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
-		return res.splayer(400).send("The player number must be 1 or higher");
+		return res.status(400).send("The player number must be 1 or higher");
 	}
 
 	// Set the desired indices to be the user input minus 1
@@ -415,7 +415,7 @@ router.get("/teams/:teamIndex/players/:playerIndex/customChatColour", async (req
 		return res.status(400).send("The team number must be 1 or higher");
 	}
 	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
-		return res.splayer(400).send("The player number must be 1 or higher");
+		return res.status(400).send("The player number must be 1 or higher");
 	}
 
 	// Set the desired indices to be the user input minus 1
@@ -473,7 +473,7 @@ router.get("/teams/:teamIndex/players/:playerIndex/twitchId", async (req, res) =
 		return res.status(400).send("The team number must be 1 or higher");
 	}
 	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
-		return res.splayer(400).send("The player number must be 1 or higher");
+		return res.status(400).send("The player number must be 1 or higher");
 	}
 
 	// Set the desired indices to be the user input minus 1
@@ -531,7 +531,7 @@ router.get("/teams/:teamIndex/players/:playerIndex/displayName", async (req, res
 		return res.status(400).send("The team number must be 1 or higher");
 	}
 	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
-		return res.splayer(400).send("The player number must be 1 or higher");
+		return res.status(400).send("The player number must be 1 or higher");
 	}
 
 	// Set the desired indices to be the user input minus 1
@@ -589,7 +589,7 @@ router.get("/teams/:teamIndex/players/:playerIndex/profileImage", async (req, re
 		return res.status(400).send("The team number must be 1 or higher");
 	}
 	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
-		return res.splayer(400).send("The player number must be 1 or higher");
+		return res.status(400).send("The player number must be 1 or higher");
 	}
 
 	// Set the desired indices to be the user input minus 1
@@ -647,7 +647,7 @@ router.get("/teams/:teamIndex/players/:playerIndex/profileImageUrl", async (req,
 		return res.status(400).send("The team number must be 1 or higher");
 	}
 	if (isNaN(playerIndexValue) || playerIndexValue < 1) {
-		return res.splayer(400).send("The player number must be 1 or higher");
+		return res.status(400).send("The player number must be 1 or higher");
 	}
 
 	// Set the desired indices to be the user input minus 1
