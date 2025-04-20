@@ -72,16 +72,16 @@ router.get("/login", (req, res) => {
 });
 
 router.get("/logout", async (req, res) => {
-	// If the user is ingame, remove them from the game
-	if (req.user.inGame) {
+	// // If the user is ingame, remove them from the game
+	// if (req.user.inGame) {
 
-		// Backend: Remove ingame status from DB
-		try {await User.updateOne({twitchId: req.user.twitchId}, {inGame: ""})}
-		catch (error) {console.error(error)}
+	// 	// Backend: Remove ingame status from DB
+	// 	try {await User.updateOne({twitchId: req.user.twitchId}, {inGame: ""})}
+	// 	catch (error) {console.error(error)}
 
-		// Frontend: Update ingame status in session
-		await io.emit('player left', req.user.inGame, req.user);
-	}
+	// 	// Frontend: Update ingame status in session
+	// 	await io.emit('player left', req.user.inGame, req.user);
+	// }
 	req.logout(function(err) {
 		if (err) { return next(err); }
 		res.redirect('/');
