@@ -9,7 +9,7 @@ const axios = require("axios").default;
 const fs = require("fs");
 const { Server } = require("socket.io");
 const passport = require("passport");
-const twitchStrategy = require("passport-twitch").Strategy;
+const twitchStrategy = require("passport-twitch-v2").Strategy;
 
 // Expose socket.io to the rest of the app
 const app = express();
