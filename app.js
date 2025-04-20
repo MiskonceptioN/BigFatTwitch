@@ -25,6 +25,9 @@ const User = require("./models/userModel.js");
 mongoose.connect(mongoUri);
 const db = mongoose.connection;
 
+// Import helper functions
+const { checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatColour } = require("./helpers");
+
 // App config
 app.set("view engine", "ejs");
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -84,9 +87,6 @@ passport.serializeUser(function(user, done) { done(null, user) });
 passport.deserializeUser(function(user, done) { done(null, user.doc) });
 app.use(passport.initialize());
 app.use(passport.session());
-
-// Import helper functions
-const { checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatColour } = require("./helpers");
 
 // Socket.io listening
 io.on('connection', (socket) => {
