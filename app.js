@@ -60,28 +60,62 @@ async function(accessToken, refreshToken, profile, done) {
 
 		if (user) {
 			if (user.doc.banned) {
-				// return done(null, false, {message: "Blip blip blorp"});
 				return done(null, false);
-			} else {
-				const updateUser = await User.updateOne({twitchId: profile.id}, {
-					lastLogin: new Date().toISOString(),
-					displayName: profile.displayName,
-					profileImageUrl: profile.profileImageUrl,
-					broadcasterType: profile.broadcaster_type,
-					twitchChatColour: await fetchTwitchChatColour(profile.id)
-				});
-				console.log(updateUser);
-				return done(null, user);
+			} 
+			if (user.doc.inGame) {
+				// User is already in a game
+				try {
+					// Check if a game with that ID exists
+					const game = await Game.findOne({code: user.doc.inGame}).populate({
+						path: 'teams.players',
+						model: User,
+						select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+						foreignField: 'twitchId',
+					});
+			
+					// Redirect the user if the game doesn't exist
+					if (!game) {
+						return done(null, user);
+					}
+			
+					// Check to see if the user joining the game is one of the players
+					for (let i = 0; i < game.teams.length; i++) {
+						const team = game.teams[i];
+						for (let i = 0; i < team.players.length; i++) {
+							if (team.players[i].twitchId == user.doc.twitchId) {
+								// If current player in for loop is the first player in the team, set the teammate to the second player
+								const teammate = team.players[i == 0 ? 1 : 0];
+
+								// Update the user document to include the teammate info
+								user.doc = {
+									...user.doc._doc,
+									teammate,
+									teamId: team._id
+								};
+							}
+						}
+					}
+				} catch (error) {
+					console.error(error);
+					return done(null, user);
+				}
 			}
+
+			const updateUser = await User.updateOne({twitchId: profile.id}, {
+				lastLogin: new Date().toISOString(),
+				displayName: profile.displayName,
+				profileImageUrl: profile.profileImageUrl,
+				broadcasterType: profile.broadcaster_type,
+				twitchChatColour: await fetchTwitchChatColour(profile.id)
+			});
+
+			return done(null, user);
 		} else {
 			console.log(`No user found with twitchId ${profile.id}`);
 			return done(null, false);
 		}
 	} catch (error) {
-		// console.error("MongoDB connection error:", error);
 		return done(error, false);
-	// } finally {
-	// 	await mongoose.connection.close();
 	}
 }));
 passport.serializeUser(function(user, done) { done(null, user) });
