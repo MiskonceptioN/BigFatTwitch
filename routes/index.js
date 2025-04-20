@@ -15,14 +15,15 @@ router.get("/", checkAuthenticated, async (req, res) => {
 	if (req.user.role == "admin") {
 		const currentlyRunningGame = await checkForRunningGame();
 
-		res.render("admin", {
+		return res.render("admin", {
 			user: req.user,
 			game: currentlyRunningGame,
 			failureMessage,
 			successMessage
 		})
 	}
-	else {res.render("game", {user: req.user, failureMessage, successMessage})}
+	return res.render("game/join", {user: req.user, failureMessage, successMessage});
+
 });
 
 router.get("/debug", async (req, res) => {
