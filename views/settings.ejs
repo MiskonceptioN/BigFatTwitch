@@ -1,13 +1,13 @@
 <%- include('header'); %>
     <section id="settings">
         <header>
-            <h1>Settings</h1>
+            <h1 class="text-center">Settings</h1>
         </header>
 		<section>
 			<form method="post">
 				<input type="hidden" name="userID" value="<%- user._id %>">
 				<div class="mb-3 row">
-					<label class="col-sm-2 col-form-label">Chat colour</label>
+					<label class="col-sm-2 col-form-label">Username colour</label>
 					<div class="col-sm-10">
 						<div class="form-check form-check-inline">
 							<input class="form-check-input" type="radio" name="chat_colour" id="default-radio" value="default"<% if (user.chatColour === "default") { %> checked <% } %>>
@@ -15,7 +15,7 @@
 						</div>
 						<div class="form-check form-check-inline">
 							<input class="form-check-input" type="radio" name="chat_colour" id="twitch-radio" value="twitch"<% if (user.chatColour === "twitch") { %> checked <% } %>>
-							<label class="form-check-label" for="twitch-radio" style="color: <%- user.twitchChatColour %>">Twitch chat colour</label>
+							<label class="form-check-label" for="twitch-radio" style="color: <%- user.twitchChatColour %>">Twitch colour</label>
 						</div>
 						<div class="form-check form-check-inline">
 							<input class="form-check-input" type="radio" name="chat_colour" id="custom-radio" value="custom"<% if (user.chatColour !== "default" && user.chatColour !== "twitch") { %> checked <% } %>>
@@ -47,7 +47,7 @@
 				</div>
 			</form>
 		</section>
-        <footer style="margin-top: 10em;">
+        <footer class="text-center" style="margin-top: 10em;">
             <h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
         </footer>
     </section>
