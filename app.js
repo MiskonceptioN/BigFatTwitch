@@ -175,7 +175,17 @@ io.on('connection', (socket) => {
 });
 
 function prepUserMessage(msg, user){
-	const colour = user.customChatColour;
+	let colour;
+	switch (user.chatColour) {
+		case "custom":
+			colour = user.customChatColour
+			break;
+		case "twitch":
+			colour = user.twitchChatColour;
+			break;
+		default:
+			colour = "black";
+	}
 	const username = user.displayName;
 	const prefix = "<span style='color: " + colour + "'>" + username + "</span>";
 	return `${prefix}: ${msg}`
