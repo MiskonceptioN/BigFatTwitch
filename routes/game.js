@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { checkAuthenticated, generateGameCode, createErrorHTML, saveSession } = require("../helpers");
+const { checkAuthenticated, generateGameCode, createErrorHTML, saveSession, fetchFromAPI } = require("../helpers");
 
 // Pull in socket.io
 const io = require('../app');
@@ -42,7 +42,20 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 		return;
 	}
 
-	res.render("game/in-game", {user: req.user, failureMessage, successMessage});
+	// Get the data for an in-progress game
+	let currentQuestion = "";
+
+	try {
+		const domain = req.protocol + "://" + req.get("host");
+		const questionEndpoint = domain + "/obs/question";
+		
+		currentQuestion = await fetchFromAPI(questionEndpoint);
+		teammateAnswer = await fetchFromAPI(teammateAnswerEndpoint);
+	} catch (error) {
+		console.error(error);
+	}
+
+	res.render("game/in-game", {user: req.user, failureMessage, successMessage, currentQuestion});
 })
 .post("/in-game", checkAuthenticated, async (req, res) => {
 	// Insert answer into the answers table using the question ID
