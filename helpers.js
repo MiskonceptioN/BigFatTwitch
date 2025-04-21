@@ -1,5 +1,6 @@
 const Game = require("./models/gameModel.js");
 const axios = require("axios");
+const cheerio = require('cheerio');
 
 const checkAuthenticated = (req, res, next) => {
 	if (req.isAuthenticated()) {
@@ -79,6 +80,24 @@ async function saveSession(req) {
 	});
 }
 
+async function fetchFromAPI(url) {
+	try {
+		const response = await axios.get(url);
+		const $ = cheerio.load(response.data);
+
+		// First check for text, then img src, then return empty string if all else fails
+		let returnString = $("p").text();
+		if (returnString === undefined) {returnString = $("img").attr("src")}
+		if (returnString === undefined) {returnString = ""}
+
+		return returnString;
+
+	} catch (error) {
+		console.error("Error fetching data from API:", error);
+		return "";
+	}
+}
+
 module.exports = {
-	checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession
+	checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession, fetchFromAPI
 };
