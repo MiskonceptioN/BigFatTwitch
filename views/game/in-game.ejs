@@ -36,8 +36,8 @@
 					<h4><%- user.teammate.displayName %>'s answer</h4>
 					<img id="teammateAnswer" class="canvas-container" src="" style="height: auto;" />
 					<h4 class="mt-4">Team chat</h4>
-					<div id="chat-message-container" class="chat-log w-100">
-						<ul id="chat-messages" class="list-unstyled"></ul>
+					<div class="chat-message-container chat-log w-100">
+						<ul class="chat-messages list-unstyled"></ul>
 					</div>
 					<form id="form">
 						<input id="input" type="text" class="in-game form-control mt-2" placeholder="Type a message..." autocomplete="off">
@@ -77,8 +77,8 @@
 	socket.on('chat message', (msg) => {
 		const item = document.createElement('li');
 		item.innerHTML = msg;
-		document.querySelector("#chat-messages").appendChild(item);
-		const chatMessageContainer = document.querySelector("#chat-message-container");
+		document.querySelector(".chat-messages").appendChild(item);
+		const chatMessageContainer = document.querySelector(".chat-message-container");
 		chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 		// document.querySelector("h2").appendChild(item);
 		// window.scrollTo(0, document.body.scrollHeight);

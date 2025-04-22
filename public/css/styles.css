@@ -295,7 +295,7 @@ button>div.spinner-border{
 	background-color: #f8f9fa;
 }
 
-#chat-message-container {
+.chat-message-container {
 	overflow-y: auto;
 	height: 200px;
 	background-color: #f8f9fa;
@@ -303,7 +303,7 @@ button>div.spinner-border{
 	border-radius: var(--in-game-border-size);
 }
 
-#chat-messages {
+.chat-messages {
 	margin: 0;
 }
 
@@ -311,7 +311,7 @@ button.in-game, input.in-game {
 	border-radius: var(--in-game-border-size) !important;
 }
 
-#chat-messages li {
+.chat-messages li {
 	color: black;
 	word-break: break-word;
 }
