@@ -146,7 +146,8 @@ router.get("/join", checkAuthenticated, (req, res) => {
 						...req.session.passport.user.doc,
 						inGame: gameCode,
 						teammate,
-						teamId: team._id
+						teamId: team._id,
+						teamIndex: i,
 					};
 					try {await saveSession(req)}
 					catch (err) {console.log('Error saving session for ' + req.user + ':', err)}

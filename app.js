@@ -90,7 +90,8 @@ async function(accessToken, refreshToken, profile, done) {
 								user.doc = {
 									...user.doc._doc,
 									teammate,
-									teamId: team._id
+									teamId: team._id,
+									teamIndex: i,
 								};
 							}
 						}
