@@ -307,12 +307,20 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 	const questionId = req.body.questionId;
 	const points = Number(req.body.points);
 	const pointFormID = req.body.pointFormID;
+	const teamId = req.body.teamId;
 
 	try {
 		// Add the user's points to their answer
 		const addPoints = await Game.updateOne(
-			{ code: gameCode, "questions._id": questionId },
-			{ $set: { [`questions.$.contestantAnswers.${userId}.points`]: points } }
+			{
+				code: gameCode,
+				"questions._id": questionId,
+				"teams._id": teamId
+			},
+			{ 
+				$set: { [`questions.$.contestantAnswers.${userId}.points`]: points },
+				$inc: { "teams.$.points": points }
+			}
 		);
 
 		if (addPoints.modifiedCount < 1) {
