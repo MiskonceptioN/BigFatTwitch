@@ -208,12 +208,6 @@
 		}
 	})
 
-	// Update the inputs when points are successfully added.
-	socket.on('points added', (pointFormID) => {
-		markAsPointsAdded(pointFormID);
-		disablePointForm(pointFormID, true);
-	});
-
 	// Disable point input for other admins when in focus
 	$(".point-input").on("focus", function(){
 		const pointFormID = $(this).parent().attr("id");
@@ -230,6 +224,12 @@
 		const amount = $(this).val();
 
 		socket.emit('update points', pointFormID, amount, "<%- user.twitchId %>");
+	});
+
+	// Update the inputs when points are successfully added.
+	socket.on('points added', (pointFormID) => {
+		markAsPointsAdded(pointFormID);
+		disablePointForm(pointFormID, true);
 	});
 
 	function restartAnimation() {
