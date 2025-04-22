@@ -25,8 +25,6 @@ router.get("/question", async (req, res) => {
 		]).exec();
 
 		// Check a game was found
-		console.log({foundQuestion});
-		console.log(typeof foundQuestion);
 		if (foundQuestion === null || foundQuestion[0] === undefined || foundQuestion[0].length === 0) {
 			return res.render("obs/question", {question: ""});
 		}
