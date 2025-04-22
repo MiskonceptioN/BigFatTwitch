@@ -316,6 +316,40 @@ button.in-game, input.in-game {
 	word-break: break-word;
 }
 
+.admin-background {
+	position: relative;
+}
+
+.admin-background::before {
+	content: '';
+	position: absolute;
+	z-index: -100;
+	pointer-events: none;
+	inset: 0; /* top: 0; right: 0; bottom: 0; left: 0; */
+
+	background: url("https://assets.danny-valentine.com/video/upload/h_1080/q_auto:best,f_auto/BigFatTwitch/anibak.png");
+	background-position: bottom right;
+	background-size: cover;
+	
+	border-radius: 1em;
+}
+
+.admin-background::before, .team-0 {
+	filter: hue-rotate(60deg);
+}
+
+.admin-background:nth-child(2), .admin-background:nth-child(3) {
+	margin-top: 1em;
+}
+
+.admin-background:nth-child(2)::before, .team-1{
+    filter: hue-rotate(160deg);
+}
+
+.admin-background:nth-child(3)::before, .team-2 {
+    filter: hue-rotate(280deg);
+}
+
 .miniavatar {
 	width: 30px;
 	height: 30px;
