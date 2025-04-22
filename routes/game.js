@@ -50,7 +50,6 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 		const questionEndpoint = domain + "/obs/question";
 		
 		currentQuestion = await fetchFromAPI(questionEndpoint);
-		teammateAnswer = await fetchFromAPI(teammateAnswerEndpoint);
 	} catch (error) {
 		console.error(error);
 	}
