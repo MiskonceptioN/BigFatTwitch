@@ -81,33 +81,36 @@
 			<h4>Contestant answers</h4>
 			<div class="row">
 				<% game.teams.forEach(team => { %>
-					<div class="col text-center">
-						<h5 class="mt-1 mb-0"><%- team.name %></h5>
+					<div class="row text-center">
+						<h5 class="mt-1 mb-3"><%- team.name %></h5>
 						<% team.players.forEach(player => { %>
-							<div class="row">
-								<div class="col">
-									<h6 class="mt-1 mb-0"><%- player.displayName %></h6>
-									<img
-										id="<%- player.twitchId %>-Answer"
-										class="canvas-container w-100 border border-dark"
-										src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j//z8ABf4C/qc1gYQAAAAASUVORK5CYII="
-										style="height: auto;"
-									>
+
+							<div class="col">
+								<div class="row">
+									<div class="col">
+										<h6 class="mt-0 mb-1"><img src="<%- player.profileImageUrl %>" class="miniavatar"> <%- player.displayName %></h6>
+										<img
+											id="<%- player.twitchId %>-Answer"
+											class="canvas-container w-100 border border-dark"
+											src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j//z8ABf4C/qc1gYQAAAAASUVORK5CYII="
+											style="height: auto;"
+										>
+									</div>
 								</div>
-							</div>
-							<div class="row">
-								<form method="post" action="/admin/in-game/points" class="points-form">
-									<input type="hidden" name="userId" value="<%- player.twitchId %>">
-									<input type="hidden" name="teamId" value="<%- team._id %>">
-									<input type="hidden" name="gameCode" value="<%= game.code %>">
-									<input type="hidden" name="pointFormID" value="player-<%- player.twitchId %>-Points-Form">
+								<div class="row">
+									<form method="post" action="/admin/in-game/points" class="points-form">
+										<input type="hidden" name="userId" value="<%- player.twitchId %>">
+										<input type="hidden" name="teamId" value="<%- team._id %>">
+										<input type="hidden" name="gameCode" value="<%= game.code %>">
+										<input type="hidden" name="pointFormID" value="player-<%- player.twitchId %>-Points-Form">
 
-									<div class="input-group mb-3" id="player-<%- player.twitchId %>-Points-Form">
-										<input name="points" type="number" min="0" max="100" class="form-control text-center point-input" placeholder="How many points?" disabled>
-										<button class="btn btn-primary" type="submit" disabled>⮞</button>
-									  </div>
-								</form>
+										<div class="input-group mb-3" id="player-<%- player.twitchId %>-Points-Form">
+											<input name="points" type="number" min="0" max="100" class="form-control text-center point-input" placeholder="How many points?" disabled>
+											<button class="btn btn-primary" type="submit" disabled>⮞</button>
+										</div>
+									</form>
 
+								</div>
 							</div>
 
 						<% }); %>
