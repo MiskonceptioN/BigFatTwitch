@@ -305,7 +305,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 	const gameCode = req.body.gameCode;
 	const userId = req.body.userId;
 	const questionId = req.body.questionId;
-	const points = req.body.points;
+	const points = Number(req.body.points);
 	const pointFormID = req.body.pointFormID;
 
 	try {
