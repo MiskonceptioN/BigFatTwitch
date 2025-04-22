@@ -111,6 +111,13 @@
 							</div>
 
 						<% }); %>
+						<div class="col">
+							<h6 class="chatlog mt-1 mb-0">Chat log</h6>
+							<div id="team-<%- team._id %>-chat" class="chat-message-container chat-log w-100 border border-dark">
+								<ul class="chat-messages list-unstyled text-start"></ul>
+							</div>
+						</div>
+	
 					</div>
 				<% }); %>
 			</div>
@@ -172,7 +179,9 @@
 			// });
 		});
 
-	const socket = io();
+	// const socket = io();
+	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } }); // Does enabling this break other features?
+	// socket.emit('join room', 'admin');
 
 	// Update player canvases
 	socket.on('update canvas', (canvasData, userID) => {
@@ -226,6 +235,16 @@
 		const amount = $(this).val();
 
 		socket.emit('update points', pointFormID, amount, "<%- user.twitchId %>");
+	});
+
+	socket.on('chat message', (msg, room) => {
+		const item = document.createElement('li');
+		item.innerHTML = msg;
+		const target = document.querySelector("#team-" + room + "-chat .chat-messages");
+		target.appendChild(item);
+
+		const chatMessageContainer = document.querySelector("#team-" + room + "-chat");
+		chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 	});
 
 	// Update the inputs when points are successfully added.
