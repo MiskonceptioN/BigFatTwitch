@@ -165,6 +165,7 @@ $("form.points-form").on("submit", function(event){
 	// Grab the relevant data to be submitted
 	const gameCode = $(this).find("input[name='gameCode']").val();
 	const userId = $(this).find("input[name='userId']").val();
+	const teamId = $(this).find("input[name='teamId']").val();
 	const questionId = $("#current-question").data("question-id");
 	const points = $(form).find('input[name="points"]').val();
 	const pointFormID = $(form).find('input[name="pointFormID"]').val();
@@ -172,7 +173,7 @@ $("form.points-form").on("submit", function(event){
     $.ajax({
         method: formMethod,
         url: destUrl,
-		data: JSON.stringify({gameCode, userId, questionId, points, pointFormID}),
+		data: JSON.stringify({gameCode, userId, teamId, questionId, points, pointFormID}),
 		contentType: "application/json",
 
         beforeSend: function() {
