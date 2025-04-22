@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios").default;
-const { checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHTML, saveSession, fetchTwitchChatColour } = require("../helpers");
+const { checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHTML, saveSession, fetchTwitchChatColour, fetchFromAPI } = require("../helpers");
 
 const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
@@ -247,9 +247,28 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			if (!acc[round]) {acc[round] = []};
 			acc[round].push(question); // Push the current question to the array corresponding to its round
 			return acc;
-			}, {});
+		}, {});
+		
+		// Get the data for an in-progress game
+		let currentQuestion = "";
+	
+		try {
+			const domain = req.protocol + "://" + req.get("host");
+			const questionEndpoint = domain + "/obs/question";
 			
-		res.render("admin/in-game", {user: req.user, questionsByRound, game: foundGame, failureMessage: "", successMessage: "Let's fuggin' do this"});
+			currentQuestion = await fetchFromAPI(questionEndpoint);
+		} catch (error) {
+			console.error(error);
+		}
+			
+		res.render("admin/in-game", {
+			user: req.user,
+			questionsByRound,
+			game: foundGame,
+			failureMessage: "",
+			successMessage: "Let's fuggin' do this",
+			currentQuestion
+		});
 	} else {
 		res.redirect("/login")
 	}
@@ -276,7 +295,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		setTimeout(function(){
 			console.log("Sending next question...");
 			io.emit("next question", req.body.sendQuestion, req.body.questionId);
-			io.emit("update question", req.body.sendQuestion);
+			// io.emit("update question", req.body.sendQuestion); // Is this needed!?
 			res.send({status: "success", content: "POST successful"});
 		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	}
