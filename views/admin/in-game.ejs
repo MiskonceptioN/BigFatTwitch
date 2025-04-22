@@ -180,7 +180,9 @@
 		});
 
 	// const socket = io();
-	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } }); // Does enabling this break other features?
+	const socket = io({ query: { 
+		// teamId: '<%= user.teamId %>' , 
+		role: '<%= user.role %>' } }); // Does enabling this break other features?
 	// socket.emit('join room', 'admin');
 
 	// Update player canvases

@@ -183,6 +183,7 @@ $("form.points-form").on("submit", function(event){
         success: function(msg) {
 			// Reset the button contents
 			$(inputButton).html(inputButtonContent);
+			// socket.emit('block points', pointFormID, "<%- user.twitchId %>");
 		},
         error: function(err) {
 			// Log and show error message
