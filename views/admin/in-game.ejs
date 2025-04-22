@@ -185,6 +185,7 @@
 	socket.on("next question", (question, questionId) => {
 		updateQuestionPreview(question, questionId);
 		resetPointForms();
+		resetCanvases();
 	});
 
 	// Lock point form when another admin is modifying points
