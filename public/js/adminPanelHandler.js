@@ -179,6 +179,8 @@ $("form.points-form").on("submit", function(event){
         beforeSend: function() {
 			// Show loading spinner before sending the form
 			$(inputButton).html('<div class="spinner-border" role="status"></div>');
+			// Deselect the input
+			$(form).find('input[name="points"]').blur();
         },
         success: function(msg) {
 			// Reset the button contents
