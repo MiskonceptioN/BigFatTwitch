@@ -23,6 +23,7 @@ const MongoStore = require('connect-mongo');
 const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env.MONGODB_PASS + "@" + process.env.MONGODB_URL + "/gameshow?retryWrites=true&w=majority";
 const Game = require("./models/gameModel.js");
 const User = require("./models/userModel.js");
+const ChatLog = require("./models/chatLogModel.js");
 mongoose.connect(mongoUri);
 const db = mongoose.connection;
 
@@ -125,7 +126,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // Socket.io listening
-io.on('connection', (socket) => {
+io.on('connection', async (socket) => {
 	// Check if the user is admin or player
 	const role = socket.handshake.query.role;
 	const teamId = socket.handshake.query.teamId;
@@ -136,16 +137,27 @@ io.on('connection', (socket) => {
 	socket.on('disconnect', () => {
 		// console.log('user disconnected');
 	});
-	socket.on('chat message', (msg, user) => {
-		msg = prepUserMessage(msg, user);
-		// console.log('message: ' + msg);
-		// const room = (role === "admin") ? "admin" : user.teamId;
-		const room = user.teamId;
-		console.log({msg, room});
 
-		// Send the message to the correct team, and also to the admin audit log
-		io.to(room).emit('chat message', msg);
-		io.to("admin").emit('chat message', msg, room);
+	socket.on('chat message', async (msg, user) => {
+		const preppedMsg = prepUserMessage(msg, user);
+		const room = user.teamId;
+
+		// Send the message to the correct team, and also to the admin
+		io.to(room).emit('chat message', preppedMsg);
+		io.to("admin").emit('chat message', preppedMsg, room);
+
+		// Save the message to the database for audit purposes
+		try {
+			const updateUser = await ChatLog.create({
+				gameId: user.inGame,
+				userId: user.twitchId,
+				message: msg,
+				room,
+			});
+		} catch (error) {
+			console.error("Unable to save chat message to DB:", error);
+		}
+
 	});
 	socket.on('player joined', async (gameCode, user) => {
 		// console.log(gameCode, user.displayName);
