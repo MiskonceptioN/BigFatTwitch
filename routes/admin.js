@@ -907,6 +907,27 @@ router.get("/users/login/:targetTwitchId", checkAuthenticated, async function(re
                 // Update the session user data with the target user's data, and add adminLogin and adminUser properties
                 req.session.passport.user.doc = {...result._doc, adminLogin: true, adminUser};
 
+				// Check to see if the user has a teammate by fetching the Game if they're in one
+				if (result.inGame) {
+					const foundGame = await Game.findOne({ code: result.inGame });
+					if (foundGame) {
+						const team = foundGame.teams.find(team => team.players.includes(result.twitchId));
+						if (team) {
+							const teammate = team.players.find(player => player !== result.twitchId);
+							if (teammate) {
+								const teammateResult = await User.findOne({ twitchId: teammate });
+								if (teammateResult) {
+									req.session.passport.user.doc.teammate = teammateResult;
+									req.session.passport.user.doc.teamId = team._id;
+									req.session.passport.user.doc.teamIndex = foundGame.teams.indexOf(team);
+
+									req.session.passport.user.doc = {...req.session.passport.user.doc}; // Bullshit workaround to force the session to update
+								}
+							}
+						}
+					}
+				}
+
                 // If the session user's displayName matches the target user's displayName and adminUser exists
                 if (req.session.passport.user.doc.displayName === result.displayName
                     && adminUser) {
