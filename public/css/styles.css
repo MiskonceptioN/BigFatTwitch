@@ -356,3 +356,7 @@ button.in-game, input.in-game {
 	border-radius: 50%;
 	margin-right: 10px;
 }
+
+.chat-player-name {
+	font-weight: 600;
+}

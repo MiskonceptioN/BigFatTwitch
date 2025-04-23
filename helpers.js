@@ -42,6 +42,7 @@ function prepUserMessage(msg, user){
 			colour = "black";
 	}
 	const username = user.displayName;
+	const prefix = "<span class='chat-player-name' style='color: " + colour + "'>" + username + "</span>";
 	const santisedMsg = sanitiseString(msg);
 	return `${prefix}: ${santisedMsg}`;
 }
