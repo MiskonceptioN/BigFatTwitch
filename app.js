@@ -27,7 +27,7 @@ mongoose.connect(mongoUri);
 const db = mongoose.connection;
 
 // Import helper functions
-const { checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatColour } = require("./helpers");
+const { checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatColour, prepUserMessage } = require("./helpers");
 
 // App config
 app.set("view engine", "ejs");
@@ -174,23 +174,6 @@ io.on('connection', (socket) => {
 		io.emit('update points', pointFormID, points, userID);
 	});
 });
-
-function prepUserMessage(msg, user){
-	let colour;
-	switch (user.chatColour) {
-		case "custom":
-			colour = user.customChatColour
-			break;
-		case "twitch":
-			colour = user.twitchChatColour;
-			break;
-		default:
-			colour = "black";
-	}
-	const username = user.displayName;
-	const prefix = "<span style='color: " + colour + "'>" + username + "</span>";
-	return `${prefix}: ${msg}`
-}
 
 // Routes
 app.use("/", require("./routes/index"));

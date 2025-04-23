@@ -25,6 +25,23 @@ const checkForRunningGame = async () => {
 	return currentlyRunningGame;
 };
 
+function prepUserMessage(msg, user){
+	let colour;
+	switch (user.chatColour) {
+		case "custom":
+			colour = user.customChatColour
+			break;
+		case "twitch":
+			colour = user.twitchChatColour;
+			break;
+		default:
+			colour = "black";
+	}
+	const username = user.displayName;
+	const prefix = "<span style='color: " + colour + "'>" + username + "</span>";
+	return `${prefix}: ${msg}`
+}
+
 async function generateGameCode() {
 	const chars = ["B", "C", "D", "F", "G", "H", "J", "K", "L", "M", "N", "P", "Q", "R", "S", "T", "V", "W", "X", "Z"];
 	let gameCode = "";
@@ -99,5 +116,5 @@ async function fetchFromAPI(url) {
 }
 
 module.exports = {
-	checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession, fetchFromAPI
+	checkAuthenticated, checkForRunningGame, prepUserMessage, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession, fetchFromAPI
 };
