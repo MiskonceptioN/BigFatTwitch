@@ -25,6 +25,10 @@ const checkForRunningGame = async () => {
 	return currentlyRunningGame;
 };
 
+const sanitiseString = (str) => {
+	return str.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;").replace(/\//g, "&#x2F;");
+}
+
 function prepUserMessage(msg, user){
 	let colour;
 	switch (user.chatColour) {
@@ -38,8 +42,8 @@ function prepUserMessage(msg, user){
 			colour = "black";
 	}
 	const username = user.displayName;
-	const prefix = "<span style='color: " + colour + "'>" + username + "</span>";
-	return `${prefix}: ${msg}`
+	const santisedMsg = sanitiseString(msg);
+	return `${prefix}: ${santisedMsg}`;
 }
 
 async function generateGameCode() {
