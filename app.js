@@ -81,10 +81,10 @@ async function(accessToken, refreshToken, profile, done) {
 					// Check to see if the user joining the game is one of the players
 					for (let i = 0; i < game.teams.length; i++) {
 						const team = game.teams[i];
-						for (let i = 0; i < team.players.length; i++) {
-							if (team.players[i].twitchId == user.doc.twitchId) {
+						for (let j = 0; j < team.players.length; j++) {
+							if (team.players[j].twitchId == user.doc.twitchId) {
 								// If current player in for loop is the first player in the team, set the teammate to the second player
-								const teammate = team.players[i == 0 ? 1 : 0];
+								const teammate = team.players[j == 0 ? 1 : 0];
 
 								// Update the user document to include the teammate info
 								user.doc = {

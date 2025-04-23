@@ -129,11 +129,10 @@ router.get("/join", checkAuthenticated, (req, res) => {
 		for (let i = 0; i < game.teams.length; i++) {
 			const team = game.teams[i];
 			// for (let player of team.players) {
-			for (let i = 0; i < team.players.length; i++) {
-				// const player = team.players[i];
-				if (team.players[i].twitchId == user.twitchId) {
+			for (let j = 0; j < team.players.length; j++) {
+				if (team.players[j].twitchId == user.twitchId) {
 					// If current player in for loop is the first player in the team, set the teammate to the second player
-					const teammate = team.players[i == 0 ? 1 : 0];
+					const teammate = team.players[j == 0 ? 1 : 0];
 
 					// req.session.passport.user.doc = {
 					// 	...req.session.passport.user.doc,
