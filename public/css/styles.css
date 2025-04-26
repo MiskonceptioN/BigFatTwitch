@@ -360,3 +360,38 @@ button.in-game, input.in-game {
 .chat-player-name {
 	font-weight: 600;
 }
+
+.chat-messages li {
+	opacity: 0;
+	transform: translateX(20px);
+	animation: chat-appear-rtl 0.5s ease-out forwards;
+    list-style-type: none;
+}
+
+@keyframes chat-appear-rtl {
+	0% {
+		opacity: 0;
+		transform: translateX(20px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+.chat-messages li.self {
+	opacity: 0;
+	transform: translateX(-20px);
+	animation: chat-appear-ltr 0.5s ease-out forwards;
+}
+
+@keyframes chat-appear-ltr {
+	0% {
+		opacity: 0;
+		transform: translateX(-20px);
+	}
+	100% {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
