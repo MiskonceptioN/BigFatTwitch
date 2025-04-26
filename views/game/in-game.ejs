@@ -99,9 +99,7 @@
 		chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
 	}
 
-	<% if (chatLog) { chatLog.forEach((message) => { %> 
-		addChatMessage(".chat-messages", "<%- message %>");
-	<% }); } %>
+	<% if (chatLog) { chatLog.forEach((message) => { %> addChatMessage(".chat-messages", "<%- message %>");	<% }); } %>
 
 	socket.on('chat message', (msg) => {
 		addChatMessage(".chat-messages", msg);
