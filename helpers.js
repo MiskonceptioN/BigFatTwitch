@@ -1,4 +1,5 @@
 const Game = require("./models/gameModel.js");
+const ChatLog = require("./models/chatLogModel.js");
 const axios = require("axios");
 const cheerio = require('cheerio');
 
@@ -120,6 +121,38 @@ async function fetchFromAPI(url) {
 	}
 }
 
+async function fetchChatLog (game, room, limit = 20) {
+	const databaseChatLog = await ChatLog.aggregate([
+		{ $match: { game: game._id, room: room } },
+		{ $sort: { createdAt: -1 } },
+		{ $limit: limit },
+		{
+			$lookup: {
+				from: "users", // The name of the User collection
+				localField: "userId", // Field in ChatLog
+				foreignField: "twitchId", // Field in User
+				as: "user"
+			}
+		},
+		{
+			$project: {
+				message: 1,
+				room: 1,
+				user: {
+					displayName: { $arrayElemAt: ["$user.displayName", 0] },
+					chatColour: { $arrayElemAt: ["$user.chatColour", 0] },
+					customChatColour: { $arrayElemAt: ["$user.customChatColour", 0] },
+					twitchChatColour: { $arrayElemAt: ["$user.twitchChatColour", 0] }
+				}
+			}
+		}
+	]);
+
+	const chatLog = databaseChatLog.map(log => prepUserMessage(log.message, log.user[0]));
+
+	return chatLog.reverse(); // Reverse the order to show the oldest messages first
+}
+
 module.exports = {
-	checkAuthenticated, checkForRunningGame, prepUserMessage, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession, fetchFromAPI
+	checkAuthenticated, checkForRunningGame, prepUserMessage, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession, fetchFromAPI, fetchChatLog
 };
