@@ -80,18 +80,31 @@
 	// const socket = io();
 	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
 
-	socket.on('chat message', (msg) => {
+	function addChatMessage(container, message) {
+		// Create the DOM element
 		const item = document.createElement('li');
-		item.innerHTML = msg;
+		item.innerHTML = message;
+
+		// Add the class "self" to the message if it is from the current user
 		const playerNameSpan = item.querySelector('span.chat-player-name');
 		if (playerNameSpan && playerNameSpan.textContent === "<%- user.displayName %>") {
 			item.classList.add('self');
 		}
+
+		// Append the message to the chat container
 		document.querySelector(".chat-messages").appendChild(item);
+
+		// Scroll to the bottom of the chat container
 		const chatMessageContainer = document.querySelector(".chat-message-container");
 		chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
-		// document.querySelector("h2").appendChild(item);
-		// window.scrollTo(0, document.body.scrollHeight);
+	}
+
+	<% if (chatLog) { chatLog.forEach((message) => { %> 
+		addChatMessage(".chat-messages", "<%- message %>");
+	<% }); } %>
+
+	socket.on('chat message', (msg) => {
+		addChatMessage(".chat-messages", msg);
 	});
 
 	socket.on('next question', (question, questionId) => {

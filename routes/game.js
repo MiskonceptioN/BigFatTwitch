@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { checkAuthenticated, generateGameCode, createErrorHTML, saveSession, fetchFromAPI } = require("../helpers");
+const { checkAuthenticated, generateGameCode, createErrorHTML, saveSession, fetchFromAPI, fetchChatLog } = require("../helpers");
 
 // Pull in socket.io
 const io = require('../app');
@@ -26,6 +26,8 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 		return;
 	}
 
+	const gameCode = req.user.inGame;
+
 	// Check if the game is in progress
 	try {
 		const game = await Game.findOne({ code: req.user.inGame, status: "in-progress" });
@@ -42,9 +44,8 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 		return;
 	}
 
-	// Get the data for an in-progress game
+	// Set the current question
 	let currentQuestion = "";
-
 	try {
 		const domain = req.protocol + "://" + req.get("host");
 		const questionEndpoint = domain + "/obs/question";
@@ -54,7 +55,14 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 		console.error(error);
 	}
 
-	res.render("game/in-game", {user: req.user, failureMessage, successMessage, currentQuestion});
+	const chatLog = [];
+	try {
+		chatLog.push(...await fetchChatLog(gameCode, req.user.teamId));
+	} catch (error) {
+		console.error("Error fetching chat log:", error);
+	}
+
+	res.render("game/in-game", {user: req.user, failureMessage, successMessage, currentQuestion, chatLog});
 })
 .post("/in-game", checkAuthenticated, async (req, res) => {
 	// Insert answer into the answers table using the question ID
