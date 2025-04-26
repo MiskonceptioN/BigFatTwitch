@@ -1,21 +1,4 @@
 <%- include('../header'); %>
-<% 
-const teamMate = findTeammate(game, user);
-
-function findTeammate(game, currentUser) {
-	let teamMate = "";
-		for (let i = 0; i < game.teams.length; i++) {
-		const playerOne = game.teams[i].players[0];
-		const playerTwo = game.teams[i].players[1];
-
-		if (currentUser.twitchId === playerOne.twitchId || currentUser.twitchId === playerTwo.twitchId) {
-			teamMate = (playerOne.twitchId === currentUser.twitchId) ? playerTwo : playerOne;
-		}
-	}
-	return teamMate;
-}
-
-%>
     <section id="game" class="text-center">
         <header>
             <h1>Waiting for game to begin</h1>
@@ -42,10 +25,10 @@ function findTeammate(game, currentUser) {
 			<div class="row">
 				<div class="col">
 					<figure>
-						<img id="<%- teamMate.displayName %>-thumbnail"
-						class="player-icon <% if (teamMate.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- teamMate.profileImageUrl %>" width="100" alt="<%- teamMate.displayName %>'s thumbnail">
+						<img id="<%- user.teammate.displayName %>-thumbnail"
+						class="player-icon <% if (user.teammate.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- user.teammate.profileImageUrl %>" width="100" alt="<%- user.teammate.displayName %>'s thumbnail">
 						
-						<figcaption><%- teamMate.displayName %></figcaption>
+						<figcaption><%- user.teammate.displayName %></figcaption>
 					</figure>
 				</div>
 			</div>
@@ -111,7 +94,7 @@ function findTeammate(game, currentUser) {
 			livePlayerCount.innerHTML = parseInt(livePlayerCount.innerHTML) + 1;
 
 			// Check if recently joined player is your teammate
-			if (user.twitchId === "<%- teamMate.twitchId %>") {
+			if (user.twitchId === "<%- user.teammate.twitchId %>") {
 				const playerIcon = document.getElementById(user.displayName + "-thumbnail");
 				playerIcon.classList.remove("player-logged-out");
 				playerIcon.classList.add("player-logged-in");
@@ -125,7 +108,7 @@ function findTeammate(game, currentUser) {
 			livePlayerCount.innerHTML = parseInt(livePlayerCount.innerHTML) - 1;
 
 			// Check if recently left player is your teammate
-			if (user.twitchId === "<%- teamMate.twitchId %>") {
+			if (user.twitchId === "<%- user.teammate.twitchId %>") {
 				const playerIcon = document.getElementById(user.displayName + "-thumbnail");
 				playerIcon.classList.remove("player-logged-in");
 				playerIcon.classList.add("player-logged-out");
