@@ -83,9 +83,13 @@
 	socket.on('chat message', (msg) => {
 		const item = document.createElement('li');
 		item.innerHTML = msg;
+		const playerNameSpan = item.querySelector('span.chat-player-name');
+		if (playerNameSpan && playerNameSpan.textContent === "<%- user.displayName %>") {
+			item.classList.add('self');
+		}
 		document.querySelector(".chat-messages").appendChild(item);
 		const chatMessageContainer = document.querySelector(".chat-message-container");
-		chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
+		chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;d
 		// document.querySelector("h2").appendChild(item);
 		// window.scrollTo(0, document.body.scrollHeight);
 	});
