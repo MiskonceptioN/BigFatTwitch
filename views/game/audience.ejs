@@ -24,13 +24,6 @@
 	<script>
 	const socket = io();
 
-	socket.on('chat message', (msg) => {
-		const item = document.createElement('li');
-		item.innerHTML = msg;
-		document.querySelector("h2").appendChild(item);
-		window.scrollTo(0, document.body.scrollHeight);
-	});
-
 	</script>
 	<!-- <script src="js/ajaxFormHandler.js"></script> -->
 <%- include('../footer'); %>
