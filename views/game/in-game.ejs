@@ -73,7 +73,7 @@
     </section>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/js/answerHandler.js"></script>
-	<script src="/js/helperFunctions.js"></script>
+	<%- include('../helperFunctions'); %>
 	<script>
 	// console.log the user info for debugging
 	console.log(<%- JSON.stringify(user) %>);
