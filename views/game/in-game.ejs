@@ -73,31 +73,13 @@
     </section>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/js/answerHandler.js"></script>
+	<script src="/js/helperFunctions.js"></script>
 	<script>
 	// console.log the user info for debugging
 	console.log(<%- JSON.stringify(user) %>);
 
 	// const socket = io();
 	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
-
-	function addChatMessage(container, message) {
-		// Create the DOM element
-		const item = document.createElement('li');
-		item.innerHTML = message;
-
-		// Add the class "self" to the message if it is from the current user
-		const playerNameSpan = item.querySelector('span.chat-player-name');
-		if (playerNameSpan && playerNameSpan.textContent === "<%- user.displayName %>") {
-			item.classList.add('self');
-		}
-
-		// Append the message to the chat container
-		document.querySelector(".chat-messages").appendChild(item);
-
-		// Scroll to the bottom of the chat container
-		const chatMessageContainer = document.querySelector(".chat-message-container");
-		chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
-	}
 
 	<% if (chatLog) { chatLog.forEach((message) => { %> addChatMessage(".chat-messages", "<%- message %>");	<% }); } %>
 

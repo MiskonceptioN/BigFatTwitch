@@ -1,0 +1,20 @@
+function addChatMessage(container, message, scroll=true) {
+    // Create the DOM element
+    const item = document.createElement('li');
+    item.innerHTML = message;
+
+    // Add the class "self" to the message if it is from the current user
+    const playerNameSpan = item.querySelector('span.chat-player-name');
+    if (playerNameSpan && playerNameSpan.textContent === "<%- user.displayName %>") {
+        item.classList.add('self');
+    }
+
+    // Append the message to the chat container
+    document.querySelector(container).appendChild(item);
+
+    if (scroll) {
+        // Scroll to the bottom of the chat container
+        const chatMessageContainer = $(container).parent();
+        chatMessageContainer.scrollTop(chatMessageContainer.prop("scrollHeight"));
+    }   
+}
