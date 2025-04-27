@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const axios = require("axios").default;
-const { checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHTML, saveSession, fetchTwitchChatColour, fetchFromAPI } = require("../helpers");
+const { checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHTML, saveSession, fetchTwitchChatColour, fetchFromAPI, fetchChatLog } = require("../helpers");
 
 const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
@@ -234,6 +234,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			res.redirect("/admin/startGame");
 			return
 		}
+		const gameCode = foundGame.code;
 
 		// Find all questions from the Game model
 		const allQuestionsResult = foundGame.questions.sort((a, b) => a.round - b.round || a.order - b.order);
@@ -260,14 +261,30 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		} catch (error) {
 			console.error(error);
 		}
-			
+
+		const [team1Chatlog, team2Chatlog, team3Chatlog] = [[], [], []];
+		const [team1ID, team2ID, team3ID] = foundGame.teams.map(team => team.id);
+
+		try {
+			team1Chatlog.push(...await fetchChatLog(gameCode, team1ID));
+			team2Chatlog.push(...await fetchChatLog(gameCode, team2ID));
+			team3Chatlog.push(...await fetchChatLog(gameCode, team3ID));
+
+			console.log({team1Chatlog, team2Chatlog, team3Chatlog});
+		} catch (error) {
+			console.error("Error fetching chat log:", error);
+		}
+
 		res.render("admin/in-game", {
 			user: req.user,
 			questionsByRound,
 			game: foundGame,
 			failureMessage: "",
 			successMessage: "Let's fuggin' do this",
-			currentQuestion
+			currentQuestion,
+			team1Chatlog,
+			team2Chatlog,
+			team3Chatlog,
 		});
 	} else {
 		res.redirect("/login")

@@ -172,6 +172,7 @@
 </section>
 
 	<script src="/socket.io/socket.io.js"></script>
+	<%- include('../helperFunctions'); %>
 	<script>
 		$("form.send-question").submit(function(e) {
 			e.preventDefault();
@@ -240,14 +241,12 @@
 		socket.emit('update points', pointFormID, amount, "<%- user.twitchId %>");
 	});
 
-	socket.on('chat message', (msg, room) => {
-		const item = document.createElement('li');
-		item.innerHTML = msg;
-		const target = document.querySelector("#team-" + room + "-chat .chat-messages");
-		target.appendChild(item);
+	<% if (team1Chatlog) { team1Chatlog.forEach((message) => { %> addChatMessage("#team-<%- game.teams[0].id %>-chat .chat-messages", "<%- message %>");	<% }); } %>
+	<% if (team2Chatlog) { team2Chatlog.forEach((message) => { %> addChatMessage("#team-<%- game.teams[1].id %>-chat .chat-messages", "<%- message %>");	<% }); } %>
+	<% if (team3Chatlog) { team3Chatlog.forEach((message) => { %> addChatMessage("#team-<%- game.teams[2].id %>-chat .chat-messages", "<%- message %>");	<% }); } %>
 
-		const chatMessageContainer = document.querySelector("#team-" + room + "-chat");
-		chatMessageContainer.scrollTop = chatMessageContainer.scrollHeight;
+	socket.on('chat message', (msg, room) => {
+		addChatMessage("#team-" + room + "-chat .chat-messages", msg);
 	});
 
 	// Update the inputs when points are successfully added.
