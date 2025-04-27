@@ -59,6 +59,7 @@
         </footer>
     </section>
 	<script src="/socket.io/socket.io.js"></script>
+	<%- include('../helperFunctions'); %>
 	<script>
 	// Make sure .live-players accurately reflects the number of players waiting for the game to start
 	setLivePlayersSpan(<%- JSON.stringify(game) %>);
@@ -80,14 +81,10 @@
 
 	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
 
+	<% if (chatLog) { chatLog.forEach((message) => { %> addChatMessage(".chat-messages", "<%- message %>", false);	<% }); } %>
+
 	socket.on('chat message', (msg) => {
-		const item = document.createElement('li');
-		item.innerHTML = msg;
-		const playerNameSpan = item.querySelector('span.chat-player-name');
-		if (playerNameSpan && playerNameSpan.textContent === "<%- user.displayName %>") {
-			item.classList.add('self');
-		}
-		document.querySelector(".chat-messages").appendChild(item);
+		addChatMessage(".chat-messages", msg, false);
 	});
 
 	socket.on('player joined', (gameCode, user) => {

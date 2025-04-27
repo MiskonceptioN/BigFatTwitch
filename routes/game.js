@@ -204,9 +204,10 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 		res.redirect("join");
 		return;
 	}
+	const gameCode = req.user.inGame;
 
 	// Check logged in user is a player
-	const game = await Game.findOne({code: req.user.inGame}).populate({
+	const game = await Game.findOne({code: gameCode}).populate({
 		path: 'teams.players',
 		model: User,
 		select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
@@ -218,6 +219,13 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 		req.flash("error", "Game not found!");
 		res.redirect("join");
 		return;
+	}
+
+	const chatLog = [];
+	try {
+		chatLog.push(...await fetchChatLog(gameCode, req.user.teamId));
+	} catch (error) {
+		console.error("Error fetching chat log:", error);
 	}
 
 	// Check to see if the user joining the game is one of the players
@@ -234,9 +242,9 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 				
 				try {
 					await saveSession(req);
-					return res.render("game/waiting-room", {user: req.user, game, failureMessage, successMessage});
+					return res.render("game/waiting-room", {user: req.user, game, failureMessage, successMessage, chatLog});
 				} catch (err) {
-					return res.render("game/waiting-room", {user: req.user, game, failureMessage, successMessage});
+					return res.render("game/waiting-room", {user: req.user, game, failureMessage, successMessage, chatLog});
 				}
 			}
 		}
