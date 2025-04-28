@@ -7,6 +7,7 @@ const io = require('../app');
 
 const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
+const Question = require("../models/questionModel.js");
 
 router.get("/", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
@@ -35,6 +36,138 @@ router.get("/question", async (req, res) => {
 		return res.render("obs/question", {question: ""});
 	}
 })
+
+// DELETE THIS - DEBUGGING ONLY
+router.get("/addQuestion/:code", async (req, res) => {
+	const game = req.params.code.toUpperCase();
+	const { question, answer, round, order } = req.query;
+
+
+	if (!question || !answer || !round || !order) {
+		return res.status(400).send({"message": "Missing game code, question, answer, round or order"});
+	}
+
+	try {
+		// Insert the question into the database
+		const newQuestion = await Question.create({ game, question, answer, round, order });
+		return res.status(200).send({"message": "Question saved successfully with id: " + newQuestion.id});
+	} catch (error) {
+		console.error("Error saving question:", error);
+		return res.status(500).send("Error saving question to the database");
+	}
+})
+// DELETE THIS - DEBUGGING ONLY
+
+router.get("/rounds", async (req, res) => {
+	try {
+		const gameFromDB = await Game.findOne({ status: { $in: ["starting", "in-progress"] } }).select('code -_id');
+		const gameCode = (gameFromDB) ? gameFromDB.code : null;
+
+		// Check a game was found
+		if (gameCode === null) { return res.status(500).send("No game found!") }
+
+		try {
+			const rounds = await Question.find({ game: gameCode }).sort({ round: 1, order: 1 });
+			return res.status(200).send(rounds);
+		} catch (error) {
+			console.error("Error fetching rounds:", error);
+			return res.status(500).send("Error fetching rounds from the database");
+		}
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+});
+
+router.get("/rounds/:roundIndex", async (req, res) => {
+	const roundIndexValue = Number(req.params.roundIndex);
+	if (isNaN(roundIndexValue) || roundIndexValue < 1) { return res.status(400).send("The round number must be 1 or higher") }
+
+	try {
+		const gameFromDB = await Game.findOne({ status: { $in: ["starting", "in-progress"] } }).select('code -_id');
+		const gameCode = (gameFromDB) ? gameFromDB.code : null;
+
+		// Check a game was found
+		if (gameCode === null) { return res.status(500).send("No game found!") }
+
+		try {
+			const round = await Question.find({ game: gameCode, round: roundIndexValue }).sort({ round: 1, order: 1 });
+			return res.status(200).send(round);
+		} catch (error) {
+			console.error("Error fetching round " + roundIndexValue + ":", error);
+			return res.status(500).send("Error fetching round " + roundIndexValue + " from the database");
+		}
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+});
+
+router.get("/rounds/:roundIndex/question", async (req, res) => {
+	res.status(200).send("You need to specify a question index in the URL. Example: /rounds/1/question/1");
+});
+
+router.get("/rounds/:roundIndex/question/:questionIndex", async (req, res) => {
+	const roundIndexValue = Number(req.params.roundIndex);
+	if (isNaN(roundIndexValue) || roundIndexValue < 1) { return res.status(400).send("The round number must be 1 or higher") }
+	const questionIndexValue = Number(req.params.questionIndex);
+	if (isNaN(questionIndexValue) || questionIndexValue < 1) { return res.status(400).send("The question number must be 1 or higher") }
+
+	try {
+		const gameFromDB = await Game.findOne({ status: { $in: ["starting", "in-progress"] } }).select('code -_id');
+		const gameCode = (gameFromDB) ? gameFromDB.code : null;
+
+		// Check a game was found
+		if (gameCode === null) { return res.status(500).send("No game found!") }
+
+		try {
+			const question = await Question.find({ game: gameCode, round: roundIndexValue, order: questionIndexValue });
+			return res.status(200).send(question[0]);
+		} catch (error) {
+			console.error("Error fetching round " + roundIndexValue + " question " + questionIndexValue + ":", error);
+			return res.status(500).send("Error fetching round " + roundIndexValue + " question " + questionIndexValue + " from the database");
+		}
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+});
+
+router.get("/rounds/:roundIndex/question/:questionIndex/:key", async (req, res) => {
+	const roundIndexValue = Number(req.params.roundIndex);
+	if (isNaN(roundIndexValue) || roundIndexValue < 1) { return res.status(400).send("The round number must be 1 or higher") }
+	const questionIndexValue = Number(req.params.questionIndex);
+	if (isNaN(questionIndexValue) || questionIndexValue < 1) { return res.status(400).send("The question number must be 1 or higher") }
+	const targetKey = String(req.params.key);
+	if (targetKey.toLowerCase() == "round" || targetKey.toLowerCase() == "order" || targetKey.toLowerCase() == "__v") {
+		return res.status(400).send("The target key cannot be 'round', 'order', or '__v'");
+	}
+
+	try {
+		const gameFromDB = await Game.findOne({ status: { $in: ["starting", "in-progress"] } }).select('code -_id');
+		const gameCode = (gameFromDB) ? gameFromDB.code : null;
+
+		// Check a game was found
+		if (gameCode === null) { return res.status(500).send("No game found!") }
+
+		try {
+			const question = await Question.find({ game: gameCode, round: roundIndexValue, order: questionIndexValue });
+
+			// Check the targetKey exists in the game
+			if (question[0][targetKey] === null || question[0][targetKey] === undefined) {
+				return res.status(200).send("Unable to find question " + questionIndexValue + "'s " + targetKey);
+			}
+
+			return res.status(200).send(question[0][targetKey]);
+		} catch (error) {
+			console.error("Error fetching round " + roundIndexValue + " question " + questionIndexValue + ":", error);
+			return res.status(500).send("Error fetching round " + roundIndexValue + " question " + questionIndexValue + " from the database");
+		}
+	} catch (error) {
+		console.error(error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+});
 
 router.get("/teams", async (req, res) => {
 	try {
