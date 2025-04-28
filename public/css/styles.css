@@ -297,7 +297,7 @@ button>div.spinner-border{
 
 .chat-message-container {
 	overflow-y: auto;
-	height: 268px;
+	height: 236px;
 	background-color: #f8f9fa;
 	padding: 10px;
 	border-radius: var(--in-game-border-size);
