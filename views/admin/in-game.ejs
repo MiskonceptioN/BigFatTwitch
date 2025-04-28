@@ -116,10 +116,16 @@
 							</div>
 
 						<% }); %>
-						<div class="col">
-							<h6 class="chatlog mt-1 mb-0">Chat log</h6>
-							<div id="team-<%- team._id %>-chat" class="chat-message-container chat-log w-100 border border-dark">
-								<ul class="chat-messages list-unstyled text-start"></ul>
+						<div class="col d-flex flex-column">
+							<div class="row">
+								<div class="col">
+									<div class="d-flex align-items-center justify-content-center contestant-audit-header">
+										<h6 class="chatlog mt-1 mb-0">Chat log</h6>
+									</div>
+									<div id="team-<%- team._id %>-chat" class="chat-message-container chat-log w-100 border border-dark">
+										<ul class="chat-messages list-unstyled text-start"></ul>
+									</div>
+								</div>
 							</div>
 						</div>
 	
