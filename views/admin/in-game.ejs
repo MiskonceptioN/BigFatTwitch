@@ -85,10 +85,12 @@
 						<h5 class="mt-1 mb-3"><%- team.name %></h5>
 						<% team.players.forEach(player => { %>
 
-							<div class="col">
+							<div class="col d-flex flex-column">
 								<div class="row">
 									<div class="col">
-										<h6 class="mt-0 mb-1"><img src="<%- player.profileImageUrl %>" class="miniavatar"> <%- player.displayName %></h6>
+										<div class="d-flex align-items-center justify-content-center contestant-audit-header">
+											<h6 class="mt-0 mb-1"><img src="<%- player.profileImageUrl %>" class="miniavatar"> <%- player.displayName %></h6>
+										</div>
 										<img
 											id="<%- player.twitchId %>-Answer"
 											class="canvas-container w-100 border border-dark"

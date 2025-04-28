@@ -395,3 +395,7 @@ button.in-game, input.in-game {
 		transform: translateX(0);
 	}
 }
+
+.contestant-audit-header {
+	height: 40px;
+}
