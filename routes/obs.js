@@ -8,6 +8,7 @@ const io = require('../app');
 const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
 const Question = require("../models/questionModel.js");
+const Points = require("../models/pointsModel.js");
 
 router.get("/", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
@@ -54,6 +55,23 @@ router.get("/addQuestion/:code", async (req, res) => {
 	} catch (error) {
 		console.error("Error saving question:", error);
 		return res.status(500).send("Error saving question to the database");
+	}
+})
+
+router.get("/addpoints", async (req, res) => {
+	const { game, player, question, points } = req.query;
+
+	if (!game || !player || !question || !points ) {
+		return res.status(400).send({"message": "Missing game game, player, question or points"});
+	}
+
+	try {
+		// Insert the points into the database
+		const newPoints = await Points.create({ game, player, question, points });
+		return res.status(200).send({"message": "Points saved successfully with id: " + newPoints.id});
+	} catch (error) {
+		console.error("Error saving points:", error);
+		return res.status(500).send({"message": "Fuck you, basically"});
 	}
 })
 // DELETE THIS - DEBUGGING ONLY
