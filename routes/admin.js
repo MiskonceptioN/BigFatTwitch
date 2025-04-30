@@ -77,7 +77,13 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			// Fetch the game
-			const result = await Game.findOne({code: req.params.gameCode});
+			const result = await Game.findOne({code: req.params.gameCode})
+			.populate({
+				path: 'questions',
+				// select: '_id game question answer round order status',
+				options: { sort: { round: 1, order: 1 } }
+			});
+
 			if (result === null) {
 				req.flash("error", "Unable find game " + req.params.gameCode);
 				res.redirect("/admin/gameManagement")
@@ -87,10 +93,6 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 
 				// Find all questions from the Game model
 				const allQuestionsResult = result.questions.sort((a, b) => a.round - b.round || a.order - b.order);
-				
-
-				// Pull questions from Game model instead
-				// const allQuestionsResultFromGame = await Game.find({game: req.params.gameCode}).
 
 				const questionsByRound = allQuestionsResult.reduce((acc, question) => {
 					const round = question.round;
@@ -99,7 +101,7 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 					return acc;
 				  }, {});
 				  
-				res.render("admin/game/single_game", {user: req.user,  questionsByRound, game: result, failureMessage, successMessage});
+				res.render("admin/game/single_game", {user: req.user, game: result, questionsByRound, failureMessage, successMessage});
 				// console.log(questionsByRound);
 			}
 		} else {
