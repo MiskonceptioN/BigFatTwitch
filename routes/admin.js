@@ -127,17 +127,13 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 			// Try to add the question if there are no validation errors
 			if (errors.length === 0) {
 				// Add a Question to the Game
-				const result = await Game.updateOne({ code: req.params.gameCode }, { 
-					$push: { 
-						questions: {
-							question: req.body.question,
-							answer: req.body.answer,
-							type: req.body.type,
-							game: req.body.game,
-							round: req.body.round,
-							order: req.body.order,
-						}
-					}
+				const result = await Question.create({
+					game: req.body.game,
+					round: req.body.round,
+					order: req.body.order,
+					question: req.body.question,
+					answer: req.body.answer,
+					type: req.body.type,
 				});
 				console.log(result);
 				// if (!result._id) {
@@ -146,7 +142,7 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 				// 	console.log("Question <em>&quot;" + req.body.question + "&quot;</em> added");
 				// }
 				// res.send({status: "success", content: result._id.toHexString()});
-				res.send({status: "success", content: result.modifiedCount});
+				res.send({status: "success", content: result});
 			} else {
 				res.send({status: "failure", content: createErrorHTML(errors)});
 			}
