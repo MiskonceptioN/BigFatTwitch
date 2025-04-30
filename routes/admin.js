@@ -299,13 +299,14 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 	if (req.body.sendQuestion) {
 		// Set the question status to "in-progress" in the database
 		try {
-			const updateQuestionResult = await Game.updateOne({ 
-				code: req.body.gameCode,
-				"questions._id": req.body.questionId
-			}, { $set: { "questions.$.status": "in-progress" } });
+			const updateQuestionResult = await Question.findByIdAndUpdate(
+				req.body.questionId,
+				{ $set: { "status": "in-progress" } });
 
-			if (updateQuestionResult.modifiedCount !== 1){
+			if (updateQuestionResult.status !== "in-progress"){
 				console.log("Unable to update question status");
+			} else {
+				console.log("Updated question id " + req.body.questionId +  "'s status to in-progress");
 			}
 		} catch (error) {
 			console.error("Failed to update question id " + req.body.questionId +  "'s status to in-progress", error);
