@@ -161,7 +161,8 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 
 router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
-		let errors = [];
+		const errors = [];
+
 		// Let's do some validation!
 		if (!req.body.questionId) {errors.push("An ID is required")}
 		if (!req.body.direction) {errors.push("Direction is required")}
@@ -173,25 +174,23 @@ router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async 
 		if (errors.length === 0) {
 			const amount = (req.body.direction == "up" ? -1 : 1);
 
-			// Update the question in the relevant Game
-			const updateQuestionResult = await Game.updateOne({ 
-				code: req.params.gameCode,
-				"questions._id": req.body.questionId
-			}, { $inc: { "questions.$.order": amount } });
-
-			console.log(updateQuestionResult);
-			// if (!result._id) {
-			// 	errors.push("Unable to create question due to database error");
-			// } else {
-			// 	console.log("Question <em>&quot;" + req.body.question + "&quot;</em> added");
-			// }
+			try {
+				// Update the question order directly using its _id
+				const updateQuestionResult = await Question.findByIdAndUpdate(
+					req.body.questionId,
+					{ $inc: { order: amount } },
+				);
+			} catch (error) {
+				errors.push("Unable to update question order");
+				console.error("Failed to update question order", error);
+			}
 		}
 
 		setTimeout(function(){
 			if (errors.length > 0) {
-				res.send({status: "danger", content: "createErrorHTML(errors)"});
+				res.send({status: "danger", content: createErrorHTML(errors)});
 			} else {
-				res.send({status: "success", content: "Question <em>&quot;" + req.body.question + "&quot;</em> added"});
+				res.send({status: "success", content: "Question <em>&quot;" + req.body.questionId + "&quot;</em> order changed"});
 			}
 		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	} else {
