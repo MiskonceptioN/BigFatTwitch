@@ -38,18 +38,21 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
-			const allGamesResult = await Game.find({}).sort({createdAt: "asc"});
-			const aggregationResult = allGamesResult.map(game => ({_id: game.code, total: game.questions.length}));
-			const currentlyRunningGame = await checkForRunningGame();
+
+			const allGamesResult = await Game.find({}).sort({createdAt: "asc"})
+			.populate({
+				path: 'questions',
+				select: '_id game question answer round order',
+				options: { sort: { round: 1, order: 1 } }
+			});
 
 			// Convert the result array to an object with game codes as keys
-			const questionTotals = aggregationResult.reduce((acc, item) => {
-				acc[item._id] = item.total;
+			const questionTotals = allGamesResult.reduce((acc, game) => {
+				acc[game.code] = game.questions.length;
 				return acc;
 			}, {});
-			console.log(questionTotals);
 			  
-			res.render("admin/game/manage", {user: req.user, game: currentlyRunningGame, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
+			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
 		}
