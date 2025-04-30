@@ -224,6 +224,11 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			model: User,
 			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
 			foreignField: 'twitchId',
+		})
+		.populate({
+			path: 'questions',
+			select: '_id game question answer round order',
+			options: { sort: { round: 1, order: 1 } }
 		});
 
 		if (foundGame === null) {
