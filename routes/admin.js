@@ -269,8 +269,6 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			team1Chatlog.push(...await fetchChatLog(gameCode, team1ID));
 			team2Chatlog.push(...await fetchChatLog(gameCode, team2ID));
 			team3Chatlog.push(...await fetchChatLog(gameCode, team3ID));
-
-			console.log({team1Chatlog, team2Chatlog, team3Chatlog});
 		} catch (error) {
 			console.error("Error fetching chat log:", error);
 		}
