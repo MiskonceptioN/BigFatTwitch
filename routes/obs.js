@@ -19,19 +19,21 @@ router.get("/", checkAuthenticated, (req, res) => {
 
 router.get("/question", async (req, res) => {
 	try {
-		// Find the first Game where the Question status is "in-progress" and return just that question using an aggregate
-		const foundQuestion = await Game.aggregate([
-			{ $unwind: "$questions" },
-			{ $match: { "questions.status": "in-progress" } },
-			{ $project: { _id: 0, question: "$questions.question" } }
-		]).exec();
+		// Find the first in-progress Game, and grab the first in-progress question
+		let foundQuestion = await Game.findOne({ status: "in-progress" })
+		.populate({
+			path: 'questions',
+			match: { status: "in-progress" },
+			options: { sort: { round: 1, order: 1, limit: 1 } }
+		});
 
 		// Check a game was found
-		if (foundQuestion === null || foundQuestion[0] === undefined || foundQuestion[0].length === 0) {
+		if (foundQuestion === null || foundQuestion.questions.length === 0 || foundQuestion.questions[0].question === null) {
+			console.log("No game found!");
 			return res.render("obs/question", {question: ""});
 		}
 
-		res.render("obs/question", {question: foundQuestion[0].question});
+		res.render("obs/question", {question: foundQuestion.questions[0].question});
 	} catch (error) {
 		console.error(error);
 		return res.render("obs/question", {question: ""});
