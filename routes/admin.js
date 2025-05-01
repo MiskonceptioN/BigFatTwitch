@@ -227,7 +227,6 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		})
 		.populate({
 			path: 'questions',
-			select: '_id game question answer round order',
 			options: { sort: { round: 1, order: 1 } }
 		});
 
