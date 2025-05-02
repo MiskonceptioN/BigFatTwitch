@@ -39,20 +39,9 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
 
-			const allGamesResult = await Game.find({}).sort({createdAt: "asc"})
-			.populate({
-				path: 'questions',
-				select: '_id game question answer round order',
-				options: { sort: { round: 1, order: 1 } }
-			});
-
-			// Convert the result array to an object with game codes as keys
-			const questionTotals = allGamesResult.reduce((acc, game) => {
-				acc[game.code] = game.questions.length;
-				return acc;
-			}, {});
+			const allGamesResult = await Game.find({}).sort({createdAt: "asc"});
 			  
-			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
+			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
 		}
