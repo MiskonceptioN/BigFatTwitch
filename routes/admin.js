@@ -683,7 +683,11 @@ router.get("/startGame", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 		const successMessage = req.flash("success")[0]; // Retrieve the flash message
-		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"});
+		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"}).populate({
+			path: 'questions',
+			select: '_id game question answer round order',
+			options: { sort: { round: 1, order: 1 } }
+		});
 		const aggregationResult = allGamesResult.map(game => ({_id: game.code, total: game.questions.length}));
 		// console.log(aggregationResult);
 
