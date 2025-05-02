@@ -379,10 +379,10 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 	// Update the database
 		// Set the question status to "in-progress" in the database
 		try {
-			const updateQuestionResult = await Game.updateOne({ 
-			code: req.body.gameId,
-			"questions._id": req.body.questionId
-		}, { $set: { "questions.$.status": req.body.state } });
+			const updateQuestionResult = await Question.updateOne(
+				{"_id": req.body.questionId},
+				{ $set: { "status": req.body.state }
+			});
 
 		if (updateQuestionResult.modifiedCount !== 1){
 			console.log("Unable to update question status");
@@ -392,18 +392,8 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		}
 	} catch (error) {
 		console.error("Failed to update question status to " + req.body.state, error);
-		// return res.status(500).send({status: "danger", content: "Failed to update question status to " + req.body.state + " for question ID " + req.body.questionId});
 		return res.status(500).send();
 	}
-
-	// 	// Send the question to the frontend
-	// 	setTimeout(function(){
-	// 		console.log("Sending next question...");
-	// 		io.emit("next question", req.body.sendQuestion, req.body.questionId);
-	// 		io.emit("update question", req.body.sendQuestion);
-	// 		res.send({status: "success", content: "POST successful"});
-	// 	}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
-	// }
 })
 .post("/in-game/log-out-user", checkAuthenticated, async function(req, res){
 	// Sanitise inputs (later)
