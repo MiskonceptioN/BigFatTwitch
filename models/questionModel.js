@@ -9,22 +9,22 @@ const questionSchema = new mongoose.Schema({
 	order: { type: Number, required: true }, // Question order within the round
 	question: { type: String, required: true },
 	answer: { type: String, required: true },
-	// contestantAnswers: [{
-	// 	contestantId: { type: String, required: true },
-	// 	answer: { type: String, required: true },
-	// 	points: { type: Number, default: 0 },
-	// }],
+	contestantAnswers: [{
+		contestantId: { type: String, required: true },
+		answer: { type: String, required: true },
+		points: { type: Number, default: 0 },
+	}],
 	status: { type: String, enum: ["pending", "in-progress", "played"], default: "pending" },
 	type: { type: String, enum: ["text", "video", "image"], default: "text" },
 });
 
-// Virtual for questions
-questionSchema.virtual('contestantAnswers', [{
-	ref: 'Answer',
-	localField: 'id',
-	foreignField: 'questionId', // field in answer model
-	justOne: false
-}]);
+// // Virtual for questions
+// questionSchema.virtual('contestantAnswers', [{
+// 	ref: 'Answer',
+// 	localField: 'id',
+// 	foreignField: 'questionId', // field in answer model
+// 	justOne: false
+// }]);
 
 questionSchema.set('timestamps', true);
 
