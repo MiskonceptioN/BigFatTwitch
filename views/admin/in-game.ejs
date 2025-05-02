@@ -136,8 +136,15 @@
 									</div>
 								</div>
 							</div>
+							<div class="row">
+								<div class="input-group mb-3 admin-chat">
+									<input class="form-control chat-message" placeholder="Message the team&hellip;">
+									<input type="hidden" name="teamId" value="<%- team._id %>">
+									<button class="btn btn-primary" name="send">Send </button>
+									<button class="btn btn-danger" name="send-to-all">Send to all</button>
+								</div>
+							</div>
 						</div>
-	
 					</div>
 				<% }); %>
 			</div>
@@ -184,6 +191,38 @@
 	<script src="/socket.io/socket.io.js"></script>
 	<%- include('../helperFunctions'); %>
 	<script>
+		// Listen out for chat message submissions
+		$("button[name='send'], button[name='send-to-all']").click(function(e) {
+			const chatMessage = $(this).closest('.admin-chat').find(".chat-message");
+			const teamId = $(this).closest('.admin-chat').find('input[name="teamId"]').val();
+
+			let adminUser = <%- JSON.stringify(user) %>;
+			adminUser.inGame = "<%= game.code %>";
+
+			// Bail out if we can't find necessary values
+			if (!chatMessage.val() || !teamId) {return}
+
+			// Find all team IDs
+			const allTeamIds = [];
+			const allTeamIdFields = $('.admin-chat input[name="teamId"]');
+			allTeamIdFields.each((iterator, element) => {
+				allTeamIds.push($(element).val());
+			});
+
+			// Determine where to send the message
+			let target = teamId;
+			if (e.target.name === "send-to-all") {
+				if (confirm("Are you sure you want to send the following message to all teams?\n\n\"" + chatMessage.val() + "\"")) {
+					target = allTeamIds;
+				} else {
+					return; // Bail out if the user doesn't want to send the message
+				}
+			}
+			
+			socket.emit('admin chat message', chatMessage.val(), adminUser, target);
+			chatMessage.val("");
+		});
+
 		$("form.send-question").submit(function(e) {
 			e.preventDefault();
 			const questionId = $(this).find('input[name="questionId"]').val();

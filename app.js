@@ -157,6 +157,29 @@ io.on('connection', async (socket) => {
 		} catch (error) {
 			console.error("Unable to save chat message to DB:", error);
 		}
+	});
+	socket.on('admin chat message', async (msg, user, target) => {
+		const preppedMsg = prepUserMessage(msg, user);
+
+		if (typeof target === "string") { target = [target] }
+			
+		target.forEach(async (team) => {
+			io.to(team).emit('chat message', preppedMsg);
+			io.to("admin").emit('chat message', preppedMsg, team);
+
+			// Save the message to the database for audit purposes
+			try {
+				const updateUser = await ChatLog.create({
+					gameId: user.inGame,
+					userId: user.twitchId,
+					message: msg,
+					room: team,
+				});
+				console.log({updateUser})
+			} catch (error) {
+				console.error("Unable to save chat message to DB:", error);
+			}
+		});
 
 	});
 	socket.on('player joined', async (gameCode, user) => {
