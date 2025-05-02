@@ -628,7 +628,7 @@ router.post("/restart-round/:gameCode/:roundNumber", checkAuthenticated, async f
 				return;
 			}
 		
-			res.send({status: "Success", content: "Successfully set round " + roundNumber + "'s questions to 'played' for game " + gameCode});
+			res.send({status: "Success", content: "Successfully set round " + roundNumber + "'s questions to 'pending' for game " + gameCode});
 			return; 
 		} catch (error) {
 			console.log("Unable to update round " + roundNumber + "'s questions for game " + gameCode, error);
