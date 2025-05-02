@@ -517,33 +517,26 @@ router.post("/reset-game-questions/:gameCode", checkAuthenticated, async functio
 		}
 	
 		try {
-			let dbEntriesMatching = {code: gameCode};
-			let valuesToSet = {"questions.$[].status": "pending"};
-			let matchingArrayFilters = [];
-
-			if (roundNumber !== "all") {
-				dbEntriesMatching = {"questions.round": roundNumber, ...dbEntriesMatching};
-				valuesToSet = { "questions.$[elem].status": "pending" }
-				matchingArrayFilters = [{ "elem.round": roundNumber }];
-			} 
-
-			const updateQuestionStatusResult = await Game.updateOne(
-				dbEntriesMatching,
-				{ $set: valuesToSet },
-				{ arrayFilters: matchingArrayFilters });
+			const updateQuestionStatusResult = await Question.updateMany(
+				{ game: gameCode },
+				{ $set: { status: "pending" } }
+			);
 
 			// Check modifiedCount of updateQuestionStatusResult
-			if (updateQuestionStatusResult.modifiedCount === 0) {
-				res.send({status: "failure", content: "Unable to update game " + gameCode});
+			if (updateQuestionStatusResult.matchedCount === 0) {
+				res.send({status: "failure", content: "No questions found for game " + gameCode});
+				return;
+			}
+			if (updateQuestionStatusResult.modifiedCount !== updateQuestionStatusResult.matchedCount) {
+				res.send({status: "failure", content: "Unable to update all questions for game " + gameCode});
 				return;
 			}
 		
-			res.send({status: "Success", content: "Successfully reset game " + gameCode});
+			res.send({status: "Success", content: "Successfully set round " + gameCode + "'s questions to 'pending'"});
 			return; 
 		} catch (error) {
-			console.log("Unable to update game " + gameCode);
-			res.send({status: "failure", content: "Unable to update game " + gameCode});
-			console.error(error);
+			console.log("Unable to update " + gameCode + "'s questions", error);
+			res.send({status: "failure", content: "Unable to update " + gameCode + "'s questions"});
 		}
 	} catch (error) {
 		console.log("Error finding game "+ gameCode, error)
