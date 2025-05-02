@@ -560,6 +560,8 @@ router.post("/end-game/:gameCode", checkAuthenticated, async function(req, res){
 				res.send({status: "failure", content: "Unable to set game " + gameCode + " to 'pending'"});
 				return res.redirect("/admin/startGame/" + gameCode);
 			}
+
+			const updateUsersResult = await User.updateMany({ inGame: gameCode }, { $set: { inGame: "", loggedOutOf: gameCode } });
 			
 			res.send({status: "Success", content: "Successfully reset game " + gameCode});
 			return; 
