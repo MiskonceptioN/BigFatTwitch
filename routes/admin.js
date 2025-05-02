@@ -613,22 +613,26 @@ router.post("/restart-round/:gameCode/:roundNumber", checkAuthenticated, async f
 		}
 	
 		try {
-			const updateQuestionStatusResult = await Game.updateOne(
-				{ code: gameCode, "questions.round": roundNumber },
-				{ $set: { "questions.$[elem].status": "pending" } },
-				{ arrayFilters: [{ "elem.round": roundNumber }] }
+			const updateQuestionStatusResult = await Question.updateMany(
+				{ game: gameCode, round: roundNumber },
+				{ $set: { status: "pending" } }
 			);
+
 			// Check modifiedCount of updateQuestionStatusResult
-			if (updateQuestionStatusResult.modifiedCount === 0) {
-				res.send({status: "failure", content: "Unable to update game " + gameCode});
+			if (updateQuestionStatusResult.matchedCount === 0) {
+				res.send({status: "failure", content: "No questions found for game " + gameCode + " in round " + roundNumber});
+				return;
+			}
+			if (updateQuestionStatusResult.modifiedCount !== updateQuestionStatusResult.matchedCount) {
+				res.send({status: "failure", content: "Unable to update all questions for game " + gameCode + " in round " + roundNumber});
 				return;
 			}
 		
-			res.send({status: "Success", content: "Successfully set round " + roundNumber + "'s questions to 'pending' for game " + gameCode});
+			res.send({status: "Success", content: "Successfully set round " + roundNumber + "'s questions to 'played' for game " + gameCode});
 			return; 
 		} catch (error) {
-			console.log("Unable to update game " + gameCode, error);
-			res.send({status: "failure", content: "Unable to update game " + gameCode});
+			console.log("Unable to update round " + roundNumber + "'s questions for game " + gameCode, error);
+			res.send({status: "failure", content: "Unable to update round " + roundNumber + "'s questions for game " + gameCode});
 		}
 	} catch (error) {
 		console.log("Error finding game "+ gameCode, error)
