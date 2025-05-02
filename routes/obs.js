@@ -27,9 +27,8 @@ router.get("/question", async (req, res) => {
 			options: { sort: { round: 1, order: 1, limit: 1 } }
 		});
 
-		// Check a game was found
+		// Check a question was found
 		if (foundQuestion === null || foundQuestion.questions.length === 0 || foundQuestion.questions[0].question === null) {
-			console.log("No game found!");
 			return res.render("obs/question", {question: ""});
 		}
 
