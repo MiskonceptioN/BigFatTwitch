@@ -358,27 +358,19 @@ router.get("/teams/:teamIndex/points", async (req, res) => {
 	const desiredIndex = teamIndexValue - 1;
 
 	try {
-		const foundGame = await Game.aggregate([
-			{ $match: { status: { $in: ["starting", "in-progress"] } } },
-			{ $project: { _id: 0, points: { $arrayElemAt: ["$teams.points", desiredIndex] }	} }
-		]);
-
-		// Check a game was found
-		if (foundGame === null  || foundGame.length === 0) {
+		const foundGame = await Game.findOne({ status: { $in: ["starting", "in-progress"] } });
+		// Ensure a game was found
+		if (!foundGame) {
 			return res.status(200).send("Unable to find any active games");
 		}
 
-		// Check if foundGame is just an array with an empty object
-		if ( foundGame.length === 1 && Object.keys(foundGame[0]).length === 0) {
-			return res.status(200).send("Unable to find team number " + teamIndexValue + " in any active games");
-		}
+		const teamPlayers = foundGame.teams[desiredIndex].players;
+		const allTeamPoints = await Answer.find({ game: foundGame.code, contestant: { $in: teamPlayers } });
+		const teamPoints = allTeamPoints.reduce((total, answer) => {
+			return total + answer.points;
+		}, 0);
 
-		// Check if the team's points exist in the table
-		if (foundGame[0].points === null || foundGame[0].points === undefined) {
-			return res.status(200).send("Unable to find team " + teamIndexValue + "'s points");
-		}
-
-		return res.status(200).send(foundGame[0].points.toString());
+		return res.status(200).send(teamPoints.toString());
 	} catch (error) {
 		console.error(error);
 		return res.status(500).send(error);
