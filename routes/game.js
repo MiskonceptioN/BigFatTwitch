@@ -7,7 +7,7 @@ const io = require('../app');
 
 const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
-const Question = require("../models/questionModel.js");
+const Answer = require("../models/answerModel.js");
 
 router.get("/audience", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
@@ -72,13 +72,21 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 
 	try {
 		// Add the user's answer into Game
-		const addAnswer = await Game.updateOne(
-			{ code: user.inGame, "questions._id": questionId },
-			{ $set: { [`questions.$.contestantAnswers.${user.twitchId}.answer`]: answer } }
+		const addAnswer = await Answer.findOneAndUpdate(
+			{
+				questionId,
+				game: user.inGame,
+				contestant: user.twitchId
+			},
+			{ answer },
+			{ 
+				new: true, 
+				upsert: true,
+			}
 		);
 
-		if (addAnswer.modifiedCount < 1) {
-			console.log(addAnswer);
+		if (addAnswer.answer !== answer) {
+			console.error("Answers do not match", addAnswer);
 			res.send({
 				status: "danger",
 				content: "Something went wrong! Please let Danny know."

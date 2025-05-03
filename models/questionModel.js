@@ -4,19 +4,28 @@ const timestamps = require("mongoose-timestamp");
 
 // Define the Question schema
 const questionSchema = new mongoose.Schema({
+	game: { type: String, ref: 'Game', foreignField: 'code' }, // Reference to the game code
+	round: { type: Number, required: true }, // Round number
+	order: { type: Number, required: true }, // Question order within the round
 	question: { type: String, required: true },
 	answer: { type: String, required: true },
-	contestantAnswers: { type: Object, default: {} },
 	status: { type: String, enum: ["pending", "in-progress", "played"], default: "pending" },
 	type: { type: String, enum: ["text", "video", "image"], default: "text" },
-//	 game: { type: mongoose.Schema.Types.ObjectId, ref: "Game", required: true },
-	game: { type: "String", required: true },
-	round: { type: Number, required: true },
-	order: { type: Number, required: true },
-//	 winner: { type: mongoose.Schema.Types.ObjectId, ref: "Team" }
 });
-// questionSchema.plugin(timestamps);
+
+// // Virtual for questions
+questionSchema.virtual('contestantAnswers', {
+	ref: 'Answer',
+	localField: '_id',
+	foreignField: 'questionId', // field in answer model
+	justOne: false
+});
+
 questionSchema.set('timestamps', true);
+
+// Enable virtuals in JSON
+questionSchema.set('toJSON', { virtuals: true });
+questionSchema.set('toObject', { virtuals: true });
 
 // Create the Question model based on the schema
 const Question = mongoose.model("Question", questionSchema);

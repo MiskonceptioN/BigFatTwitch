@@ -7,18 +7,6 @@ const contestantAnswersSchema = new mongoose.Schema({
   points: { type: Number, default: 0 },
 });
 
-// Define the Question schema
-const questionSchema = new mongoose.Schema({
-	question: { type: String, required: true },
-	answer: { type: String, required: true },
-	contestantAnswers: [contestantAnswersSchema],
-	status: { type: String, enum: ["pending", "in-progress", "played"], default: "pending" },
-	type: { type: String, enum: ["text", "video", "image"], default: "text" },
-	game: { type: "String", required: true },
-	round: { type: Number, required: true },
-	order: { type: Number, required: true },
-});
-
 // Define the Team schema
 const teamSchema = new mongoose.Schema({
   name: { type: String, default: "Team" },
@@ -33,9 +21,17 @@ const gameSchema = new mongoose.Schema({
   maxAudience: { type: Number, default: 0 },
   winner: { type: String, default: null },
   teams: [teamSchema], 
-  questions: [questionSchema], 
-  // team1: { type: mongoose.Schema.Types.ObjectId, ref: "Team" }
+// }, { toJSON: { virtuals: true }, toObject: { virtuals: true } });
 });
+
+// Virtual for questions
+gameSchema.virtual('questions', {
+  ref: 'Question',
+  localField: 'code',
+  foreignField: 'game', // field in Question model
+  justOne: false
+});
+
 // gameSchema.plugin(timestamps);
 gameSchema.set('timestamps', true);
 

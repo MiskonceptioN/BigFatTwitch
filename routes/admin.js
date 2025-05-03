@@ -6,6 +6,7 @@ const { checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHT
 const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
 const Question = require("../models/questionModel.js");
+const Answer = require("../models/answerModel.js");
 
 // Pull in socket.io
 const io = require('../app');
@@ -38,18 +39,10 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
-			const allGamesResult = await Game.find({}).sort({createdAt: "asc"});
-			const aggregationResult = allGamesResult.map(game => ({_id: game.code, total: game.questions.length}));
-			const currentlyRunningGame = await checkForRunningGame();
 
-			// Convert the result array to an object with game codes as keys
-			const questionTotals = aggregationResult.reduce((acc, item) => {
-				acc[item._id] = item.total;
-				return acc;
-			}, {});
-			console.log(questionTotals);
+			const allGamesResult = await Game.find({}).sort({createdAt: "asc"});
 			  
-			res.render("admin/game/manage", {user: req.user, game: currentlyRunningGame, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
+			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
 		}
@@ -74,7 +67,13 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			// Fetch the game
-			const result = await Game.findOne({code: req.params.gameCode});
+			const result = await Game.findOne({code: req.params.gameCode})
+			.populate({
+				path: 'questions',
+				// select: '_id game question answer round order status',
+				options: { sort: { round: 1, order: 1 } }
+			});
+
 			if (result === null) {
 				req.flash("error", "Unable find game " + req.params.gameCode);
 				res.redirect("/admin/gameManagement")
@@ -84,10 +83,6 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 
 				// Find all questions from the Game model
 				const allQuestionsResult = result.questions.sort((a, b) => a.round - b.round || a.order - b.order);
-				
-
-				// Pull questions from Game model instead
-				// const allQuestionsResultFromGame = await Game.find({game: req.params.gameCode}).
 
 				const questionsByRound = allQuestionsResult.reduce((acc, question) => {
 					const round = question.round;
@@ -96,7 +91,7 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 					return acc;
 				  }, {});
 				  
-				res.render("admin/game/single_game", {user: req.user,  questionsByRound, game: result, failureMessage, successMessage});
+				res.render("admin/game/single_game", {user: req.user, game: result, questionsByRound, failureMessage, successMessage});
 				// console.log(questionsByRound);
 			}
 		} else {
@@ -122,17 +117,13 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 			// Try to add the question if there are no validation errors
 			if (errors.length === 0) {
 				// Add a Question to the Game
-				const result = await Game.updateOne({ code: req.params.gameCode }, { 
-					$push: { 
-						questions: {
-							question: req.body.question,
-							answer: req.body.answer,
-							type: req.body.type,
-							game: req.body.game,
-							round: req.body.round,
-							order: req.body.order,
-						}
-					}
+				const result = await Question.create({
+					game: req.body.game,
+					round: req.body.round,
+					order: req.body.order,
+					question: req.body.question,
+					answer: req.body.answer,
+					type: req.body.type,
 				});
 				console.log(result);
 				// if (!result._id) {
@@ -141,7 +132,7 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 				// 	console.log("Question <em>&quot;" + req.body.question + "&quot;</em> added");
 				// }
 				// res.send({status: "success", content: result._id.toHexString()});
-				res.send({status: "success", content: result.modifiedCount});
+				res.send({status: "success", content: result});
 			} else {
 				res.send({status: "failure", content: createErrorHTML(errors)});
 			}
@@ -156,7 +147,8 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 
 router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
-		let errors = [];
+		const errors = [];
+
 		// Let's do some validation!
 		if (!req.body.questionId) {errors.push("An ID is required")}
 		if (!req.body.direction) {errors.push("Direction is required")}
@@ -168,25 +160,23 @@ router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async 
 		if (errors.length === 0) {
 			const amount = (req.body.direction == "up" ? -1 : 1);
 
-			// Update the question in the relevant Game
-			const updateQuestionResult = await Game.updateOne({ 
-				code: req.params.gameCode,
-				"questions._id": req.body.questionId
-			}, { $inc: { "questions.$.order": amount } });
-
-			console.log(updateQuestionResult);
-			// if (!result._id) {
-			// 	errors.push("Unable to create question due to database error");
-			// } else {
-			// 	console.log("Question <em>&quot;" + req.body.question + "&quot;</em> added");
-			// }
+			try {
+				// Update the question order directly using its _id
+				const updateQuestionResult = await Question.findByIdAndUpdate(
+					req.body.questionId,
+					{ $inc: { order: amount } },
+				);
+			} catch (error) {
+				errors.push("Unable to update question order");
+				console.error("Failed to update question order", error);
+			}
 		}
 
 		setTimeout(function(){
 			if (errors.length > 0) {
-				res.send({status: "danger", content: "createErrorHTML(errors)"});
+				res.send({status: "danger", content: createErrorHTML(errors)});
 			} else {
-				res.send({status: "success", content: "Question <em>&quot;" + req.body.question + "&quot;</em> added"});
+				res.send({status: "success", content: "Question <em>&quot;" + req.body.questionId + "&quot;</em> order changed"});
 			}
 		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	} else {
@@ -224,6 +214,10 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			model: User,
 			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
 			foreignField: 'twitchId',
+		})
+		.populate({
+			path: 'questions',
+			options: { sort: { round: 1, order: 1 } }
 		});
 
 		if (foundGame === null) {
@@ -269,8 +263,6 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			team1Chatlog.push(...await fetchChatLog(gameCode, team1ID));
 			team2Chatlog.push(...await fetchChatLog(gameCode, team2ID));
 			team3Chatlog.push(...await fetchChatLog(gameCode, team3ID));
-
-			console.log({team1Chatlog, team2Chatlog, team3Chatlog});
 		} catch (error) {
 			console.error("Error fetching chat log:", error);
 		}
@@ -296,13 +288,14 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 	if (req.body.sendQuestion) {
 		// Set the question status to "in-progress" in the database
 		try {
-			const updateQuestionResult = await Game.updateOne({ 
-				code: req.body.gameCode,
-				"questions._id": req.body.questionId
-			}, { $set: { "questions.$.status": "in-progress" } });
+			const updateQuestionResult = await Question.findByIdAndUpdate(
+				req.body.questionId,
+				{ $set: { "status": "in-progress" } });
 
-			if (updateQuestionResult.modifiedCount !== 1){
+			if (updateQuestionResult.status !== "in-progress"){
 				console.log("Unable to update question status");
+			} else {
+				console.log("Updated question id " + req.body.questionId +  "'s status to in-progress");
 			}
 		} catch (error) {
 			console.error("Failed to update question id " + req.body.questionId +  "'s status to in-progress", error);
@@ -319,28 +312,18 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 })
 .post("/in-game/points", checkAuthenticated, async (req, res) => {
 	// Prepare the inputs
-	const gameCode = req.body.gameCode;
 	const userId = req.body.userId;
 	const questionId = req.body.questionId;
 	const points = Number(req.body.points);
 	const pointFormID = req.body.pointFormID;
-	const teamId = req.body.teamId;
 
 	try {
-		// Add the user's points to their answer
-		const addPoints = await Game.updateOne(
-			{
-				code: gameCode,
-				"questions._id": questionId,
-				"teams._id": teamId
-			},
-			{ 
-				$set: { [`questions.$.contestantAnswers.${userId}.points`]: points },
-				$inc: { "teams.$.points": points }
-			}
-		);
+		const updatePoints = await Answer.updateOne({
+			questionId: questionId,
+			contestant: userId
+		},{ $set: { points: points } });
 
-		if (addPoints.modifiedCount < 1) {
+		if (updatePoints.modifiedCount < 1) {
 			res.send({
 				status: "danger",
 				content: "Something went wrong! Please let Danny know."
@@ -376,10 +359,10 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 	// Update the database
 		// Set the question status to "in-progress" in the database
 		try {
-			const updateQuestionResult = await Game.updateOne({ 
-			code: req.body.gameId,
-			"questions._id": req.body.questionId
-		}, { $set: { "questions.$.status": req.body.state } });
+			const updateQuestionResult = await Question.updateOne(
+				{"_id": req.body.questionId},
+				{ $set: { "status": req.body.state }
+			});
 
 		if (updateQuestionResult.modifiedCount !== 1){
 			console.log("Unable to update question status");
@@ -389,18 +372,8 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		}
 	} catch (error) {
 		console.error("Failed to update question status to " + req.body.state, error);
-		// return res.status(500).send({status: "danger", content: "Failed to update question status to " + req.body.state + " for question ID " + req.body.questionId});
 		return res.status(500).send();
 	}
-
-	// 	// Send the question to the frontend
-	// 	setTimeout(function(){
-	// 		console.log("Sending next question...");
-	// 		io.emit("next question", req.body.sendQuestion, req.body.questionId);
-	// 		io.emit("update question", req.body.sendQuestion);
-	// 		res.send({status: "success", content: "POST successful"});
-	// 	}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
-	// }
 })
 .post("/in-game/log-out-user", checkAuthenticated, async function(req, res){
 	// Sanitise inputs (later)
@@ -524,33 +497,26 @@ router.post("/reset-game-questions/:gameCode", checkAuthenticated, async functio
 		}
 	
 		try {
-			let dbEntriesMatching = {code: gameCode};
-			let valuesToSet = {"questions.$[].status": "pending"};
-			let matchingArrayFilters = [];
-
-			if (roundNumber !== "all") {
-				dbEntriesMatching = {"questions.round": roundNumber, ...dbEntriesMatching};
-				valuesToSet = { "questions.$[elem].status": "pending" }
-				matchingArrayFilters = [{ "elem.round": roundNumber }];
-			} 
-
-			const updateQuestionStatusResult = await Game.updateOne(
-				dbEntriesMatching,
-				{ $set: valuesToSet },
-				{ arrayFilters: matchingArrayFilters });
+			const updateQuestionStatusResult = await Question.updateMany(
+				{ game: gameCode },
+				{ $set: { status: "pending" } }
+			);
 
 			// Check modifiedCount of updateQuestionStatusResult
-			if (updateQuestionStatusResult.modifiedCount === 0) {
-				res.send({status: "failure", content: "Unable to update game " + gameCode});
+			if (updateQuestionStatusResult.matchedCount === 0) {
+				res.send({status: "failure", content: "No questions found for game " + gameCode});
+				return;
+			}
+			if (updateQuestionStatusResult.modifiedCount !== updateQuestionStatusResult.matchedCount) {
+				res.send({status: "failure", content: "Unable to update all questions for game " + gameCode});
 				return;
 			}
 		
-			res.send({status: "Success", content: "Successfully reset game " + gameCode});
+			res.send({status: "Success", content: "Successfully set round " + gameCode + "'s questions to 'pending'"});
 			return; 
 		} catch (error) {
-			console.log("Unable to update game " + gameCode);
-			res.send({status: "failure", content: "Unable to update game " + gameCode});
-			console.error(error);
+			console.log("Unable to update " + gameCode + "'s questions", error);
+			res.send({status: "failure", content: "Unable to update " + gameCode + "'s questions"});
 		}
 	} catch (error) {
 		console.log("Error finding game "+ gameCode, error)
@@ -585,6 +551,8 @@ router.post("/end-game/:gameCode", checkAuthenticated, async function(req, res){
 				res.send({status: "failure", content: "Unable to set game " + gameCode + " to 'pending'"});
 				return res.redirect("/admin/startGame/" + gameCode);
 			}
+
+			const updateUsersResult = await User.updateMany({ inGame: gameCode }, { $set: { inGame: "", loggedOutOf: gameCode } });
 			
 			res.send({status: "Success", content: "Successfully reset game " + gameCode});
 			return; 
@@ -620,22 +588,26 @@ router.post("/restart-round/:gameCode/:roundNumber", checkAuthenticated, async f
 		}
 	
 		try {
-			const updateQuestionStatusResult = await Game.updateOne(
-				{ code: gameCode, "questions.round": roundNumber },
-				{ $set: { "questions.$[elem].status": "pending" } },
-				{ arrayFilters: [{ "elem.round": roundNumber }] }
+			const updateQuestionStatusResult = await Question.updateMany(
+				{ game: gameCode, round: roundNumber },
+				{ $set: { status: "pending" } }
 			);
+
 			// Check modifiedCount of updateQuestionStatusResult
-			if (updateQuestionStatusResult.modifiedCount === 0) {
-				res.send({status: "failure", content: "Unable to update game " + gameCode});
+			if (updateQuestionStatusResult.matchedCount === 0) {
+				res.send({status: "failure", content: "No questions found for game " + gameCode + " in round " + roundNumber});
+				return;
+			}
+			if (updateQuestionStatusResult.modifiedCount !== updateQuestionStatusResult.matchedCount) {
+				res.send({status: "failure", content: "Unable to update all questions for game " + gameCode + " in round " + roundNumber});
 				return;
 			}
 		
 			res.send({status: "Success", content: "Successfully set round " + roundNumber + "'s questions to 'pending' for game " + gameCode});
 			return; 
 		} catch (error) {
-			console.log("Unable to update game " + gameCode, error);
-			res.send({status: "failure", content: "Unable to update game " + gameCode});
+			console.log("Unable to update round " + roundNumber + "'s questions for game " + gameCode, error);
+			res.send({status: "failure", content: "Unable to update round " + roundNumber + "'s questions for game " + gameCode});
 		}
 	} catch (error) {
 		console.log("Error finding game "+ gameCode, error)
@@ -662,22 +634,26 @@ router.post("/end-round/:gameCode/:roundNumber", checkAuthenticated, async funct
 		}
 	
 		try {
-			const updateQuestionStatusResult = await Game.updateOne(
-				{ code: gameCode, "questions.round": roundNumber },
-				{ $set: { "questions.$[elem].status": "played" } },
-				{ arrayFilters: [{ "elem.round": roundNumber }] }
+			const updateQuestionStatusResult = await Question.updateMany(
+				{ game: gameCode, round: roundNumber },
+				{ $set: { status: "played" } }
 			);
+
 			// Check modifiedCount of updateQuestionStatusResult
-			if (updateQuestionStatusResult.modifiedCount === 0) {
-				res.send({status: "failure", content: "Unable to update game " + gameCode});
+			if (updateQuestionStatusResult.matchedCount === 0) {
+				res.send({status: "failure", content: "No questions found for game " + gameCode + " in round " + roundNumber});
+				return;
+			}
+			if (updateQuestionStatusResult.modifiedCount !== updateQuestionStatusResult.matchedCount) {
+				res.send({status: "failure", content: "Unable to update all questions for game " + gameCode + " in round " + roundNumber});
 				return;
 			}
 		
 			res.send({status: "Success", content: "Successfully set round " + roundNumber + "'s questions to 'played' for game " + gameCode});
 			return; 
 		} catch (error) {
-			console.log("Unable to update game " + gameCode, error);
-			res.send({status: "failure", content: "Unable to update game " + gameCode});
+			console.log("Unable to update round " + roundNumber + "'s questions for game " + gameCode, error);
+			res.send({status: "failure", content: "Unable to update round " + roundNumber + "'s questions for game " + gameCode});
 		}
 	} catch (error) {
 		console.log("Error finding game "+ gameCode, error)
@@ -689,7 +665,11 @@ router.get("/startGame", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 		const successMessage = req.flash("success")[0]; // Retrieve the flash message
-		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"});
+		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"}).populate({
+			path: 'questions',
+			select: '_id game question answer round order',
+			options: { sort: { round: 1, order: 1 } }
+		});
 		const aggregationResult = allGamesResult.map(game => ({_id: game.code, total: game.questions.length}));
 		// console.log(aggregationResult);
 
