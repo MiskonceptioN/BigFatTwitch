@@ -6,6 +6,7 @@ const { checkAuthenticated, checkForRunningGame, generateGameCode, createErrorHT
 const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
 const Question = require("../models/questionModel.js");
+const Answer = require("../models/answerModel.js");
 
 // Pull in socket.io
 const io = require('../app');
@@ -311,28 +312,18 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 })
 .post("/in-game/points", checkAuthenticated, async (req, res) => {
 	// Prepare the inputs
-	const gameCode = req.body.gameCode;
 	const userId = req.body.userId;
 	const questionId = req.body.questionId;
 	const points = Number(req.body.points);
 	const pointFormID = req.body.pointFormID;
-	const teamId = req.body.teamId;
 
 	try {
-		// Add the user's points to their answer
-		const addPoints = await Game.updateOne(
-			{
-				code: gameCode,
-				"questions._id": questionId,
-				"teams._id": teamId
-			},
-			{ 
-				$set: { [`questions.$.contestantAnswers.${userId}.points`]: points },
-				$inc: { "teams.$.points": points }
-			}
-		);
+		const updatePoints = await Answer.updateOne({
+			questionId: questionId,
+			contestant: userId
+		},{ $set: { points: points } });
 
-		if (addPoints.modifiedCount < 1) {
+		if (updatePoints.modifiedCount < 1) {
 			res.send({
 				status: "danger",
 				content: "Something went wrong! Please let Danny know."
