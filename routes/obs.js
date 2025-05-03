@@ -96,16 +96,22 @@ router.get("/addanswer", async (req, res) => {
 })
 
 router.get("/viewquestion", async (req, res) => {
-	const questionID = req.body.qid;
+	const questionID = req.query.qid;
+	console.log({questionID})
 	try {
 		// Insert the points into the database
-		let foundQuestion = await Question.findOne({ id: questionID })
-		.populate({
-			path: 'contestantAnswers',
-			// match: { status: "in-progress" },
-			// options: { sort: { round: 1, order: 1, limit: 1 } }
-		});
-		return res.send({question: foundQuestion});
+		let foundQuestion = await Question.findOne({ _id: questionID })
+			.populate({
+				path: 'contestantAnswers',
+				model: Answer,
+				// You can specify what fields to include if needed
+				// select: 'game contestant answer'
+			});
+
+		if (!foundQuestion) {
+			return res.status(404).send({ message: "Question not found" });
+		}
+		return res.send(foundQuestion);
 	} catch (error) {
 		console.error("Error saving answer:", error);
 		return res.status(500).send({"message": "Fuck you, basically"});
