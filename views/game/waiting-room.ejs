@@ -85,12 +85,21 @@
 			</div>
 			<div class="row text-light bg-dark">
 				<section>
-					<h4 class="quote-bar" id="quoteBar">Tip: Incorrect answers may lead to spontaneous combustion. Or just embarrassment.</h4>			
+					<div id="quoteCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="10000">
+						<div class="carousel-inner"></div>
+					</div>
 				</section>
 			</div>
 		</div>
     </section>
 	<script>
+		function shuffleArray (array)  { 
+			for (let i = array.length - 1; i > 0; i--) { 
+				const j = Math.floor(Math.random() * (i + 1)); 
+				[array[i], array[j]] = [array[j], array[i]]; 
+			} 
+			return array; 
+		}; 
 		// Rotating tips
 		const tips = [
 		"Pro tip: Always trust your teammate&hellip; unless it's about 90s boy bands.",
@@ -114,12 +123,15 @@
 		"Tip: Take a deep breath. The questions are more afraid of you than you are of them.",
 		"Loading tip: This space intentionally filled with nonsense."
 		];
+		const shuffledTips = shuffleArray(tips);
 
-		setInterval(() => {
-			const quoteBar = document.getElementById('quoteBar');
-			const random = Math.floor(Math.random() * tips.length);
-			quoteBar.textContent = tips[random];
-		}, 8000);
+		const carouselInner = document.querySelector('#quoteCarousel .carousel-inner');
+		shuffledTips.forEach((tip, index) => {
+			const carouselItem = document.createElement('div');
+			carouselItem.className = 'carousel-item' + (index === 0 ? ' active' : '');
+			carouselItem.innerHTML = `<h4 class="quote-bar">${tip}</h4>`;
+			carouselInner.appendChild(carouselItem);
+		});
 
 		const form = document.getElementById('form');
 		const input = document.getElementById('input');
