@@ -1,7 +1,16 @@
 <%- include('../header'); %>
-    <section id="game" class="text-center">
+	<video
+		autoplay
+		muted
+		loop
+		id="ingame-background"
+		class="team-<%- user.teamIndex %>"
+		>
+		<source src="https://assets.danny-valentine.com/video/upload/h_1080,e_accelerate:-50/q_auto,f_auto/BigFatTwitch/anibak.mov">
+	</video>
+	<section id="game" class="text-center">
         <header>
-            <h1>Waiting for game to begin</h1>
+            <h1 class="text-light">Waiting for game to begin</h1>
         </header>
 		<% if (failureMessage) { %>
 			<div class="container">
@@ -17,47 +26,114 @@
 			</div>
 		<% } %>
 		<section>
-			<h2><span class="live-players">1</span> of 6 players ready</h2>
+			<h2 class="d-none"><span class="live-players">1</span> of 6 players ready</h2>
 		</section>
 		<hr>
-		<section>
-			<h2>Your teammate is:</h2>
+		<div class="container">
 			<div class="row">
-				<div class="col">
-					<figure>
-						<img id="<%- user.teammate.displayName %>-thumbnail"
-						class="player-icon <% if (user.teammate.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- user.teammate.profileImageUrl %>" width="100" alt="<%- user.teammate.displayName %>'s thumbnail">
-						
-						<figcaption><%- user.teammate.displayName %></figcaption>
-					</figure>
-				</div>
+				<section id="player-cards">
+					<div class="row">
+						<div class="col bg-white border border-dark ingame-border m-3 pt-3 pb-2">
+							<div class="row">
+								<div class="col d-flex align-items-center">
+									<img id="<%- user.displayName %>-thumbnail" class="player-icon <% if (user.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- user.profileImageUrl %>" width="100" alt="<%- user.displayName %>'s thumbnail">
+									<h3 class="ms-3 mb-0"><%- user.displayName %></h3>
+								</div>
+							</div>
+							<div class="row text-start mt-3">
+								<p><%- user.bio %></p>
+							</div>
+						</div>
+						<div class="col bg-white border border-dark ingame-border m-3 pt-3 pb-2">
+							<div class="row">
+								<div class="col d-flex align-items-center">
+									<img id="<%- user.teammate.displayName %>-thumbnail" class="player-icon <% if (user.teammate.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- user.teammate.profileImageUrl %>" width="100" alt="<%- user.teammate.displayName %>'s thumbnail">
+
+									<h3 class="ms-3 mb-0"><%- user.teammate.displayName %></h3>
+								</div>
+							</div>
+							<div class="row text-start mt-3">
+								<p><%- user.teammate.bio %></p>
+							</div>
+						</div>
+					</div>
+				</section>
 			</div>
-		</section>
-		<hr>
-		<section>
-			<form id="form" action="">
-				<input id="input" autocomplete="off" /><button>Send</button>
-			</form>
-			<ul class="chat-messages"></ul>
-			<script>
-			const form = document.getElementById('form');
-			const input = document.getElementById('input');
-			const messages = document.querySelector('.chat-messages');
-
-			form.addEventListener('submit', (e) => {
-				e.preventDefault();
-				if (input.value) {
-					socket.emit('chat message', input.value, <%- JSON.stringify(user) %>);
-					input.value = '';
-				}
-			});
-
-			</script>
-		</section>
-		<footer style="margin-top: 10em;">
-            <h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
-        </footer>
+			<div class="row">
+				<section>
+					<h3 class="text-start text-light mt-4">Team chat</h3>
+					<div class="row">
+						<div class="col bg-white border border-dark ingame-border m-3 mt-0 pt-3 pb-2 chat-message-container chat-log w-100 text-start">
+							<ul class="chat-messages list-unstyled"></ul>
+						</div>
+					</div>
+				</section>
+			</div>
+			<div class="row">
+				<section>
+					<form id="form">
+						<div class="row mt-2 my-5">
+							<div class="col-10">
+								<input id="input" type="text" class="in-game form-control" placeholder="Type a message..." autocomplete="off" autofocus>
+							</div>
+							<div class="col-2">
+								<button class="btn btn-secondary in-game w-100" type="submit">Send message <i class="fa-solid fa-paper-plane ps-2"></i></button>
+							</div>
+						</div>
+					</form>
+				</section>
+			</div>
+			<div class="row text-light bg-dark">
+				<section>
+					<h4 class="quote-bar" id="quoteBar">Tip: Incorrect answers may lead to spontaneous combustion. Or just embarrassment.</h4>			
+				</section>
+			</div>
+		</div>
     </section>
+	<script>
+		// Rotating tips
+		const tips = [
+		"Pro tip: Always trust your teammate&hellip; unless it's about 90s boy bands.",
+		"Trivia fact: Honey never spoils. Just like your competitive spirit.",
+		"Loading&hellip; Just like your internet connection.",
+		"Tip: Reading the question out loud increases your IQ by exactly 0.0003%.",
+		"Did you know? Cows have best friends. But they won't help you with trivia.",
+		"Fun fact: This took about a billion hours to make.",
+		"Did you know? Penguins propose to their mates with a pebble.",
+		"Pro tip: When in doubt, answer \"42\". It's worked before.",
+		"Tip: Trivia games improve memory. Or was it juggling? I forget.",
+		"Fact: Bananas are berries. Strawberries aren't. Don't question it.",
+		"Fact: 100% of trivia champions blink. Coincidence? Definitely.",
+		"Trivia: Napoleon was once attacked by a horde of bunnies. True story.",
+		"Tip: Teamwork makes the dream answers work.",
+		"Fun fact: The longest word in the English language is 189,819 letters long. But you won't need it here.",
+		"Did you know? Octopuses have three hearts. But only one brain.",
+		"Quote: \"It's not a wrong answer, it's an alternative perspective.\"",
+		"Tip: If you're unsure, confidently say the wrong answer. It's tradition.",
+		"Fact: The mitochondrion is the powerhouse of the cell. Always will be.",
+		"Tip: Take a deep breath. The questions are more afraid of you than you are of them.",
+		"Loading tip: This space intentionally filled with nonsense."
+		];
+
+		setInterval(() => {
+			const quoteBar = document.getElementById('quoteBar');
+			const random = Math.floor(Math.random() * tips.length);
+			quoteBar.textContent = tips[random];
+		}, 8000);
+
+		const form = document.getElementById('form');
+		const input = document.getElementById('input');
+		const messages = document.querySelector('.chat-messages');
+
+		form.addEventListener('submit', (e) => {
+			e.preventDefault();
+			if (input.value) {
+				socket.emit('chat message', input.value, <%- JSON.stringify(user) %>);
+				input.value = '';
+			}
+		});
+
+	</script>
 	<script src="/socket.io/socket.io.js"></script>
 	<%- include('../helperFunctions'); %>
 	<script>
