@@ -305,6 +305,7 @@ button>div.spinner-border{
 
 .chat-messages {
 	margin: 0;
+	overflow-x: hidden;
 }
 
 button.in-game, input.in-game {
