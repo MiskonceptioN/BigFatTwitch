@@ -81,10 +81,10 @@
 
 	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
 
-	<% if (chatLog) { chatLog.forEach((message) => { %> addChatMessage(".chat-messages", "<%- message %>", false);	<% }); } %>
+	<% if (chatLog) { chatLog.forEach((message) => { %> addChatMessage(".chat-messages", "<%- message %>");	<% }); } %>
 
 	socket.on('chat message', (msg) => {
-		addChatMessage(".chat-messages", msg, false);
+		addChatMessage(".chat-messages", msg);
 	});
 
 	socket.on('player joined', (gameCode, user) => {
