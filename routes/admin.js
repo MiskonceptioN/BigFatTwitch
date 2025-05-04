@@ -41,8 +41,14 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
 
 			const allGamesResult = await Game.find({}).sort({createdAt: "asc"});
+			const allQuestionsResult = await Question.find();
+
+			const questionTotals = allGamesResult.reduce((acc, game) => {
+				acc[game.code] = allQuestionsResult.filter(question => question.game === game.code).length;
+				return acc;
+			}, {});
 			  
-			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, failureMessage, successMessage});
+			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
 		}
