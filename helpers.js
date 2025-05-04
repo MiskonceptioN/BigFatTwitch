@@ -1,7 +1,34 @@
 const Game = require("./models/gameModel.js");
+const User = require("./models/userModel.js");
 const ChatLog = require("./models/chatLogModel.js");
 const axios = require("axios");
 const cheerio = require('cheerio');
+
+let adminUsers = [];// Store admin users when the server starts
+
+// Function to initialize admin users
+async function initializeAdminUsers() {
+	try {
+		// Fetch admin users from the database
+		const admins = await User.find({ role: "admin" });
+		if (admins.length > 0) {
+			admins.forEach(admin => {adminUsers.push(admin)});
+			console.log(`Loaded ${adminUsers.length} admin users into memory`);
+		} else {
+			console.log("No admin users found in the database.");
+		}
+	} catch (error) {
+		console.error("Failed to load admin users:", error);
+		// Retry after a delay if failed
+		setTimeout(initializeAdminUsers, 5000);
+	}
+}
+
+// Initialize admin users when the module is loaded
+initializeAdminUsers();
+
+// Export getter function to access admin users
+const getAdminUsers = () => [...adminUsers];
 
 const checkAuthenticated = (req, res, next) => {
 	if (req.isAuthenticated()) {
