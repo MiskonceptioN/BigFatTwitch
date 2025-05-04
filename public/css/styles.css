@@ -361,6 +361,11 @@ button.in-game, input.in-game {
 	font-weight: 600;
 }
 
+.admin-chat-message {
+	color: red;
+	font-style: italic;
+}
+
 .chat-messages li {
 	opacity: 0;
 	transform: translateX(20px);

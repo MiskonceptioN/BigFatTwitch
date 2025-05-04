@@ -58,20 +58,33 @@ const sanitiseString = (str) => {
 }
 
 function prepUserMessage(msg, user){
-	let colour;
-	switch (user.chatColour) {
-		case "custom":
-			colour = user.customChatColour
-			break;
-		case "twitch":
-			colour = user.twitchChatColour;
-			break;
-		default:
-			colour = "black";
-	}
-	const username = user.displayName;
-	const prefix = "<span class='chat-player-name' style='color: " + colour + "'>" + username + "</span>";
+	let prefix, username, colour;
+	const adminUsers = getAdminUsers();
+	const isAdmin = adminUsers.some(admin => admin.displayName === user.displayName);
 	const santisedMsg = sanitiseString(msg);
+	
+	if (isAdmin) {
+		username = "Admin";
+		colour = "red";
+	} else {
+		username = user.displayName;
+		switch (user.chatColour) {
+			case "custom":
+				colour = user.customChatColour
+				break;
+			case "twitch":
+				colour = user.twitchChatColour;
+				break;
+			default:
+				colour = "black";
+				break;
+		}
+	}
+	
+	
+	prefix = "<span class='chat-player-name' style='color: " + colour + "'>" + username + "</span>";
+	
+	if (isAdmin) { return `<span class='admin-chat-message'>${prefix}: ${santisedMsg}</span>` }
 	return `${prefix}: ${santisedMsg}`;
 }
 
@@ -181,5 +194,5 @@ async function fetchChatLog (game, room, limit = 20) {
 }
 
 module.exports = {
-	checkAuthenticated, checkForRunningGame, prepUserMessage, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession, fetchFromAPI, fetchChatLog
+	checkAuthenticated, checkForRunningGame, prepUserMessage, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession, fetchFromAPI, fetchChatLog, getAdminUsers
 };
