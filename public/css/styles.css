@@ -308,7 +308,7 @@ button>div.spinner-border{
 	overflow-x: hidden;
 }
 
-button.in-game, input.in-game {
+button.in-game, input.in-game, .ingame-border {
 	border-radius: var(--in-game-border-size) !important;
 }
 
