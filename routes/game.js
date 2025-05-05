@@ -218,7 +218,7 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 	const game = await Game.findOne({code: gameCode}).populate({
 		path: 'teams.players',
 		model: User,
-		select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+		// select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame bio',
 		foreignField: 'twitchId',
 	});
 
