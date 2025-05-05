@@ -22,8 +22,8 @@
 				<div class="d-grid gap-2 col-6 mx-auto">
 					<form method="post" action="/admin/users/add/">
 						<div class="input-group">
-							<input type="text" class="form-control" name="target_username" placeholder="Twitch username" required>
-							<input type="submit" class="btn btn-primary">
+							<input type="text" class="form-control" id="target_username" name="target_username" placeholder="Twitch username" required>
+							<input type="submit" id="form-submit" class="btn btn-primary">
 						</div>
 					</form>
 				</div>
@@ -39,6 +39,7 @@
 					<th scope="col">Account type</th>
 					<th scope="col">Role</th>
 					<th scope="col">Last login</th>
+					<th scope="col">Has bio?</th>
 					<th scope="col">Twitch ID</th>
 					<th scope="col" class="col-1">Actions</th>
 				</tr>
@@ -56,6 +57,11 @@
 						<td><%- currentUser.broadcasterType %></td>
 						<td><%- currentUser.role %></td>
 						<td><%- currentUser.lastLogin || "N/A" %></td>
+						<td><% if (currentUser.bio) { %>
+							<i class="fa-solid fa-check text-success"></i>
+						<% } else { %>
+							<i class="fa-solid fa-xmark text-danger"></i>
+						<% } %></td>
 						<td><%- currentUser.twitchId %></td>
 						<td><% if (currentUser.banned) { %>
 								<button type="submit" class="btn btn-success btn-sm" >Unban</button>
@@ -63,6 +69,7 @@
 								<button type="submit" class="btn btn-danger btn-sm" href="/admin/users/ban/<%- currentUser.twitchId %>">Ban</button>
 							<% } %>
 							<a class="btn btn-primary btn-sm mt-2" href="/admin/users/login/<%- currentUser.twitchId %>">Log in as&hellip;</a>
+							<button type="button" class="btn btn-success btn-sm mt-2" data-user-name="<%- currentUser.displayName %>">Refresh user details</button>
 						</td>
 					</tr>
 				</form>
@@ -76,4 +83,15 @@
 	</section>
 	<!-- <script src="js/ajaxFormHandler.js"></script> -->
 	<script src="/js/searchableTable.js"></script>
+	<script>
+		// Add event listener to all refresh buttons
+		const refreshButtons = document.querySelectorAll('button[data-user-name]');
+		refreshButtons.forEach(button => {
+			button.addEventListener('click', function() {
+				const userName = this.getAttribute('data-user-name');
+				document.querySelector("#target_username").value = userName;
+				document.querySelector("#form-submit").click();
+			});
+		});
+	</script>
 <%- include('../footer'); %>
