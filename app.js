@@ -70,7 +70,7 @@ async function(accessToken, refreshToken, profile, done) {
 					const game = await Game.findOne({code: user.doc.inGame}).populate({
 						path: 'teams.players',
 						model: User,
-						select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+						// select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
 						foreignField: 'twitchId',
 					});
 			
