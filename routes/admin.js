@@ -845,6 +845,7 @@ router.post("/users/add/", checkAuthenticated, async function(req, res){
 						displayName: userInfo.display_name,
 						profileImageUrl: userInfo.profile_image_url,
 						broadcasterType: userInfo.broadcaster_type,
+						bio: userInfo.description,
 						twitchChatColour: userInfo.twitchChatColour
 					}, { upsert: true })
 						.then(result => {
