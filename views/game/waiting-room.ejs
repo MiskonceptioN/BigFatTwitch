@@ -1,4 +1,5 @@
 <%- include('../header'); %>
+	<script>console.log(<%- JSON.stringify(game) %>)</script>
 	<video
 		autoplay
 		muted
@@ -25,68 +26,89 @@
 				</section>
 			</div>
 		<% } %>
-		<section>
-			<h2 class="d-none"><span class="live-players">1</span> of 6 players ready</h2>
-		</section>
 		<hr>
-		<div class="container">
+		<div class="container-fluid">
 			<div class="row">
-				<section id="player-cards">
+				<div class="col-lg-10">
 					<div class="row">
-						<div class="col bg-white border border-dark ingame-border m-3 pt-3 pb-2">
+						<section id="player-cards">
 							<div class="row">
-								<div class="col d-flex align-items-center">
-									<img id="<%- user.displayName %>-thumbnail" class="player-icon <% if (user.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- user.profileImageUrl %>" width="100" alt="<%- user.displayName %>'s thumbnail">
-									<h3 class="ms-3 mb-0"><%- user.displayName %></h3>
+								<div class="col bg-white border border-dark ingame-border m-3 pt-3 pb-2">
+									<div class="row">
+										<div class="col d-flex align-items-center">
+											<img class="<%- user.displayName %>-thumbnail player-icon <% if (user.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- user.profileImageUrl %>" width="100" alt="<%- user.displayName %>'s thumbnail">
+											<h3 class="ms-3 mb-0"><%- user.displayName %></h3>
+										</div>
+									</div>
+									<div class="row text-start mt-3">
+										<p><%- user.bio %></p>
+									</div>
+								</div>
+								<div class="col bg-white border border-dark ingame-border m-3 pt-3 pb-2">
+									<div class="row">
+										<div class="col d-flex align-items-center">
+											<img class="<%- user.teammate.displayName %>-thumbnail player-icon <% if (user.teammate.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- user.teammate.profileImageUrl %>" width="100" alt="<%- user.teammate.displayName %>'s thumbnail">
+											<h3 class="ms-3 mb-0"><%- user.teammate.displayName %></h3>
+										</div>
+									</div>
+									<div class="row text-start mt-3">
+										<p><%- user.teammate.bio %></p>
+									</div>
 								</div>
 							</div>
-							<div class="row text-start mt-3">
-								<p><%- user.bio %></p>
-							</div>
-						</div>
-						<div class="col bg-white border border-dark ingame-border m-3 pt-3 pb-2">
+						</section>
+					</div>
+					<div class="row">
+						<section>
+							<h3 class="text-start text-light mt-4">Team chat</h3>
 							<div class="row">
-								<div class="col d-flex align-items-center">
-									<img id="<%- user.teammate.displayName %>-thumbnail" class="player-icon <% if (user.teammate.inGame === game.code) { %>player-logged-in<% } else { %>player-logged-out<% } %>" src="<%- user.teammate.profileImageUrl %>" width="100" alt="<%- user.teammate.displayName %>'s thumbnail">
-
-									<h3 class="ms-3 mb-0"><%- user.teammate.displayName %></h3>
+								<div class="col bg-white border border-dark ingame-border m-3 mt-0 pt-3 pb-2 chat-message-container chat-log w-100 text-start">
+									<ul class="chat-messages list-unstyled"></ul>
 								</div>
 							</div>
-							<div class="row text-start mt-3">
-								<p><%- user.teammate.bio %></p>
+						</section>
+					</div>
+					<div class="row">
+						<section>
+							<form id="form">
+								<div class="row mt-2">
+									<div class="col-10">
+										<input id="input" type="text" class="in-game form-control" placeholder="Type a message..." autocomplete="off" autofocus>
+									</div>
+									<div class="col-2">
+										<button class="btn btn-secondary in-game w-100" type="submit">Send message <i class="fa-solid fa-paper-plane ps-2"></i></button>
+									</div>
+								</div>
+							</form>
+						</section>
+					</div>
+				</div>
+				<div class="col-lg-2 bg-white border border-dark ingame-border mt-3 pt-3 pb-2 d-flex justify-content-center align-items-center">
+					<div class="row">
+						<div id="player-login-statuses" class="col">
+							<% game.teams.forEach(team => { %>
+								<div class="row">
+									<h3 class="<% if (team !== game.teams[0]) { %>mt-3<% } %>"><%- team.name %></h3>
+									<% team.players.forEach(player => { %>
+										<h4 class="d-flex justify-content-center align-items-center">
+											<img src="<%- player.profileImageUrl %>" width="40" height="40" class="<%- player.displayName %>-thumbnail player-icon <% if (player.inGame) { %>player-logged-in<% } else { %>player-logged-out<% } %> me-1"> 
+											<%- player.displayName %>
+										</h4>
+									<% }); %>
+								</div>
+							<% }); %>
+							<div class="row mt-5">
+								<!-- <h3 class="mt-5">Live players: <span class="live-players"><%- game.teams[0].players.length + game.teams[1].players.length %></span></h3> -->
+								<h4><span class="live-players">1</span> of 6 players ready</h4>
 							</div>
 						</div>
 					</div>
-				</section>
+				</div>
 			</div>
-			<div class="row">
-				<section>
-					<h3 class="text-start text-light mt-4">Team chat</h3>
-					<div class="row">
-						<div class="col bg-white border border-dark ingame-border m-3 mt-0 pt-3 pb-2 chat-message-container chat-log w-100 text-start">
-							<ul class="chat-messages list-unstyled"></ul>
-						</div>
-					</div>
-				</section>
-			</div>
-			<div class="row">
-				<section>
-					<form id="form">
-						<div class="row mt-2 my-5">
-							<div class="col-10">
-								<input id="input" type="text" class="in-game form-control" placeholder="Type a message..." autocomplete="off" autofocus>
-							</div>
-							<div class="col-2">
-								<button class="btn btn-secondary in-game w-100" type="submit">Send message <i class="fa-solid fa-paper-plane ps-2"></i></button>
-							</div>
-						</div>
-					</form>
-				</section>
-			</div>
-			<div class="row text-light bg-dark">
+			<div class="row text-light bg-dark my-5">
 				<section>
 					<div id="quoteCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="10000">
-						<div class="carousel-inner"></div>
+						<div class="carousel-inner py-3"></div>
 					</div>
 				</section>
 			</div>
@@ -238,11 +260,12 @@
 			const livePlayerCount = document.querySelector(".live-players");
 			livePlayerCount.innerHTML = parseInt(livePlayerCount.innerHTML) + 1;
 
-			// Check if recently joined player is your teammate
-			if (user.twitchId === "<%- user.teammate.twitchId %>") {
-				const playerIcon = document.getElementById(user.displayName + "-thumbnail");
-				playerIcon.classList.remove("player-logged-out");
-				playerIcon.classList.add("player-logged-in");
+			const playerIcons = document.querySelectorAll("." + CSS.escape(user.displayName) + "-thumbnail");
+			if (playerIcons) {
+				playerIcons.forEach(playerIcon => {
+					playerIcon.classList.remove("player-logged-out");
+					playerIcon.classList.add("player-logged-in");
+				})
 			}
 		}
 	});
@@ -254,9 +277,13 @@
 
 			// Check if recently left player is your teammate
 			if (user.twitchId === "<%- user.teammate.twitchId %>") {
-				const playerIcon = document.getElementById(user.displayName + "-thumbnail");
-				playerIcon.classList.remove("player-logged-in");
-				playerIcon.classList.add("player-logged-out");
+				const playerIcons = document.querySelectorAll("." + CSS.escape(user.displayName) + "-thumbnail");
+				if (playerIcons) {
+					playerIcons.forEach(playerIcon => {
+						playerIcon.classList.remove("player-logged-in");
+						playerIcon.classList.add("player-logged-out");
+					})
+				}
 			}
 		}
 	});
@@ -266,6 +293,10 @@
 			window.location.replace("/game/in-game");
 		}
 	});
+
+	// Set the container in the header to be fluid
+	$(".container").addClass("container-fluid");
+	$(".container").removeClass("container");
 	</script>
 	<!-- <script src="js/ajaxFormHandler.js"></script> -->
 <%- include('../footer'); %>
