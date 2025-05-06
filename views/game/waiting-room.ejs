@@ -98,7 +98,7 @@ for (let i = 0; i < game.teams.length; i++) {
 						<div id="player-login-statuses" class="col">
 							<% game.teams.forEach(team => { %>
 								<div class="row">
-									<h4 class="<% if (team !== game.teams[0]) { %>mt-3<% } %>"><%- team.name %></h3>
+									<h4 class="<% if (team !== game.teams[0]) { %>mt-3<% } %>"><%- team.name %></h4>
 									<% team.players.forEach(player => { %>
 										<h5 class="d-flex justify-content-center align-items-center">
 											<img src="<%- player.profileImageUrl %>" width="40" height="40" class="<%- player.displayName %>-thumbnail player-icon <% if (player.inGame) { %>player-logged-in<% } else { %>player-logged-out<% } %> me-1"> 
