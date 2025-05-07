@@ -20,7 +20,10 @@ module.exports = io;
 // Mongo
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
+// Prod
 const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env.MONGODB_PASS + "@" + process.env.MONGODB_URL + "/gameshow?retryWrites=true&w=majority";
+// Dev
+// const mongoUri = `mongodb://${process.env.MONGODB_URL}/gameshow?retryWrites=true&w=majority`;
 const Game = require("./models/gameModel.js");
 const User = require("./models/userModel.js");
 const ChatLog = require("./models/chatLogModel.js");
