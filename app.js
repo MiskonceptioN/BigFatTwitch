@@ -208,6 +208,13 @@ io.on('connection', async (socket) => {
 	socket.on('update points', (pointFormID, points, userID) => {
 		io.emit('update points', pointFormID, points, userID);
 	});
+	socket.on("editing team name", (teamId, state) => {
+		io.emit("editing team name", teamId, state);
+	});
+	socket.on("change team name", (newName, teamId) => {
+		// Todo - validation and update DB if successful
+		io.emit("update team name", newName, teamId);
+	});
 });
 
 // Routes
