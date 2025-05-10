@@ -23,7 +23,7 @@
 					<% game.teams.forEach(function(team) { %>
 					<div class="col">
 						<div class="row">
-							<h2><%- team.name %></h2>
+							<h2 id="team-<%- team.id %>-name"><%- team.name %></h2>
 						<% team.players.forEach(function(player) { %>
 							<div class="col">
 								<figure class="mb-0">
@@ -65,6 +65,11 @@
 
 	// const socket = io();
 	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
+
+	socket.on("update team name", (newTeamName, teamId) => {
+		const teamNameElement = document.getElementById("team-" + teamId + "-name");
+		teamNameElement.innerText = newTeamName;
+	});
 
 	socket.on('player joined', (gameCode, user) => {
 		if (gameCode === "<%- game.code %>") {
