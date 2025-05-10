@@ -216,7 +216,7 @@ for (let i = 0; i < game.teams.length; i++) {
 				return;
 			}
 
-			socket.emit('change team name', newTeamName, "<%- user.teamId %>");
+			socket.emit('change team name', newTeamName, "<%- user.teamId %>", "<%- game.code %>");
 			const teamNameModal = bootstrap.Modal.getInstance(document.getElementById('teamNameModal'));
 			teamNameModal.hide();
 		});
