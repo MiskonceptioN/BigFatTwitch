@@ -36,7 +36,9 @@
 						</div>
 						<div class="row">
 							<h3>Chat</h3>
-							<ul id="audit-<%- team._id %>" class="chat-audit chat-messages text-start"></ul>
+							<div class="col bg-white border border-dark ingame-border m-3 mt-0 pt-3 pb-2 chat-message-container chat-log w-100 text-start">
+								<ul id="audit-<%- team._id %>" class="chat-messages ps-0"></ul>
+							</div>
 						</div>
 					</div>
 					<% }) %>
@@ -57,11 +59,16 @@
 
 	</section>
 	<script src="/socket.io/socket.io.js"></script>
+	<%- include('../../helperFunctions'); %>
 	<script>
 	// Scroll all team chats to bottom
 	$('textarea').each(function() {
 		$(this).scrollTop($(this)[0].scrollHeight);
 	});
+
+	<% if (team1Chatlog) { team1Chatlog.forEach((message) => { %> addChatMessage("#audit-<%- game.teams[0].id %>.chat-messages", "<%- message %>");	<% }); } %>
+	<% if (team2Chatlog) { team2Chatlog.forEach((message) => { %> addChatMessage("#audit-<%- game.teams[1].id %>.chat-messages", "<%- message %>");	<% }); } %>
+	<% if (team3Chatlog) { team3Chatlog.forEach((message) => { %> addChatMessage("#audit-<%- game.teams[2].id %>.chat-messages", "<%- message %>");	<% }); } %>
 
 	// const socket = io();
 	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
@@ -102,14 +109,7 @@
 	});
 
 	socket.on('chat message', (msg, room) => {
-		const item = document.createElement('li');
-		item.innerHTML = msg;
-
-		const target = document.getElementById('audit-' + room);
-		target.appendChild(item);
-
-		// Scroll to bottom of chat
-		target.scrollTop = target.scrollHeight;
+		addChatMessage("#audit-" + room + ".chat-messages", msg);
 	});
 
 	// socket.on('player disconnected', (gameCode, user) => {
