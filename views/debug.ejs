@@ -3,6 +3,13 @@
 		<header>
 			<h1>Debug</h1>
 		</header>
+		<section class="mb-5">
+			<h2>Test updating user session</h2>
+			New bio: <input id="bollocks"><br>
+			<button id="alterbio" type="button">Set user bio to some bollocks</button><br>
+			<button id="showbio" type="button">Show user bio (console)</button><br>
+			<button id="showuser" type="button">Show user (console)</button>
+		</section>
 		<section>
 			<h2>Send test question</h2>
 			<form method="post">
@@ -33,7 +40,37 @@
 			</div>
 		</section>
     </section>
-
+	<script>
+			$("#alterbio").click(function() {
+				const newBio = $("#bollocks").val();
+				console.log({newBio});
+	
+				$.ajax({
+					method: "POST",
+					url: "updateSession",
+					data: {
+						bio: newBio,
+						someFakeThing: "Goober"
+					},
+					success: function(res) {
+						console.log(res);
+						alert("Bio updated");
+					},
+					error: function(err) {
+						alert("Could not update bio");
+						console.log(err);
+					}
+				});
+			});
+			$("#showbio").click(function() {
+				console.log("<%- user.bio %>");
+			});
+			$("#showuser").click(function() {
+				console.log(<%- JSON.stringify(user) %>);
+			});
+	
+		</script>
+	
 	<script src="/socket.io/socket.io.js"></script>
 	<script>
 		// console.log(<%- JSON.stringify(user) %>);
