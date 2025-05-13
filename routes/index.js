@@ -33,7 +33,12 @@ router.get("/debug", async (req, res) => {
 	// const questions = await Question.find({});
 	// Pull all the questions from the Game model
 	// const questions = await Game.find({}).sort({createdAt: -1}).limit(1).select("questions");
-	const allGames = await Game.find({});
+	const allGames = await Game.find({}).populate({
+		path: 'questions',
+		// select: '_id game question answer round order status',
+		options: { sort: { round: 1, order: 1 } }
+	});
+
 	allGames.forEach(game => {
 		game.questions.forEach(question => {
 			questions.push(question);
