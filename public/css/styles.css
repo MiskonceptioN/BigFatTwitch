@@ -190,12 +190,6 @@ canvas.disabled {
 	background: lightgray;
 }
 
-.chat-audit {
-	overflow-y: scroll;
-	height: 100px;
-	list-style-type: none;
-}
-
 @keyframes anim-lineUp {
 	0% {
 		opacity: 0;
