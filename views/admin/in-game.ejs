@@ -93,7 +93,7 @@
 			<div class="row">
 				<% game.teams.forEach(team => { %>
 					<div class="row text-center text-light admin-background">
-						<h5 class="mt-1 mb-3"><%- team.name %></h5>
+						<h5 id="team-<%- team.id %>-name" class="mt-1 mb-3"><%- team.name %></h5>
 						<% team.players.forEach(player => { %>
 
 							<div class="col d-flex flex-column">
@@ -237,6 +237,11 @@
 	// const socket = io();
 	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } }); // Does enabling this break other features?
 	// socket.emit('join room', 'admin');
+
+	socket.on("update team name", (newTeamName, teamId) => {
+		const teamNameElement = document.getElementById("team-" + teamId + "-name");
+		teamNameElement.innerText = newTeamName;
+	});
 
 	// Update player canvases
 	socket.on('update canvas', (canvasData, userID) => {
