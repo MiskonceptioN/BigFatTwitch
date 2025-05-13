@@ -258,4 +258,24 @@ router.get("/nologin2", async function(req, res){
 	}
 });
 
+router.post("/updateSession", checkAuthenticated, async function(req, res){
+	// Check if the user is logged in
+	if (req.isAuthenticated()) {
+		// Loop through each of the parameters sent and add them to the user session
+		Object.keys(req.body).forEach(param => {
+			req.session.passport.user.doc[param] = req.body[param];
+		});
+
+		try {
+			req.session.save();
+			res.status(200).send({status: "success", content: "Session updated"});
+		} catch (error) {
+			console.error("Error saving session:", error);
+			return res.status(500).send({status: "error", content: "Failed to save session"});
+		}
+	} else {
+		res.status(500).send({status: "error", content: "User not authenticated"});
+	}
+});
+
 module.exports = router;
