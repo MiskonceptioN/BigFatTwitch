@@ -19,4 +19,24 @@ function addChatMessage(container, message, scroll=true) {
         chatMessageContainer.scrollTop(chatMessageContainer.prop("scrollHeight"));
     }   
 }
+
+function showInterstitial(state, heading="", subheading="") {
+    // TODO Santisation on headings
+
+    const gameSection = $("#game");
+    const interstitialSection = $("#interstitial");
+    const interstitialHeading = $("#ish1");
+    const interstitialSubheading = $("#ish2");
+
+    if (state === true) {
+        if (heading) { interstitialHeading.text(heading) } 
+        if (subheading) { interstitialSubheading.text(subheading) }
+        gameSection.removeClass("d-block").addClass("d-none");
+        interstitialSection.removeClass("d-none").addClass("d-flex");
+    } else {
+        gameSection.removeClass("d-none").addClass("d-block");
+        interstitialSection.removeClass("d-flex").addClass("d-none");
+    }
+}
+
 </script>
