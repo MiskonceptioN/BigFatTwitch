@@ -163,6 +163,21 @@
 
 			<hr>
 			<h4 class="mt-3">Debug</h4>
+			<h5 class="mt-3">Interstitials</h5>
+			<div class="row">
+				<div class="col">
+					<input id="interstitial-heading" class="form-control" placeholder="Interstitial heading">
+					<input id="interstitial-subheading" class="form-control" placeholder="Interstitial subheading">
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<button id="showInterstitial" class="btn btn-primary w-100" type="button">Show interstitial</button>
+				</div>
+				<div class="col">
+					<button id="hideInterstitial" class="btn btn-danger w-100" type="button">Hide interstitial</button>
+				</div>
+			</div>
 			<h5 class="mt-3">Logins</h5>
 			<div class="row">
 				<% game.teams.forEach(team => { %>
@@ -193,6 +208,15 @@
 	<script src="/socket.io/socket.io.js"></script>
 	<%- include('../helperFunctions'); %>
 	<script>
+		$("#showInterstitial").click(function() {
+			const heading = $("#interstitial-heading").val();
+			let subheading = $("#interstitial-subheading").val();
+			if (subheading == "") { subheading = " " }
+			socket.emit("show interstitial", true, heading, subheading);
+		});
+		$("#hideInterstitial").click(function() {
+			socket.emit("show interstitial", false);
+		});
 		// Listen out for chat message submissions
 		$("button[name='send'], button[name='send-to-all']").click(function(e) {
 			const chatMessage = $(this).closest('.admin-chat').find(".chat-message");

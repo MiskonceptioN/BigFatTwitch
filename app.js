@@ -236,6 +236,9 @@ io.on('connection', async (socket) => {
 		}
 		io.emit("update team name", newName, teamId);
 	});
+	socket.on("show interstitial", (state, heading="", subheading="") => {
+		io.emit("show interstitial", state, heading, subheading);
+	});
 });
 
 // Routes

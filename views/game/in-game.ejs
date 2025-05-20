@@ -99,6 +99,10 @@
 		addChatMessage(".chat-messages", msg);
 	});
 
+	socket.on('show interstitial', (state, heading="", subheading="") => {
+		showInterstitial(state, heading, subheading)
+	});
+
 	socket.on('next question', (question, questionId) => {
 		// console.log(question);
 		resetFormFields();
