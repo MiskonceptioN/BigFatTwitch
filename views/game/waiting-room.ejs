@@ -82,10 +82,10 @@ for (let i = 0; i < game.teams.length; i++) {
 						<section>
 							<form id="form">
 								<div class="row mt-2">
-									<div class="col-10">
+									<div class="col-10 d-flex align-items-center">
 										<input id="input" type="text" class="in-game form-control" placeholder="Type a message..." autocomplete="off" autofocus>
 									</div>
-									<div class="col-2">
+									<div class="col-2 d-flex align-items-center">
 										<button class="btn btn-secondary in-game w-100" type="submit">Send message <i class="fa-solid fa-paper-plane ps-2"></i></button>
 									</div>
 								</div>
@@ -216,7 +216,7 @@ for (let i = 0; i < game.teams.length; i++) {
 				return;
 			}
 
-			socket.emit('change team name', newTeamName, "<%- user.teamId %>");
+			socket.emit('change team name', newTeamName, "<%- user.teamId %>", "<%- game.code %>");
 			const teamNameModal = bootstrap.Modal.getInstance(document.getElementById('teamNameModal'));
 			teamNameModal.hide();
 		});
@@ -280,7 +280,7 @@ for (let i = 0; i < game.teams.length; i++) {
 		"Quote: \"No matter how dumb you feel, someone on Twitter is dumber.\"",
 		"Tip: Got the question wrong? Just gaslight your teammate.",
 		"Quote: \"Your brain's on cooldown. Try not to overheat what's left.\"",
-		"Sponsored by G-Fail™ - The gamer supplement that does absolutely nothing.",
+		"Sponsored by G-Fail™: The gamer supplement that does absolutely nothing.",
 		"<%- user.teammate.displayName %> has 42 tabs open. None of them are helpful.",
 		"Pro tip: Your best answer might be your second guess. Or third. Probably fourth.",
 		"Tip: Don't worry about the scoreboard. It's mostly decorative anyway.",

@@ -20,7 +20,10 @@ module.exports = io;
 // Mongo
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
+// Prod
 const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env.MONGODB_PASS + "@" + process.env.MONGODB_URL + "/gameshow?retryWrites=true&w=majority";
+// Dev
+// const mongoUri = `mongodb://${process.env.MONGODB_URL}/gameshow?retryWrites=true&w=majority`;
 const Game = require("./models/gameModel.js");
 const User = require("./models/userModel.js");
 const ChatLog = require("./models/chatLogModel.js");
@@ -211,8 +214,26 @@ io.on('connection', async (socket) => {
 	socket.on("editing team name", (teamId, state) => {
 		io.emit("editing team name", teamId, state);
 	});
-	socket.on("change team name", (newName, teamId) => {
-		// Todo - validation and update DB if successful
+	socket.on("change team name", async (newName, teamId, gameCode) => {
+		if (!newName || !teamId || !gameCode) {
+			console.error("Missing parameters for change team name");
+			console.log({newName, teamId, gameCode});
+			return;
+		}
+
+		try {
+			const updateTeam = await Game.updateOne(
+				{ code: gameCode, "teams._id": teamId },
+				{ $set: { "teams.$.name": newName } }
+			);
+
+			if (updateTeam.matchedCount === 0) { return console.error("No game found with the provided game code") }
+			if (updateTeam.modifiedCount === 0) { return console.error("No team found with the provided team ID") }
+
+			console.log("Team name updated successfully:", teamId, newName);
+		} catch (error) {
+			console.error("Unable to update the team name:", teamId, newName, error);
+		}
 		io.emit("update team name", newName, teamId);
 	});
 });

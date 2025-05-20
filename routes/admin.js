@@ -717,7 +717,19 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 					return;
 				}
 
-				res.render("admin/startGame/single_game", {user: req.user, game: gameResult, failureMessage, successMessage});
+				// Fetch the chat logs for each team
+				const [team1Chatlog, team2Chatlog, team3Chatlog] = [[], [], []];
+				const [team1ID, team2ID, team3ID] = gameResult.teams.map(team => team.id);
+		
+				try {
+					team1Chatlog.push(...await fetchChatLog(req.params.gameCode, team1ID));
+					team2Chatlog.push(...await fetchChatLog(req.params.gameCode, team2ID));
+					team3Chatlog.push(...await fetchChatLog(req.params.gameCode, team3ID));
+				} catch (error) {
+					console.error("Error fetching chat log:", error);
+				}
+		
+				res.render("admin/startGame/single_game", {user: req.user, game: gameResult, failureMessage, successMessage, team1Chatlog, team2Chatlog, team3Chatlog});
 			} else {
 				req.flash("error", "Unable to find game " + req.params.gameCode);
 				res.redirect("/admin/startGame/");

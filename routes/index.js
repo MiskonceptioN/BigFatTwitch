@@ -33,7 +33,12 @@ router.get("/debug", async (req, res) => {
 	// const questions = await Question.find({});
 	// Pull all the questions from the Game model
 	// const questions = await Game.find({}).sort({createdAt: -1}).limit(1).select("questions");
-	const allGames = await Game.find({});
+	const allGames = await Game.find({}).populate({
+		path: 'questions',
+		// select: '_id game question answer round order status',
+		options: { sort: { round: 1, order: 1 } }
+	});
+
 	allGames.forEach(game => {
 		game.questions.forEach(question => {
 			questions.push(question);
@@ -250,6 +255,26 @@ router.get("/nologin2", async function(req, res){
 		res.redirect("/admin/users")
 	} else {
 		res.redirect("/login")
+	}
+});
+
+router.post("/updateSession", checkAuthenticated, async function(req, res){
+	// Check if the user is logged in
+	if (req.isAuthenticated()) {
+		// Loop through each of the parameters sent and add them to the user session
+		Object.keys(req.body).forEach(param => {
+			req.session.passport.user.doc[param] = req.body[param];
+		});
+
+		try {
+			req.session.save();
+			res.status(200).send({status: "success", content: "Session updated"});
+		} catch (error) {
+			console.error("Error saving session:", error);
+			return res.status(500).send({status: "error", content: "Failed to save session"});
+		}
+	} else {
+		res.status(500).send({status: "error", content: "User not authenticated"});
 	}
 });
 

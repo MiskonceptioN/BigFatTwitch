@@ -72,11 +72,13 @@
 	<div class="d-grid">
 		<h4 class="mt-3">Round</h4>
 		<div class="row">
-			<div class="col"><button id="previous-round" class="btn btn-primary w-100" type="button"><i class="fa-solid fa-arrow-left"></i> Previous round</button></div>
-			<div class="col"><button id="next-round" class="btn btn-primary w-100" type="button">Next round <i class="fa-solid fa-arrow-right"></i></button></div>
+			<div class="col-2 pe-0"><button id="previous-round" class="btn btn-primary w-100 h-100" type="button"><i class="fa-solid fa-arrow-left"></i> Previous round</button></div>
+			<div class="col px-0">
+				<button id="end-round" class="btn btn-danger w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-flag-checkered"></i> End round</button>
+				<button id="restart-round" class="btn btn-danger w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-rotate-right"></i> Restart round</button>
+			</div>
+			<div class="col-2 ps-0"><button id="next-round" class="btn btn-primary w-100 h-100" type="button">Next round <i class="fa-solid fa-arrow-right"></i></button></div>
 		</div>
-		<button id="end-round" class="btn btn-danger" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-flag-checkered"></i> End round</button>
-		<button id="restart-round" class="btn btn-danger" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-rotate-right"></i> Restart round</button>
 	</div>
 <hr class="my-5">
 	<section class="mt-3">
@@ -91,7 +93,7 @@
 			<div class="row">
 				<% game.teams.forEach(team => { %>
 					<div class="row text-center text-light admin-background">
-						<h5 class="mt-1 mb-3"><%- team.name %></h5>
+						<h5 class="mt-1 mb-3 team-<%- team.id %>-name"><%- team.name %></h5>
 						<% team.players.forEach(player => { %>
 
 							<div class="col d-flex flex-column">
@@ -117,7 +119,7 @@
 
 										<div class="input-group mb-3" id="player-<%- player.twitchId %>-Points-Form">
 											<input name="points" type="number" min="0" max="100" class="form-control text-center point-input" placeholder="How many points?" disabled>
-											<button class="btn btn-primary" type="submit" disabled>⮞</button>
+											<button class="btn btn-primary" type="submit" disabled><i class="fa-solid fa-circle-plus"></i></button>
 										</div>
 									</form>
 
@@ -165,7 +167,7 @@
 			<div class="row">
 				<% game.teams.forEach(team => { %>
 					<div class="col text-center">
-						<h5 class="mt-1 mb-0"><%- team.name %></h5>
+						<h5 class="mt-1 mb-0 team-<%- team.id %>-name"><%- team.name %></h5>
 						<% team.players.forEach(player => { %>
 							<div class="col">
 								<button class="btn btn-danger w-100 logout-button" type="button" data-game-code="<%= game.code %>" data-player-id="<%- player._id %>">
@@ -235,6 +237,13 @@
 	// const socket = io();
 	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } }); // Does enabling this break other features?
 	// socket.emit('join room', 'admin');
+
+	socket.on("update team name", (newTeamName, teamId) => {
+		const teamNameElements = document.querySelectorAll(".team-" + teamId + "-name");
+		teamNameElements.forEach((teamName) => {
+			teamName.innerText = newTeamName;
+		});
+	});
 
 	// Update player canvases
 	socket.on('update canvas', (canvasData, userID) => {
