@@ -399,3 +399,118 @@ button.in-game, input.in-game, .ingame-border {
 .contestant-audit-header {
 	height: 40px;
 }
+
+.vh-80 {
+	height: 80vh !important;
+}
+
+/* #interstitial {
+	animation: chat-appear-rtl 0.5s ease-out forwards;
+} */
+
+/* #interstitial h1, #interstitial h2 {
+    opacity: 0;
+    transform: translateY(100px);
+    animation-fill-mode: forwards;
+    font-weight: bold;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+#interstitial h1 {
+    font-size: 4rem;
+    animation: flyInTop 1s ease-out forwards;
+    animation-delay: 0.5s;
+}
+
+#interstitial h2 {
+    font-size: 2rem;
+    animation: flyInBottom 1s ease-out forwards;
+    animation-delay: 1.5s;
+}
+
+@keyframes flyInTop {
+    0% {
+        opacity: 0;
+        transform: translateY(-100px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@keyframes flyInBottom {
+    0% {
+        opacity: 0;
+        transform: translateY(100px) scale(0.9);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+} */
+
+#interstitial h1,
+#interstitial h2 {
+    opacity: 0;
+    transform: scale(0.8) rotate(-10deg);
+    animation-fill-mode: forwards; /* This keeps the final state */
+    animation-timing-function: cubic-bezier(0.68, -0.55, 0.27, 1.55);
+    will-change: transform, opacity;
+    font-weight: 900;
+    text-shadow: 3px 3px 10px rgba(0, 0, 0, 0.5);
+}
+
+#interstitial h1 {
+    font-size: 5rem;
+    animation-name: popInBounce;
+    animation-duration: 1.2s;
+    animation-delay: 0.2s;
+    /* color: #ffc107; */
+}
+
+#interstitial h2 {
+    font-size: 2.5rem;
+    /* animation-name: popInBounce; */
+    animation-name: slideInSquash;
+    animation-duration: 1.5s;
+    animation-delay: 1s;
+    /* color: #00d4ff; */
+}
+
+@keyframes popInBounce {
+    0% {
+        opacity: 0;
+        transform: scale(0.3) rotate(-15deg);
+    }
+    60% {
+        opacity: 1;
+        transform: scale(1.2) rotate(5deg);
+    }
+    80% {
+        transform: scale(0.95) rotate(-2deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Alternate animation for h2 */
+@keyframes slideInSquash {
+    0% {
+        opacity: 0;
+        transform: translateX(-100%) scaleX(1.4) scaleY(0.6) rotate(-5deg);
+    }
+    50% {
+        opacity: 1;
+        transform: translateX(10%) scaleX(0.9) scaleY(1.2) rotate(2deg);
+    }
+    80% {
+		transform: translateX(-2%) scaleX(1.05) scaleY(0.95) rotate(-1deg);
+    }
+    100% {
+		opacity: 1;
+        transform: translateX(0) scale(1) rotate(0);
+    }
+}

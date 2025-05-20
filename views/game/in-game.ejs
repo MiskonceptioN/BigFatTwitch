@@ -8,7 +8,7 @@
 		>
 		<source src="https://assets.danny-valentine.com/video/upload/h_1080,e_accelerate:-50/q_auto,f_auto/BigFatTwitch/anibak.mov">
 	</video>
-	<section id="game" class="text-white">
+	<section id="game" class="text-white d-none">
 		<header id="headings" class="text-center">
 			<h1 class="round-title">Round one</h1>
 			<h2 class="question" id="question-text"><%= (currentQuestion == "") ? "-" : currentQuestion %></h2>
@@ -71,10 +71,22 @@
 			});
 		</script>
     </section>
+	<section id="interstitial" class="text-white d-flex flex-column justify-content-center align-items-center vh-80">
+		<h1>Some exciting heading</h1>
+		<h2>Some exciting sub-heading</h2>
+	</section>
 	<script src="/socket.io/socket.io.js"></script>
 	<script src="/js/answerHandler.js"></script>
 	<%- include('../helperFunctions'); %>
 	<script>
+	// 	$(document).ready(function () {
+	// 	$('#interstitial h1').text('ROUND TWO');
+	// 	$('#interstitial h2')
+	// 		.text('Now things get tricky...')
+	// 		.removeClass() // remove any previous classes
+	// 		.addClass('alt-style');
+	// });
+
 	// console.log the user info for debugging
 	console.log(<%- JSON.stringify(user) %>);
 
