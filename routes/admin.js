@@ -7,6 +7,7 @@ const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
 const Question = require("../models/questionModel.js");
 const Answer = require("../models/answerModel.js");
+const Round = require("../models/roundModel.js");
 
 // Pull in socket.io
 const io = require('../app');
@@ -224,6 +225,10 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		.populate({
 			path: 'questions',
 			options: { sort: { round: 1, order: 1 } }
+		})
+		.populate({
+			path: 'rounds',
+			options: { sort: { roundNumber: 1 } }
 		});
 
 		if (foundGame === null) {
