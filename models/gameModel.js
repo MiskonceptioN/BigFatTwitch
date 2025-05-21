@@ -32,6 +32,14 @@ gameSchema.virtual('questions', {
   justOne: false
 });
 
+// Virtual for rounds
+gameSchema.virtual('rounds', {
+  ref: 'Round',
+  localField: 'code',
+  foreignField: 'game', // field in answer model
+  justOne: false
+});
+
 // gameSchema.plugin(timestamps);
 gameSchema.set('timestamps', true);
 
