@@ -100,7 +100,8 @@
 	});
 
 	socket.on('show interstitial', (state, heading="", subheading="") => {
-		showInterstitial(state, heading, subheading)
+		showInterstitial(state, heading, subheading);
+		if (!state) { resizeCanvas(); } 
 	});
 
 	socket.on('next question', (question, questionId) => {
@@ -231,6 +232,8 @@
 	let originalCanvasData = null; // Store the original high-resolution canvas data
 
 	$(window).on('resize', function() {
+		resizeCanvas();
+
 		const canvas = $('#answerCanvas')[0];
 		const ctx = canvas.getContext('2d');
 		const img = new Image();
@@ -240,13 +243,6 @@
 			originalCanvasData = canvas.toDataURL();
 		}
 
-		// Adjust canvas size while maintaining 16:9 aspect ratio
-		const parentWidth = $(canvas).parent().width();
-		const newWidth = Math.min(parentWidth, 900); // Maximum width is 900
-		const newHeight = newWidth * 9 / 16; // Maintain 16:9 aspect ratio
-
-		canvas.width = newWidth;
-		canvas.height = newHeight;
 
 		// Redraw the saved high-resolution content onto the resized canvas
 		img.onload = function() {
@@ -295,6 +291,17 @@
 				circle.style.animationName = ""
 			}, 0);
 		});
+	}
+
+	function resizeCanvas() {
+		const canvas = $('#answerCanvas')[0];
+		// Adjust canvas size while maintaining 16:9 aspect ratio
+		const parentWidth = $(canvas).parent().width();
+		const newWidth = Math.min(parentWidth, 900); // Maximum width is 900
+		const newHeight = newWidth * 9 / 16; // Maintain 16:9 aspect ratio
+
+		canvas.width = newWidth;
+		canvas.height = newHeight;
 	}
 
 	</script>
