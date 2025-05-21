@@ -44,7 +44,15 @@
 					</div>
 			</div>
 				<% Object.keys(questionsByRound).forEach(round => { %>
-		<section class="cards mt-3 d-none round" data-round="<%- round %>">
+		<section 
+			class="cards mt-3 d-none round"
+			data-round="<%- round %>"
+			<% // Add data attributes for heading and subheading if they exist
+			if (game.rounds[round-1]) {
+				if (game.rounds[round-1].heading) { %> data-heading="<%- game.rounds[round-1].heading %>" <% }
+				if (game.rounds[round-1].subheading) { %> data-subheading="<%- game.rounds[round-1].subheading %>" <% }
+			} %>
+			>
 			<h3 class="text-start">Round <%- round %></h3>
 			<div class="row row-cols-1 row-cols-md-4 g-4">
 					<% questionsByRound[round].forEach(function(question) { %>
