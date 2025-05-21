@@ -213,7 +213,16 @@ function navigateRound(direction) {
 
 	// Ensure the new round number is within valid range
 	if (newRoundNumber >= 1 && newRoundNumber <= $(".round").length) {
-		$("#round-nav").find("button[data-round='" + newRoundNumber + "']").click();
+		if (confirm("Are you sure you want to move the game to round " + newRoundNumber + "?")) {
+			$("#round-nav").find("button[data-round='" + newRoundNumber + "']").click();
+
+			// Pull the headings if they exist
+			let heading = $('section[data-round="' + newRoundNumber + '"]').data("heading") || "Round " + newRoundNumber
+			let subheading = $('section[data-round="' + newRoundNumber + '"]').data("subheading") || "Get ready!";
+
+			// Show the interstitial wit the headings (default or otherwise)
+			socket.emit("show interstitial", true, heading, subheading);
+		}
 	}
 }
 
