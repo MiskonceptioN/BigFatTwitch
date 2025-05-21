@@ -13,7 +13,7 @@ const questionSchema = new mongoose.Schema({
 	type: { type: String, enum: ["text", "video", "image"], default: "text" },
 });
 
-// // Virtual for questions
+// Virtual for questions
 questionSchema.virtual('contestantAnswers', {
 	ref: 'Answer',
 	localField: '_id',
