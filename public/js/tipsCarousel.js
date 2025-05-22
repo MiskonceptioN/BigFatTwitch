@@ -1,0 +1,99 @@
+const tips = [
+"Pro tip: Always trust your teammate&hellip; unless it's about 90s boy bands.",
+"Trivia fact: Honey never spoils. Just like your competitive spirit.",
+"Loading&hellip; Just like your internet connection.",
+"Tip: Reading the question out loud increases your IQ by exactly 0.0003%.",
+"Did you know? Cows have best friends. But they won't help you with trivia.",
+"Fun fact: This took about a billion hours to make.",
+"Did you know? Penguins propose to their mates with a pebble.",
+"Pro tip: When in doubt, answer \"42\". It's worked before.",
+"Tip: Trivia games improve memory. Or was it juggling? I forget.",
+"Fact: Bananas are berries. Strawberries aren't. Don't question it.",
+"Fact: 100% of trivia champions blink. Coincidence? Definitely.",
+"Trivia: Napoleon was once attacked by a horde of bunnies. True story.",
+"Tip: Teamwork makes the dream answers work.",
+"Fun fact: The longest word in the English language is 189,819 letters long. But you won't need it here.",
+"Did you know? Octopuses have three hearts. But only one brain.",
+"Quote: \"It's not a wrong answer, it's an alternative perspective.\"",
+"Tip: If you're unsure, confidently say the wrong answer. It's tradition.",
+"Fact: The mitochondrion is the powerhouse of the cell. Always will be.",
+"Tip: Take a deep breath. The questions are more afraid of you than you are of them.",
+"Loading tip: This space intentionally filled with nonsense.",
+"Tip: The real treasure was the incorrect answers we made along the way.",
+"Quote: \"Think fast. Answer faster. Regret slowly.\"",
+"Tip: Hydrate before you participate.",
+"Pro tip: Incorrect answers said with confidence become legendary.",
+"Tip: Trivia is 10% knowledge, 90% wild guesses.",
+"Quote: \"The only dumb question is the one you knew and still second-guessed.\"",
+"Did you know? Cows have best friends. Be a cow. Support your teammate.",
+"Quote: \"There are no wrong answers. Except that one. Definitely that one.\"",
+"Fun fact: An octopus has three hearts. Use at least one to care about winning.",
+"Tip: Never underestimate the power of random guess energy.",
+"Quote: \"Victory favors the fast-fingered.\"",
+"Trivia: The inventor of Pringles is buried in a Pringles can. You're welcome.",
+"Tip: Turn off your brain's autopilot. This is manual mode.",
+"Pro tip: If everyone's confused, you're probably on the right track.",
+"Fact: You blink less when focused. Congrats, you're now officially intense.",
+"Fun fact: There's no \"I\" in team. But there is in \"trivia.\"",
+"Loading tip: No neurons were harmed during the making of this trivia.",
+"Fun fact: The Konami Code doesn't work here. We tried. Twice.",
+"Pro tip: Twitch chat knows the answer. Too bad they're just typing \"KEKW.\"",
+"Trivia: Donald Trump once said he was a \"stable genius.\" He then misspelled \"hamburger.\"",
+"Tip: Want to win? Treat your teammate like a loot drop. Valuable and never to be left behind.",
+"Fact: Donald Trump once suggested nuking hurricanes. So yes, your answer could be worse.",
+"Tip: Your K/D ratio doesn't matter here. But your IQ/D ratio might.",
+"Tip: Use your gamer headset mic to communicate, not chew on.",
+"Pro tip: Make eye contact with the camera. The viewers can smell fear.",
+"Tip: A true gamer never blames their teammate... Unless chat agrees.",
+"Quote: \"It's not a rage quit. It's an emotionally tactical disconnect.\"",
+"Quote: \"No matter how dumb you feel, someone on Twitter is dumber.\"",
+"Tip: Got the question wrong? Just gaslight your teammate.",
+"Quote: \"Your brain's on cooldown. Try not to overheat what's left.\"",
+"Sponsored by G-Fail™: The gamer supplement that does absolutely nothing.",
+"<%- user.teammate.displayName %> has 42 tabs open. None of them are helpful.",
+"Pro tip: Your best answer might be your second guess. Or third. Probably fourth.",
+"Tip: Don't worry about the scoreboard. It's mostly decorative anyway.",
+"Fact: The first webcam watched a coffee pot. Yours watches failure in HD.",
+"Tip: The best way to learn is to fail. A lot.",
+"Tip: Use 10% of your brain… and 90% sarcasm.",
+"Loading… Like your excuses when you get the obvious one wrong.",
+"Tip: Don't overthink it. That's how conspiracy theories happen.",
+"Tip: If you're both wrong, at least you're wrong together.",
+"Trivia: Goldfish have a longer attention span than most streamers.",
+"Tip: Remember, it's not about winning. It's about making others lose worse.",
+"Fact: 69% of statistics are made up.",
+"Quote: \"Knowledge is power. You are currently unarmed.\"",
+"Tip: If you're wondering who the weakest link is, it's probably you.",
+"Tip: Your brain isn't lagging. It's buffering… permanently.",
+"Quote: \"Behind every bad answer is a worse teammate encouraging it.\"",
+"Pro tip: It's not a mistake. It's a creative interpretation of ignorance.",
+"Tip: The only thing worse than a wrong answer is a wrong answer with confidence.",
+"Fun fact: Your team's strategy is called \"Hope and Cope.\"",
+"Pro tip: Crying won't help, but it will get you sympathy points.",
+"Tip: If you can't dazzle them with brilliance, baffle them with nonsense.",
+"Trivia: The average person has 7 dreams a night. Yours are all nightmares.",
+"Fun fact: Dr Pepper isn't actually a doctor. Dr Dre on the other hand&hellip;",
+"Fact: The great fire of London started with a bakery. So, if you smell bread, run.",
+"Fact: Microsoft was founded in Redmond, Washington. That's not relevant, I just thought it was interesting.",
+"Troubleshooting tip: If you see trouble, shoot it.",
+"Pro tip: Try answering from the heart. Or whatever's rotting in its place.",
+"Tip: The game will sometimes show Tips at the bottom of the screen!",
+];
+
+function shuffleArray (array)  { 
+    for (let i = array.length - 1; i > 0; i--) { 
+        const j = Math.floor(Math.random() * (i + 1)); 
+        [array[i], array[j]] = [array[j], array[i]]; 
+    } 
+    return array; 
+}; 
+
+const shuffledTips = shuffleArray(tips);
+
+const carouselInner = document.querySelector('#quoteCarousel .carousel-inner');
+shuffledTips.forEach((tip, index) => {
+    const carouselItem = document.createElement('div');
+    carouselItem.className = 'carousel-item' + (index === 0 ? ' active' : '');
+    carouselItem.innerHTML = `<h4 class="quote-bar">${tip}</h4>`;
+    carouselInner.appendChild(carouselItem);
+});
