@@ -29,10 +29,24 @@ function showInterstitial(state, heading="", subheading="") {
     const interstitialSubheading = $("#ish2");
 
     if (state === true) {
+        // Hide the headings
+        interstitialHeading.addClass("d-none");
+        interstitialSubheading.addClass("d-none");
+
+        // Update the headings
         if (heading) { interstitialHeading.text(heading) } 
         if (subheading) { interstitialSubheading.text(subheading) }
+
+        // Hide the game section and show the interstitial
         gameSection.removeClass("d-block").addClass("d-none");
         interstitialSection.removeClass("d-none").addClass("d-flex");
+
+        // Show the headings after a 500ms delay
+        setTimeout(() => {
+            interstitialHeading.removeClass("d-none");
+            interstitialSubheading.removeClass("d-none");
+        }, 500);
+
     } else {
         gameSection.removeClass("d-none").addClass("d-block");
         interstitialSection.removeClass("d-flex").addClass("d-none");
