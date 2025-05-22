@@ -74,8 +74,15 @@
 	<section id="interstitial" class="text-white d-flex flex-column justify-content-center align-items-center vh-80">
 		<h1 id="ish1" class="text-center">Welcome to The Big Chonky Question Show</h1>
 		<h2 id="ish2" class="text-center">Strap in, and strap on, because it's gonna get silly!</h2>
+		<div class="row text-light bg-dark w-100 text-center fade-up" style="position: absolute; bottom: 10%;">
+			<section>
+				<%- include('carousel') %>
+			</section>
+		</div>
+
 	</section>
 	<script src="/socket.io/socket.io.js"></script>
+	<script src="/js/tipsCarousel.js"></script>
 	<script src="/js/answerHandler.js"></script>
 	<%- include('../helperFunctions'); %>
 	<script>
