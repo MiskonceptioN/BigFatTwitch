@@ -177,7 +177,7 @@ input#gameCode::placeholder {
 	text-transform: none;
 }
 
-.round-title, .question {
+.round-title, .question, .fade-up {
 	animation: 2s anim-lineUp ease-out;
 }
 
