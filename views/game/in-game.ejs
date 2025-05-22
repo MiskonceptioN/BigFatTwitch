@@ -30,7 +30,6 @@
 			<div class="row mt-4">
 				<div class="col-9">
 					<form id="answer-form" method="post" action="/game/in-game" class="text-center">
-					<!-- <form method="post" action="https://webhook.site/1dfc56cf-8e6b-4332-bcdf-85f29abccc8a"> -->
 						<canvas id="answerCanvas" class="canvas-container disabled" width="900" height="506" disabled></canvas><br>
 						<input id="questionId" name="questionId" type="hidden">
 						<input id="answerField" name="answerField" type="hidden">
@@ -86,18 +85,10 @@
 	<script src="/js/answerHandler.js"></script>
 	<%- include('../helperFunctions'); %>
 	<script>
-	// 	$(document).ready(function () {
-	// 	$('#interstitial h1').text('ROUND TWO');
-	// 	$('#interstitial h2')
-	// 		.text('Now things get tricky...')
-	// 		.removeClass() // remove any previous classes
-	// 		.addClass('alt-style');
-	// });
 
 	// console.log the user info for debugging
 	console.log(<%- JSON.stringify(user) %>);
 
-	// const socket = io();
 	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
 
 	<% if (chatLog) { chatLog.forEach((message) => { %> addChatMessage(".chat-messages", "<%- message %>");	<% }); } %>
@@ -112,7 +103,6 @@
 	});
 
 	socket.on('next question', (question, questionId) => {
-		// console.log(question);
 		resetFormFields();
 		unlockFormFields();
 		document.querySelector('h2').innerHTML = question;
@@ -160,11 +150,6 @@
 	const canvasOffset = answerCanvas.getBoundingClientRect();
 	const canvasOffsetX = answerCanvas.offsetLeft;
 	const canvasOffsetY = answerCanvas.offsetTop;
-
-	// answerCanvas.width = window.innerWidth - canvasOffsetX;
-	// answerCanvas.height = window.innerHeight - canvasOffsetY;
-	// answerCanvas.width = 800;
-	// answerCanvas.height = 600;
 
 	let isDrawing = false;
 	let lastX = 0;
@@ -265,28 +250,6 @@
 			originalCanvasData = answerCanvas.toDataURL();
 		}
 	});
-    // $(answerCanvas).on('mouseout', function() {
-    //     isDrawing = false
-
-    //     // Send the image to the server
-    //     const data = answerCanvas.toDataURL();
-    //     socket.emit('update canvas', data);
-    // });
-    // $(answerCanvas).on('touchend', function() {
-    //     isDrawing = false
-
-    //     // Send the image to the server
-    //     const data = answerCanvas.toDataURL();
-    //     socket.emit('update canvas', data);
-    // });
-
-    // $(answerCanvas).on('touchcancel', function() {
-    //     isDrawing = false
-
-    //     // Send the image to the server
-    //     const data = answerCanvas.toDataURL();
-    //     socket.emit('update canvas', data);
-    // });
 
 	function restartAnimation() {
 		let circle = document.querySelector(".question");
