@@ -497,6 +497,25 @@ function endRound(){
 	// Capture the round number from .current-round
 	const roundNumber = $(".current-round").data("round");
 
+	const endRoundSubheadings = [
+		"Let's see those answers!",
+		"Time to review what nonsense you all came up with!",
+		"How bad could those answers possibly be?",
+		"Let's see if anyone actually answered correctly!",
+		"Brace yourselves for some creative responses!",
+		"Time to witness some questionable logic!",
+		"Prepare for a wild ride through these answers!",
+		"Let's find out who paid attention!",
+		"Hope you're ready for some surprises!",
+		"Let's see who went off the rails this round!",
+		"Ready for some unexpected answers?",
+		"Who spouted the most bullshit?"
+	];
+	const endRoundChosenSubheading = endRoundSubheadings[Math.floor(Math.random() * endRoundSubheadings.length)];
+
+	// Send the "round over" message to players
+	socket.emit("show interstitial", true, "Round over", endRoundChosenSubheading);
+
 	// Send the request to the backend
 	$.ajax({
 		method: "POST",
