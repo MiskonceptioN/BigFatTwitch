@@ -73,7 +73,7 @@ const tips = [
 "Tip: If you can't dazzle them with brilliance, baffle them with nonsense.",
 "Trivia: The average person has 7 dreams a night. Yours are all nightmares.",
 "Fun fact: Dr Pepper isn't actually a doctor. Dr Dre on the other hand&hellip;",
-"Fact: The great fire of London started with a bakery. So, if you smell bread, run.",
+"Fact: The great fire of London started in a bakery. So, if you smell bread, run.",
 "Fact: Microsoft was founded in Redmond, Washington. That's not relevant, I just thought it was interesting.",
 "Troubleshooting tip: If you see trouble, shoot it.",
 "Pro tip: Try answering from the heart. Or whatever's rotting in its place.",
