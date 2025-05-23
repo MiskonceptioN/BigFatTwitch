@@ -111,6 +111,9 @@ $("form.send-question").on("submit", function(event){
         success: function(msg) {
 			$(form).parent().parent().addClass("bg-success");
 
+			// Hide the interstitial if it's visible
+			socket.emit("show interstitial", false);
+
 			// Re-enable and empty all the point forms, removing any instance of .is-valid
 			resetPointForms();
 			// Reset the canvas states
