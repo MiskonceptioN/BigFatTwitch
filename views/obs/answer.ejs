@@ -1,0 +1,22 @@
+<link rel="stylesheet" href="/css/styles.css">
+<img src="<%- answer %>" alt="Answer" width="900" height="506" class="fade-up">
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+
+	socket.on('update answer', (base64, userID) => {
+        console.log(userID, "<%- playerTwitchID %>");
+        if (userID != "<%- playerTwitchID %>") {
+            return;
+        }
+		const targetCanvas = document.querySelector("img");
+		if (targetCanvas !== null) {
+            targetCanvas.classList.remove("fade-up");
+            setTimeout(() => {
+                targetCanvas.classList.add("fade-up");
+			    targetCanvas.setAttribute("src", base64);
+            }, 250);
+		}
+	})
+</script>

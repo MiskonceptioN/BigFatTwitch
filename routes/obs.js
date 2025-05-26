@@ -528,7 +528,9 @@ router.get("/teams/:teamIndex/players/:playerIndex/:key", async (req, res) => {
 		// Key-specific returns
 		switch (targetKey) {
 			case "answer": 
-				return res.status(200).send("<img src='" + foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex][targetKey] + "' alt='Answer' width='900' height='506' />");
+				return res.render("obs/answer", {
+					answer: foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex][targetKey],
+					playerTwitchID: foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].twitchId});
 			case "profileImage":
 				return res.status(200).send('<img src="' + foundGame[0].teams[desiredTeamIndex].players[desiredPlayerIndex].profileImageUrl + '" alt="Player ' + playerIndexValue + '\'s profile image" width="300" height="300">');
 			default: 
