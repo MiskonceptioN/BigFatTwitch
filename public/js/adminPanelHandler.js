@@ -156,6 +156,52 @@ $("form.send-question").on("submit", function(event){
     });
 });
 
+$("form.fetch-answers").on("submit", function(event){
+	event.preventDefault(); //prevent default action
+	const destUrl = $(this).attr("action"); //get form action url
+	const formMethod = $(this).attr("method"); //get form GET/POST method
+
+	// Grab questionId from the form
+	const questionId = $(this).find("input[name='questionId']").val();
+	const questionText = $(this).closest(".card-body").find(".card-title").text();
+	updateQuestionPreview(questionText, questionId);
+
+	const form = $(this);
+	const inputButton = $(form).find("button");
+	const inputButtonContent = $(inputButton).html();
+    $.ajax({
+        method: formMethod,
+        url: destUrl,
+		data: JSON.stringify({questionId}),
+		contentType: "application/json",
+
+		beforeSend: function() {
+			// Show loading spinner before sending the form
+			$(inputButton).html('<div class="spinner-border" role="status"></div>');
+        },
+        success: function(msg) {
+			// Reset the button contents
+			$(inputButton).html(inputButtonContent);
+
+			if (msg.status === "success") {
+				populateAnswers(msg.content);
+			} else {
+				$("#message").removeClass().addClass("alert").addClass("alert-dismissible").addClass("alert-danger").html(msg.content + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>');
+				$("#message").collapse("show");
+			}
+		},
+        error: function(err) {
+			// Log and show error message
+			console.log("Request failed", err);
+			$("#message").removeClass().addClass("alert").addClass("alert-dismissible").addClass("alert-danger").html(err.content);
+			$("#message").collapse("show");
+
+			// Reset the button contents
+			$(inputButton).html(inputButtonContent);
+        }
+    });
+});
+
 $("form.points-form").on("submit", function(event){
 	event.preventDefault(); //prevent default action
 	const destUrl = $(this).attr("action"); //get form action url
@@ -402,6 +448,21 @@ function updatePrevious(uid, gameId) {
 			// $(inputButton).html(inputButtonContent);
         }
     });
+}
+
+function populateAnswers(answers) {
+	const defaultImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j//z8ABf4C/qc1gYQAAAAASUVORK5CYII=";
+	$(".canvas-container").attr("src", defaultImage); // Reset all canvases to the default image
+	disablePointForm("all", true); // Disable all point forms
+
+	answers.forEach(answer => {
+		const [[playerId, imageData]] = Object.entries(answer);
+
+		// Set the image data for the player's answer
+		$("#" + playerId + "-Answer").attr("src", imageData);
+		// Enable the point form for the player
+		disablePointForm("player-" + playerId + "-Points-Form", false);
+	});
 }
 
 // Set input to green with check mark when points are succesfully added

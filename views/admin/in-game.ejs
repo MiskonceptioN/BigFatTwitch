@@ -66,9 +66,11 @@
 										<input type="hidden" id="roundNumber" name="roundNumber" value="<%= round %>">
 										<input type="hidden" id="gameCode" name="gameCode" value="<%= question.game %>">
 										<input type="hidden" id="sendQuestion" name="sendQuestion" value="<%= question.question %>">
-										<!-- <span class="send-question"><input type="submit" class="btn btn-primary" value="Send question"></span> -->
-										<button class="send-question btn btn-primary"
-										>Send question</button>
+										<button class="send-question btn btn-primary">Ask question</button>
+									</form>
+									<form method="post" action="/admin/in-game/fetch-answers" class="fetch-answers">
+										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
+										<button class="fetch-answers btn btn-danger">Fetch player answers</button>
 									</form>
 								</div>
 							</div>

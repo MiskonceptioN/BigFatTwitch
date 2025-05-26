@@ -321,6 +321,34 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	}
 })
+.post("/in-game/fetch-answers", checkAuthenticated, async function(req, res){
+	// Sanitise inputs (later)
+	if (req.body.questionId) {
+		const contestantAnswers = [];
+		try {
+			// Find all the submitted answers for the given question ID
+			let foundAnswers = await Answer.find({ questionId: req.body.questionId })
+
+			// Check answers were found
+			if (foundAnswers === null || foundAnswers.length === 0) {
+				return res.send({status: "Error", content: "No answers found for question id " + req.body.questionId});
+			}
+
+			foundAnswers.forEach(a => {
+				contestantAnswers.push({
+					[a.contestant]: a.answer
+				});
+			});
+
+		} catch (error) {
+			console.error(error);
+			return res.send({status: "Error", content: "Failed to fetch answers for question id " + req.body.questionId});
+		}
+
+		// Send the contestantAnswers to the frontend
+		return res.send({status: "success", content: contestantAnswers});
+	}
+})
 .post("/in-game/points", checkAuthenticated, async (req, res) => {
 	// Prepare the inputs
 	const userId = req.body.userId;
