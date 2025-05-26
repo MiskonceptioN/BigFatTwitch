@@ -119,6 +119,28 @@ router.get("/viewquestion", async (req, res) => {
 })
 // DELETE THIS - DEBUGGING ONLY
 
+router.get("/view-answers/:questionId", async (req, res) => {
+	// const questionID = req.params.questionId;
+	const questionID = "680fff8b3e568d9550be8b8b"; // For testing only
+
+	try {
+		// Retrieve question from DB
+		let foundQuestion = await Question.findOne({ _id: questionID })
+			.populate({
+				path: 'contestantAnswers',
+				model: Answer,
+			});
+
+		if (!foundQuestion) {
+			return res.status(404).send({ message: "Question not found" });
+		}
+		return res.send(foundQuestion.contestantAnswers);
+	} catch (error) {
+		console.error("Error saving answer:", error);
+		return res.status(500).send({"message": "Fuck you, basically"});
+	}
+})
+
 router.get("/rounds", async (req, res) => {
 	try {
 		const gameFromDB = await Game.findOne({ status: { $in: ["starting", "in-progress"] } }).select('code -_id');
