@@ -120,8 +120,8 @@ router.get("/viewquestion", async (req, res) => {
 // DELETE THIS - DEBUGGING ONLY
 
 router.get("/view-answers/:questionId", async (req, res) => {
-	// const questionID = req.params.questionId;
-	const questionID = "680fff8b3e568d9550be8b8b"; // For testing only
+	const questionID = req.params.questionId;
+	// const questionID = "680fff8b3e568d9550be8b8b"; // For testing only
 
 	try {
 		// Retrieve question from DB
