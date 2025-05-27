@@ -462,6 +462,8 @@ function populateAnswers(answers) {
 		$("#" + playerId + "-Answer").attr("src", imageData);
 		// Enable the relevant player's point form
 		disablePointForm("player-" + playerId + "-Points-Form", false);
+		// Update the OBS endpoint with the player's answer
+		socket.emit("update answer", imageData, playerId);
 	});
 }
 

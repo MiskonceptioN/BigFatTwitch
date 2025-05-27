@@ -239,6 +239,20 @@ io.on('connection', async (socket) => {
 	socket.on("show interstitial", (state, heading="", subheading="") => {
 		io.emit("show interstitial", state, heading, subheading);
 	});
+	socket.on("update answer", async (imageData, playerId) => {
+		try {
+			updateUser = await User.updateOne(
+				{ twitchId: playerId },
+				{ $set: {"answer": imageData }}
+			)
+			if (updateUser.matchedCount === 0) { throw new Error("No user found"); }
+			if (updateUser.modifiedCount === 0) { throw new Error("User found but answer was not updated") }
+		} catch (error) {
+			console.error("Error updating answer for player " + playerId, error);
+			return;
+		}
+		io.emit("update answer", imageData, playerId);
+	});
 });
 
 // Routes
