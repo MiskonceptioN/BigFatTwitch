@@ -460,7 +460,7 @@ function populateAnswers(answers) {
 
 		// Set the image data for the player's answer
 		$("#" + playerId + "-Answer").attr("src", imageData);
-		// Enable the point form for the player
+		// Enable the relevant player's point form
 		disablePointForm("player-" + playerId + "-Points-Form", false);
 	});
 }
