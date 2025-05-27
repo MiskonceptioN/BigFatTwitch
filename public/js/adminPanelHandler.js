@@ -1,5 +1,7 @@
+const defaultImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j//z8ABf4C/qc1gYQAAAAASUVORK5CYII=";
 $("#previous-round").on("click", function(){navigateRound("previous")});
 $("#next-round").on("click", function(){navigateRound("next")});
+$("#blank-answers").on("click", function(){sendEmptyAnswers()});
 
 // Click handler for the reset-round-questions button
 $("#reset-round-questions").on("click", function(event){
@@ -451,12 +453,11 @@ function updatePrevious(uid, gameId) {
 }
 
 function populateAnswers(answers) {
-	const defaultImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j//z8ABf4C/qc1gYQAAAAASUVORK5CYII=";
 	$(".canvas-container").attr("src", defaultImage); // Reset all canvases to the default image
 	disablePointForm("all", true); // Disable all point forms
 
 	answers.forEach(answer => {
-		const [[playerId, imageData]] = Object.entries(answer);
+		let [[playerId, imageData]] = Object.entries(answer);
 
 		// Set the image data for the player's answer
 		$("#" + playerId + "-Answer").attr("src", imageData);
@@ -501,7 +502,7 @@ function resetPointForms() {
 
 function resetCanvases() {
 	document.querySelectorAll(".canvas-container").forEach(function (canvasContainer) {
-		canvasContainer.setAttribute("src", "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAIAAACQd1PeAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAMSURBVBhXY/j//z8ABf4C/qc1gYQAAAAASUVORK5CYII=");
+		canvasContainer.setAttribute("src", defaultImage);
 	});
 }
 
@@ -509,6 +510,13 @@ function resetCanvases() {
 function updatePointAmount(pointFormID, points) {
 	const pointForm = document.getElementById(pointFormID);
 	pointForm.querySelector(".point-input").value = points;
+}
+
+function sendEmptyAnswers() {
+	allPlayerTwitchIds.forEach(twitchId => {
+		// Update the OBS endpoint with the player's answer
+		socket.emit("update answer", defaultImage, twitchId);
+	});
 }
 
 function restartRound(roundNumber){
