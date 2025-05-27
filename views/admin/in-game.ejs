@@ -223,6 +223,7 @@
 	<script src="/socket.io/socket.io.js"></script>
 	<%- include('../helperFunctions'); %>
 	<script>
+		const allPlayerTwitchIds = <%- JSON.stringify(game.teams.flatMap(team => team.players.map(player => player.twitchId))); %>
 		$("#interstitial-round-over").click(function() {
 			socket.emit("show interstitial", true, "Round over!", " ");
 		});
