@@ -106,9 +106,19 @@
 		<h3>Game admin</h3>
 		<div class="d-grid">
 			<h4>Contestant answers</h4>
+			<div id="team-review" class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
+				<div class="btn-group me-2" role="group" aria-label="Individual teams">
+					<button type="button" class="btn btn-primary review-team-selector" data-target-team="<%- game.teams[0]._id %>"><%- game.teams[0].name %></button>
+					<button type="button" class="btn btn-primary review-team-selector" data-target-team="<%- game.teams[1]._id %>"><%- game.teams[1].name %></button>
+					<button type="button" class="btn btn-primary review-team-selector" data-target-team="<%- game.teams[2]._id %>"><%- game.teams[2].name %></button>
+				</div>
+				<div class="btn-group" role="group" aria-label="All teams">
+					<button type="button" class="btn btn-success review-team-selector" id="review-all-teams">All teams</button>
+				</div>
+			</div>
 			<div class="row">
 				<% game.teams.forEach(team => { %>
-					<div class="row text-center text-light admin-background">
+					<div class="row text-center text-light admin-background" id="team-<%- team._id %>-review">
 						<h5 class="mt-1 mb-3 team-<%- team.id %>-name"><%- team.name %></h5>
 						<% team.players.forEach(player => { %>
 

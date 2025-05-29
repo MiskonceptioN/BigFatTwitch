@@ -47,6 +47,22 @@ $("#restart-round").on("click", function(event){
 	restartRound(currentRoundNumber)
 });
 
+// Manage team review section
+$(".review-team-selector").on("click", function() {
+	// Remove the active class from all buttons and add it to the clicked button
+	const targetTeam = $(this).data("target-team");
+	$(".review-team-selector").removeClass("btn-success").addClass("btn-primary");
+	$(this).removeClass("btn-primary").addClass("btn-success");
+
+	// Show all review panels if "All teams" is clicked, otherwise show the selected team's review panel
+	if ($(this).attr("id") === "review-all-teams") {
+		$(".admin-background").removeClass("d-none");
+	} else {
+		$(".admin-background").addClass("d-none");
+		$("#team-" + targetTeam + "-review").removeClass("d-none");
+	}
+});
+
 // Click handler for the lock/unlock canvas buttons
 $("#lock-canvas").on("click", async function(event){sendCanvasState("lock")});
 $("#unlock-canvas").on("click", async function(event){sendCanvasState("unlock")});
