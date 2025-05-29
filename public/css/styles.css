@@ -313,6 +313,7 @@ button.in-game, input.in-game, .ingame-border {
 
 .admin-background {
 	position: relative;
+	margin-top: 1em;
 }
 
 .admin-background::before {
@@ -331,10 +332,6 @@ button.in-game, input.in-game, .ingame-border {
 
 .admin-background::before, .team-0 {
 	filter: hue-rotate(60deg);
-}
-
-.admin-background:nth-child(2), .admin-background:nth-child(3) {
-	margin-top: 1em;
 }
 
 .admin-background:nth-child(2)::before, .team-1{
