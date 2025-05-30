@@ -196,6 +196,9 @@ $("form.fetch-answers").on("submit", function(event){
 		beforeSend: function() {
 			// Show loading spinner before sending the form
 			$(inputButton).html('<div class="spinner-border" role="status"></div>');
+
+			// Reset player canvases on OBS
+			sendEmptyAnswers();
         },
         success: function(msg) {
 			// Reset the button contents
