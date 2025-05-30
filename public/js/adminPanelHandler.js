@@ -3,6 +3,29 @@ $("#previous-round").on("click", function(){navigateRound("previous")});
 $("#next-round").on("click", function(){navigateRound("next")});
 $("#blank-answers").on("click", function(){sendEmptyAnswers()});
 
+// Control the phase selector buttons
+$("#question-phase-button").click(function() {
+	$(this).removeClass("btn-secondary").addClass("btn-primary");
+	$("#scoring-phase-button").removeClass("btn-primary").addClass("btn-secondary");
+
+	// Disable dark mode
+	$("html").attr("data-bs-theme", "light");
+
+	
+	$(".phase-question").removeClass("d-none");
+	$(".phase-scoring").addClass("d-none");
+});
+$("#scoring-phase-button").click(function() {
+	$(this).removeClass("btn-secondary").addClass("btn-primary");
+	$("#question-phase-button").removeClass("btn-primary").addClass("btn-secondary");
+
+	// Enable dark mode
+	$("html").attr("data-bs-theme", "dark");
+
+	$(".phase-scoring").removeClass("d-none");
+	$(".phase-question").addClass("d-none");
+});
+
 // Click handler for the reset-round-questions button
 $("#reset-round-questions").on("click", function(event){
 	const roundNumber = $(".current-round").data("round");

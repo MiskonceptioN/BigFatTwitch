@@ -1,9 +1,17 @@
 <%- include('../header'); %>
 	<section id="questions" class="text-center">
 		<header>
-			<h1>Questions</h1>
+			<h1 class="d-none">Admin panel</h1>
 		</header>
-		<div id="round-nav" class="btn-toolbar mt-5" role="toolbar" aria-label="Toolbar with button groups">
+		<div class="row text-start my-3">
+			<h3>Phase: 
+				<div class="btn-group" role="group" >
+					<button type="button" class="btn btn-primary phase-selector" id="question-phase-button">Question</button>
+					<button type="button" class="btn btn-secondary phase-selector" id="scoring-phase-button">Scoring</button>
+				</div>
+			</h3>
+		</div>
+		<div id="round-nav" class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
 			<!-- Create pending group -->
 			<% const rounds = {}; %>
 			
@@ -66,11 +74,11 @@
 										<input type="hidden" id="roundNumber" name="roundNumber" value="<%= round %>">
 										<input type="hidden" id="gameCode" name="gameCode" value="<%= question.game %>">
 										<input type="hidden" id="sendQuestion" name="sendQuestion" value="<%= question.question %>">
-										<button class="send-question btn btn-primary">Ask question</button>
+										<button class="send-question btn btn-primary phase-question">Ask question</button>
 									</form>
 									<form method="post" action="/admin/in-game/fetch-answers" class="fetch-answers">
 										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
-										<button class="fetch-answers btn btn-danger">Fetch player answers</button>
+										<button class="fetch-answers btn btn-danger phase-scoring d-none">Fetch player answers</button>
 									</form>
 								</div>
 							</div>
@@ -80,8 +88,7 @@
 			<% }); %>
     </section>
 	<div class="d-grid">
-		<h4 class="mt-3">Round</h4>
-		<div class="row">
+		<div class="row mt-2">
 			<div class="col-2 pe-0"><button id="previous-round" class="btn btn-primary w-100 h-100" type="button"><i class="fa-solid fa-arrow-left"></i> Previous round</button></div>
 			<div class="col px-0">
 				<button id="end-round" class="btn btn-danger w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-flag-checkered"></i> End round</button>
@@ -89,23 +96,19 @@
 			</div>
 			<div class="col-2 ps-0"><button id="next-round" class="btn btn-primary w-100 h-100" type="button">Next round <i class="fa-solid fa-arrow-right"></i></button></div>
 		</div>
-		<h4 class="mt-3">Answers</h4>
-		<div class="row">
+		<div class="row phase-scoring d-none">
+			<h4 class="mt-3">Answers</h4>
 			<div class="col">
 				<button id="blank-answers" class="btn btn-danger w-100" type="button">Set all player answers to blank</button>
 			</div>
 		</div>
 	</div>
-<hr class="my-5">
-	<section class="mt-3">
-		<h3>Current question:</h3>
-		<h4 id="current-question"><%= (currentQuestion == "") ? "-None!-" : currentQuestion %></h4>
+	<section class="my-4">
+		<h3 class="d-inline-block">Current question:</h3>
+		<h4 class="d-inline-block" id="current-question"><%= (currentQuestion == "") ? "-None!-" : currentQuestion %></h4>
 	</section>
-	<hr class="my-5">
 	<section id="admin-functions" class="mt-3 mb-5">
-		<h3>Game admin</h3>
 		<div class="d-grid">
-			<h4>Contestant answers</h4>
 			<div id="team-review" class="btn-toolbar" role="toolbar" aria-label="Toolbar with button groups">
 				<div class="btn-group me-2" role="group" aria-label="Individual teams">
 					<button type="button" class="btn btn-primary review-team-selector" data-target-team="<%- game.teams[0]._id %>"><%- game.teams[0].name %></button>
@@ -144,7 +147,7 @@
 										<input type="hidden" name="pointFormID" value="player-<%- player.twitchId %>-Points-Form">
 
 										<div class="input-group mb-3" id="player-<%- player.twitchId %>-Points-Form">
-											<input name="points" type="number" min="0" max="100" class="form-control text-center point-input" placeholder="How many points?" disabled>
+											<input name="points" type="number" min="0" max="100" class="form-control text-center point-input" placeholder="How many points?" data-bs-theme="light" disabled>
 											<button class="btn btn-primary" type="submit" disabled><i class="fa-solid fa-circle-plus"></i></button>
 										</div>
 									</form>
@@ -166,7 +169,7 @@
 							</div>
 							<div class="row">
 								<div class="input-group mb-3 admin-chat">
-									<input class="form-control chat-message" placeholder="Message the team&hellip;">
+									<input class="form-control chat-message" placeholder="Message the team&hellip;" data-bs-theme="light">
 									<input type="hidden" name="teamId" value="<%- team._id %>">
 									<button class="btn btn-primary" name="send">Send </button>
 									<button class="btn btn-danger" name="send-to-all">Send to all</button>
@@ -177,14 +180,16 @@
 				<% }); %>
 			</div>
 
-			<h4 class="mt-3">Player controls</h4>
-			<div class="row">
-				<div class="col"><button id="lock-canvas" class="btn btn-danger w-100" type="button"><i class="fa-solid fa-lock"></i> Lock player canvases</button></div>
-				<div class="col"><button id="unlock-canvas" class="btn btn-success w-100" type="button"><i class="fa-solid fa-unlock"></i> Unlock player canvases</button></div>
-			</div>
-			<div class="row">
-				<div class="col"><button id="lock-submit-button" class="btn btn-danger w-100" type="button"><i class="fa-solid fa-lock"></i> Lock player submit buttons</button></div>
-				<div class="col"><button id="unlock-submit-button" class="btn btn-success w-100" type="button"><i class="fa-solid fa-unlock"></i> Unlock player submit buttons</button></div>
+			<div class="phase-question">
+				<h4 class="mt-3">Player controls</h4>
+				<div class="row">
+					<div class="col"><button id="lock-canvas" class="btn btn-danger w-100" type="button"><i class="fa-solid fa-lock"></i> Lock player canvases</button></div>
+					<div class="col"><button id="unlock-canvas" class="btn btn-success w-100" type="button"><i class="fa-solid fa-unlock"></i> Unlock player canvases</button></div>
+				</div>
+				<div class="row">
+					<div class="col"><button id="lock-submit-button" class="btn btn-danger w-100" type="button"><i class="fa-solid fa-lock"></i> Lock player submit buttons</button></div>
+					<div class="col"><button id="unlock-submit-button" class="btn btn-success w-100" type="button"><i class="fa-solid fa-unlock"></i> Unlock player submit buttons</button></div>
+				</div>
 			</div>
 
 			<hr>
@@ -197,8 +202,8 @@
 			</div>
 			<div class="row">
 				<div class="col">
-					<input id="interstitial-heading" class="form-control" placeholder="Interstitial heading">
-					<input id="interstitial-subheading" class="form-control" placeholder="Interstitial subheading">
+					<input id="interstitial-heading" class="form-control" placeholder="Interstitial heading" data-bs-theme="light">
+					<input id="interstitial-subheading" class="form-control" placeholder="Interstitial subheading" data-bs-theme="light">
 				</div>
 			</div>
 			<div class="row">
