@@ -239,6 +239,9 @@ io.on('connection', async (socket) => {
 	socket.on("show interstitial", (state, heading="", subheading="") => {
 		io.emit("show interstitial", state, heading, subheading);
 	});
+	socket.on("next question", (questionText, questionId) => {
+		io.emit("next question", questionText, questionId);
+	});
 	socket.on("update answer", async (imageData, playerId) => {
 		try {
 			updateUser = await User.updateOne(

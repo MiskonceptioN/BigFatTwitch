@@ -202,7 +202,11 @@ $("form.fetch-answers").on("submit", function(event){
 			$(inputButton).html(inputButtonContent);
 
 			if (msg.status === "success") {
+				// Update contestant canvases
 				populateAnswers(msg.content);
+
+				// Update the /obs/question endpoint
+				socket.emit("next question", questionText, questionId);
 			} else {
 				$("#message").removeClass().addClass("alert").addClass("alert-dismissible").addClass("alert-danger").html(msg.content + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>');
 				$("#message").collapse("show");
@@ -494,7 +498,6 @@ function markAsPointsAdded(pointFormID) {
 // when the point input is focused/unfocused
 function disablePointForm(pointFormID, bool) {
 	const target = (pointFormID === "all") ? ".points-form" : "#" + pointFormID;
-	console.log({target, pointFormID});
 	document.querySelectorAll(target).forEach(function (pointInput) {
 	// $(target).each(function (pointInput) {
 	if (bool === true) {
