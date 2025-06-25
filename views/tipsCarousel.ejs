@@ -1,3 +1,4 @@
+<script>
 const tips = [
 "Pro tip: Always trust your teammate&hellip; unless it's about 90s boy bands.",
 "Trivia fact: Honey never spoils. Just like your competitive spirit.",
@@ -102,19 +103,20 @@ const tips = [
 ];
 
 function shuffleArray (array)  { 
-    for (let i = array.length - 1; i > 0; i--) { 
-        const j = Math.floor(Math.random() * (i + 1)); 
-        [array[i], array[j]] = [array[j], array[i]]; 
-    } 
-    return array; 
+	for (let i = array.length - 1; i > 0; i--) { 
+		const j = Math.floor(Math.random() * (i + 1)); 
+		[array[i], array[j]] = [array[j], array[i]]; 
+	} 
+	return array; 
 }; 
 
 const shuffledTips = shuffleArray(tips);
 
 const carouselInner = document.querySelector('#quoteCarousel .carousel-inner');
 shuffledTips.forEach((tip, index) => {
-    const carouselItem = document.createElement('div');
-    carouselItem.className = 'carousel-item' + (index === 0 ? ' active' : '');
-    carouselItem.innerHTML = `<h4 class="quote-bar">${tip}</h4>`;
-    carouselInner.appendChild(carouselItem);
+	const carouselItem = document.createElement('div');
+	carouselItem.className = 'carousel-item' + (index === 0 ? ' active' : '');
+	carouselItem.innerHTML = `<h4 class="quote-bar">${tip}</h4>`;
+	carouselInner.appendChild(carouselItem);
 });
+</script>
