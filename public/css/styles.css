@@ -448,7 +448,8 @@ button.in-game, input.in-game, .ingame-border {
 } */
 
 #interstitial h1,
-#interstitial h2 {
+#interstitial h2,
+#interstitial h3 {
     opacity: 0;
     transform: scale(0.8) rotate(-10deg);
     animation-fill-mode: forwards; /* This keeps the final state */
@@ -473,6 +474,13 @@ button.in-game, input.in-game, .ingame-border {
     animation-duration: 1.5s;
     animation-delay: 1s;
     /* color: #00d4ff; */
+}
+
+#interstitial h3 {
+    font-size: 1.5rem;
+    animation-name: slideInSquash;
+    animation-duration: 1.5s;
+    animation-delay: 2s;
 }
 
 @keyframes popInBounce {
