@@ -198,6 +198,7 @@
 			<div class="row">
 				<div class="col">
 					<button id="interstitial-round-over" class="btn btn-primary w-100" type="button">Send "round over" interstitial</button>
+					<button id="interstitial-show-points" class="btn btn-primary w-100" type="button">Show "team points" interstitial</button>
 				</div>
 			</div>
 			<div class="row">
@@ -247,6 +248,12 @@
 		const allPlayerTwitchIds = <%- JSON.stringify(game.teams.flatMap(team => team.players.map(player => player.twitchId))); %>
 		$("#interstitial-round-over").click(function() {
 			socket.emit("show interstitial", true, "Round over!", " ");
+		});
+		$("#interstitial-show-points").click(function() {
+			if (confirm("Are you sure you want to show the points interstitial?")) {
+				const uniformSelfLocator = window.location.protocol + "//" + window.location.host;
+				socket.emit("show point interstitial", uniformSelfLocator);
+			}
 		});
 		$("#showInterstitial").click(function() {
 			const heading = $("#interstitial-heading").val();

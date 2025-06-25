@@ -20,22 +20,37 @@ function addChatMessage(container, message, scroll=true) {
     }   
 }
 
-function showInterstitial(state, heading="", subheading="") {
+function showInterstitial(state, heading="", subheading="", tertiary=" ") {
     // TODO Santisation on headings
 
     const gameSection = $("#game");
     const interstitialSection = $("#interstitial");
     const interstitialHeading = $("#ish1");
     const interstitialSubheading = $("#ish2");
+    const interstitialTertiaryheading = $("#ish3");
+    // Hide the tertiary heading unless it's points time
+    interstitialTertiaryheading.addClass("d-none");
 
     if (state === true) {
         // Hide the headings
         interstitialHeading.addClass("d-none");
         interstitialSubheading.addClass("d-none");
 
+        // Add the scoreboard class if it's points time
+        if (tertiary !== " ") {
+            interstitialHeading.addClass("scoreboard");
+            interstitialSubheading.addClass("scoreboard");
+            interstitialTertiaryheading.addClass("scoreboard");
+        } else {
+            interstitialHeading.removeClass("scoreboard");
+            interstitialSubheading.removeClass("scoreboard");
+            interstitialTertiaryheading.removeClass("scoreboard");
+        }
+
         // Update the headings
         if (heading) { interstitialHeading.text(heading) } 
         if (subheading) { interstitialSubheading.text(subheading) }
+        if (tertiary) { interstitialTertiaryheading.text(tertiary) }
 
         // Hide the game section and show the interstitial
         gameSection.removeClass("d-block").addClass("d-none");
@@ -45,11 +60,13 @@ function showInterstitial(state, heading="", subheading="") {
         setTimeout(() => {
             interstitialHeading.removeClass("d-none");
             interstitialSubheading.removeClass("d-none");
+            interstitialTertiaryheading.removeClass("d-none");
         }, 100);
 
     } else {
         gameSection.removeClass("d-none").addClass("d-block");
         interstitialSection.removeClass("d-flex").addClass("d-none");
+        interstitialTertiaryheading.removeClass("d-flex").addClass("d-none");
     }
 }
 
