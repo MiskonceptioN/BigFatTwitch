@@ -11,11 +11,8 @@ const Question = require("../models/questionModel.js");
 const Points = require("../models/pointsModel.js");
 const Answer = require("../models/answerModel.js");
 
-router.get("/", checkAuthenticated, (req, res) => {
-	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
-	const successMessage = req.flash("success")[0]; // Retrieve the flash message
-	if (req.user.role == "admin") {res.render("admin", {user: req.user, failureMessage, successMessage})}
-	else {res.render("game", {user: req.user, failureMessage, successMessage})}
+router.get("/", (req, res) => {
+	res.render("obs")
 });
 
 router.get("/question", async (req, res) => {
