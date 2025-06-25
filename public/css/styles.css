@@ -483,6 +483,18 @@ button.in-game, input.in-game, .ingame-border {
     animation-delay: 2s;
 }
 
+/* Show the scores in reverse order... for funsies! */
+#interstitial h1.scoreboard {
+    animation-name: slideInSquash;
+    animation-delay: 4.2s;
+}
+#interstitial h2.scoreboard {
+    animation-delay: 2.2s;
+}
+#interstitial h3.scoreboard {
+    animation-delay: 0.2s;
+}
+
 @keyframes popInBounce {
     0% {
         opacity: 0;
