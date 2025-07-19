@@ -17,18 +17,24 @@
     "passport-twitch-v2": "^1.0.1",
     "socket.io": "^4.7.2"
   },
-  "name": "dannyskeleton",
+  "name": "The Chonky Question Show",
   "version": "0.1.0",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0"
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "start": "node app.js"
   },
   "author": "Danny Valentine",
   "license": "ISC",
   "keywords": [
-    "skeleton",
-    "project",
-    "template",
-    "starting"
+    "quiz",
+    "show",
+    "trivia",
+    "twitch",
+    "game",
+    "interactive",
+    "streaming",
+    "entertainment",
+    "fun"
   ]
 }
