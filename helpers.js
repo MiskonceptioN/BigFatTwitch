@@ -39,7 +39,7 @@ const checkAuthenticated = (req, res, next) => {
 
 const checkIsOBSRequest = (req, res, next) => {
 	if (req.header("user-agent").includes("OBS/")) {return next()}
-	res.status(403).send("<h1>Nope</h1><p>Sorry, fam!</p><p>Your user-agent is " + req.header("user-agent") + "</p>");
+	res.status(403).send("<h1>Nope</h1><p>Sorry, fam!</p>");
 };
 
 /**
