@@ -13,7 +13,7 @@ const Round = require("../models/roundModel.js");
 const io = require('../app');
 
 router.post("/canvas/:toggle", checkAuthenticated, async function(req, res){
-	const lockState = req.params.toggle;
+	const lockState = req.params.toggle || "";
 	if (lockState !== "lock" && lockState !== "unlock") {
 		res.send({status: "failure", content: "Invalid lock state"});
 		console.log("Invalid lock state: " + lockState);
@@ -25,7 +25,7 @@ router.post("/canvas/:toggle", checkAuthenticated, async function(req, res){
 })
 
 router.post("/submit-button/:toggle", checkAuthenticated, async function(req, res){
-	const lockState = req.params.toggle;
+	const lockState = req.params.toggle || "";
 	if (lockState !== "lock" && lockState !== "unlock") {
 		res.send({status: "failure", content: "Invalid lock state"});
 		console.log("Invalid lock state: " + lockState);
@@ -41,8 +41,20 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
 
-			const allGamesResult = await Game.find({}).sort({createdAt: "asc"});
-			const allQuestionsResult = await Question.find();
+			let allGamesResult = [];
+			let allQuestionsResult = [];
+			try {
+				allGamesResult = await Game.find({}).sort({createdAt: "asc"});
+			} catch (error) {
+				console.error("Error fetching games:", error);
+				req.flash("error", "Unable to fetch games");
+			}
+			try {
+				allQuestionsResult = await Question.find();
+			} catch (error) {
+				console.error("Error fetching questions:", error);
+				req.flash("error", "Unable to fetch questions");
+			}
 
 			const questionTotals = allGamesResult.reduce((acc, game) => {
 				acc[game.code] = allQuestionsResult.filter(question => question.game === game.code).length;
@@ -58,11 +70,16 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const gameCode = await generateGameCode();
 
-			const result = await Game.create({code: gameCode, teams: [{name: "Team One"},{name: "Team Two"},{name: "Team Three"}]});
-			
-			if (result.code) {
-				req.flash("success", "Created game " + result.code);
-			} else {
+			try {
+				const result = await Game.create({code: gameCode, teams: [{name: "Team One"},{name: "Team Two"},{name: "Team Three"}]});
+				
+				if (result.code) {
+					req.flash("success", "Created game " + result.code);
+				} else {
+					req.flash("error", "Unable to create a new game");
+				}
+			} catch (error) {
+				console.error("Error creating game:", error);
 				req.flash("error", "Unable to create a new game");
 			}
 			res.redirect("/admin/gameManagement")
@@ -73,13 +90,18 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 
 router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
-			// Fetch the game
-			const result = await Game.findOne({code: req.params.gameCode})
-			.populate({
-				path: 'questions',
-				// select: '_id game question answer round order status',
-				options: { sort: { round: 1, order: 1 } }
-			});
+			let result = null;
+			try {
+				// Fetch the game
+				result = await Game.findOne({code: req.params.gameCode})
+				.populate({
+					path: 'questions',
+					// select: '_id game question answer round order status',
+					options: { sort: { round: 1, order: 1 } }
+				});
+			} catch (error) {
+				console.error("Error fetching game:", error);
+			}
 
 			if (result === null) {
 				req.flash("error", "Unable find game " + req.params.gameCode);
@@ -123,23 +145,28 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 
 			// Try to add the question if there are no validation errors
 			if (errors.length === 0) {
-				// Add a Question to the Game
-				const result = await Question.create({
-					game: req.body.game,
-					round: req.body.round,
-					order: req.body.order,
-					question: req.body.question,
-					answer: req.body.answer,
-					type: req.body.type,
-				});
-				console.log(result);
+				try {
+					// Add a Question to the Game
+					const result = await Question.create({
+						game: req.body.game,
+						round: req.body.round,
+						order: req.body.order,
+						question: req.body.question,
+						answer: req.body.answer,
+						type: req.body.type,
+					});
+					
+					return res.send({status: "success", content: result});
+				} catch (error) {
+					console.error("Error creating question:", error);
+					return res.send({status: "failure", content: "An unknown error occurred"});
+				}
 				// if (!result._id) {
 				// 	errors.push("Unable to create question due to database error");
 				// } else {
 				// 	console.log("Question <em>&quot;" + req.body.question + "&quot;</em> added");
 				// }
 				// res.send({status: "success", content: result._id.toHexString()});
-				res.send({status: "success", content: result});
 			} else {
 				res.send({status: "failure", content: createErrorHTML(errors)});
 			}
@@ -198,12 +225,17 @@ router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async 
 router.post("/gameManagement/delete/:gameCode", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			// Delete the game
-			const result = await Game.deleteOne({code: req.params.gameCode});
-			
-			if (result.deletedCount == 0) {
+			try {
+				const result = await Game.deleteOne({code: req.params.gameCode});
+
+				if (result.deletedCount == 0) {
+					req.flash("error", "Unable to delete game " + req.params.gameCode);
+				} else {
+					req.flash("success", "Deleted game " + req.params.gameCode);
+				}
+			} catch (error) {
+				console.error("Error deleting game:", error);
 				req.flash("error", "Unable to delete game " + req.params.gameCode);
-			} else {
-				req.flash("success", "Deleted game " + req.params.gameCode);
 			}
 			res.redirect("/admin/gameManagement")
 		} else {
@@ -213,23 +245,30 @@ router.post("/gameManagement/delete/:gameCode", checkAuthenticated, async functi
 
 router.get("/in-game", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
-		// ADD ERROR HANDLING
-		// const foundGame = await Game.findOne({ code: req.user.inGame });
-		const foundGame = await Game.findOne({ status: "in-progress" })
-		.populate({
-			path: 'teams.players',
-			model: User,
-			select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
-			foreignField: 'twitchId',
-		})
-		.populate({
-			path: 'questions',
-			options: { sort: { round: 1, order: 1 } }
-		})
-		.populate({
-			path: 'rounds',
-			options: { sort: { roundNumber: 1 } }
-		});
+		let foundGame = null;
+		try {
+			foundGame = await Game.findOne({ status: "in-progress" })
+				.populate({
+				path: 'teams.players',
+				model: User,
+				select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame',
+				foreignField: 'twitchId',
+			})
+			.populate({
+				path: 'questions',
+				options: { sort: { round: 1, order: 1 } }
+			})
+			.populate({
+				path: 'rounds',
+				options: { sort: { roundNumber: 1 } }
+			});
+		} catch (error) {
+			console.error("Error populating game data:", error);
+			req.flash("error", "An unknown error occurred while fetching game data");
+			await saveSession(req);
+
+			return res.redirect("/admin/startGame");
+		}
 
 		if (foundGame === null) {
 			// Make sure the flash saves before redirecting
@@ -702,22 +741,30 @@ router.post("/end-round/:gameCode/:roundNumber", checkAuthenticated, async funct
 
 router.get("/startGame", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
-		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+		let failureMessage = req.flash("error")[0]; // Retrieve the flash message
 		const successMessage = req.flash("success")[0]; // Retrieve the flash message
-		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"}).populate({
-			path: 'questions',
-			select: '_id game question answer round order',
-			options: { sort: { round: 1, order: 1 } }
-		});
-		const aggregationResult = allGamesResult.map(game => ({_id: game.code, total: game.questions.length}));
-		// console.log(aggregationResult);
+		let allGamesResult = [];
+		let questionTotals = {};
 
+		try {
+			allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"}).populate({
+				path: 'questions',
+				select: '_id game question answer round order',
+				options: { sort: { round: 1, order: 1 } }
+			});
+			const aggregationResult = allGamesResult.map(game => ({_id: game.code, total: game.questions.length}));
+			// console.log(aggregationResult);
 
-		// Convert the result array to an object with game codes as keys
-		const questionTotals = aggregationResult.reduce((acc, item) => {
-			acc[item._id] = item.total;
-			return acc;
-		}, {});
+			// Convert the result array to an object with game codes as keys
+			questionTotals = aggregationResult.reduce((acc, item) => {
+				acc[item._id] = item.total;
+				return acc;
+			}, {});
+		} catch (error) {
+			console.error("Error fetching games:", error);
+			failureMessage = "Unable to fetch games";
+		}
+
 	res.render("admin/startGame", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
 	} else {
 		res.redirect("/login")
@@ -779,7 +826,12 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 .post("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 	const gameCode = req.params.gameCode;
 
-	const foundGame = await Game.findOne({ code: gameCode });
+	let foundGame = null;
+	try {
+		foundGame = await Game.findOne({ code: gameCode });
+	} catch (error) {
+		console.error("Error finding game:", error);
+	}
 
 	if (foundGame === null) {
 		req.flash("error", "Unable to find game " + gameCode);
@@ -787,10 +839,16 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 		return res.redirect("/admin/gameManagement");
 	}
 
-	const updateGameStatusResult = await Game.updateOne({ code: gameCode }, { status: "in-progress" });
+	try {
+		const updateGameStatusResult = await Game.updateOne({ code: gameCode }, { status: "in-progress" });
 
-	// Check modifiedCount of updateGameStatusResult
-	if (updateGameStatusResult.modifiedCount === 0) {
+		// Check modifiedCount of updateGameStatusResult
+		if (updateGameStatusResult.modifiedCount === 0) {
+			req.flash("error", "Unable to start game " + gameCode);
+			return res.redirect("/admin/startGame/" + gameCode);
+		}
+	} catch (error) {
+		console.error("Error updating game status:", error);
 		req.flash("error", "Unable to start game " + gameCode);
 		return res.redirect("/admin/startGame/" + gameCode);
 	}

@@ -118,7 +118,12 @@ async function isGameCodeUnique(code) {
 
 function createErrorHTML(errors) {
 	if (errors.length === 1) return errors[0];
-	return "The following errors occurred:<ul><li>" + errors.join("</li><li>") + "</li></ul>";
+	try {
+		return "The following errors occurred:<ul><li>" + errors.join("</li><li>") + "</li></ul>";
+	} catch (err) {
+		console.error("Error creating error HTML:", err);
+		return "An unknown error occurred.";
+	}
 }
 
 async function fetchTwitchChatColour (uid) {

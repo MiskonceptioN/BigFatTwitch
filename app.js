@@ -27,7 +27,8 @@ const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env
 const Game = require("./models/gameModel.js");
 const User = require("./models/userModel.js");
 const ChatLog = require("./models/chatLogModel.js");
-mongoose.connect(mongoUri);
+try {mongoose.connect(mongoUri)}
+catch (error) {console.error("Error connecting to MongoDB:", error)}
 const db = mongoose.connection;
 
 // Import helper functions
@@ -123,52 +124,42 @@ async function(accessToken, refreshToken, profile, done) {
 		return done(error, false);
 	}
 }));
-passport.serializeUser(function(user, done) { done(null, user) });
-passport.deserializeUser(function(user, done) { done(null, user.doc) });
+passport.serializeUser(function(user, done) {
+	try {
+		if (!user) throw new Error("User not found during serialization");
+		done(null, user);
+	} catch (error) {
+		done(error);
+	}
+});
+passport.deserializeUser(function(user, done) {
+	try {
+		if (!user || !user.doc) throw new Error("User or user.doc not found");
+		done(null, user.doc);
+	} catch (error) {
+		done(error);
+	}
+});
 app.use(passport.initialize());
 app.use(passport.session());
 
 // Socket.io listening
 io.on('connection', async (socket) => {
-	// Check if the user is admin or player
-	const role = socket.handshake.query.role;
-	const teamId = socket.handshake.query.teamId;
+	try {
+		// Check if the user is admin or player
+		const role = socket.handshake.query.role;
+		const teamId = socket.handshake.query.teamId;
 
-    // Join the room corresponding to the team ID
-    (role === "admin") ? socket.join("admin") : socket.join(teamId);
+		// Join the room corresponding to the team ID
+		(role === "admin") ? socket.join("admin") : socket.join(teamId);
 
-	socket.on('disconnect', () => {
-		// console.log('user disconnected');
-	});
+		socket.on('chat message', async (msg, user) => {
+			const preppedMsg = prepUserMessage(msg, user);
+			const room = user.teamId;
 
-	socket.on('chat message', async (msg, user) => {
-		const preppedMsg = prepUserMessage(msg, user);
-		const room = user.teamId;
-
-		// Send the message to the correct team, and also to the admin
-		io.to(room).emit('chat message', preppedMsg);
-		io.to("admin").emit('chat message', preppedMsg, room);
-
-		// Save the message to the database for audit purposes
-		try {
-			const updateUser = await ChatLog.create({
-				gameId: user.inGame,
-				userId: user.twitchId,
-				message: msg,
-				room,
-			});
-		} catch (error) {
-			console.error("Unable to save chat message to DB:", error);
-		}
-	});
-	socket.on('admin chat message', async (msg, user, target) => {
-		const preppedMsg = prepUserMessage(msg, user);
-
-		if (typeof target === "string") { target = [target] }
-			
-		target.forEach(async (team) => {
-			io.to(team).emit('chat message', preppedMsg);
-			io.to("admin").emit('chat message', preppedMsg, team);
+			// Send the message to the correct team, and also to the admin
+			io.to(room).emit('chat message', preppedMsg);
+			io.to("admin").emit('chat message', preppedMsg, room);
 
 			// Save the message to the database for audit purposes
 			try {
@@ -176,112 +167,139 @@ io.on('connection', async (socket) => {
 					gameId: user.inGame,
 					userId: user.twitchId,
 					message: msg,
-					room: team,
+					room,
 				});
-				console.log({updateUser})
 			} catch (error) {
 				console.error("Unable to save chat message to DB:", error);
 			}
 		});
+		socket.on('admin chat message', async (msg, user, target) => {
+			const preppedMsg = prepUserMessage(msg, user);
 
-	});
-	socket.on('player joined', async (gameCode, user) => {
-		// console.log(gameCode, user.displayName);
-		console.log(user.displayName + " has joined game " + gameCode);
+			if (typeof target === "string") { target = [target] }
+				
+			target.forEach(async (team) => {
+				io.to(team).emit('chat message', preppedMsg);
+				io.to("admin").emit('chat message', preppedMsg, team);
 
-		// Update user's inGame status to the game code
-		await User.updateOne({twitchId: user.twitchId}, {inGame: gameCode});
+				// Save the message to the database for audit purposes
+				try {
+					const updateUser = await ChatLog.create({
+						gameId: user.inGame,
+						userId: user.twitchId,
+						message: msg,
+						room: team,
+					});
+					console.log({updateUser})
+				} catch (error) {
+					console.error("Unable to save chat message to DB:", error);
+				}
+			});
 
-		io.emit('player joined', gameCode, user);
-	});
-	socket.on('start game', async (gameCode) => {
-		// Set the state in the DB
-		console.log("Starting game " + gameCode);
-		io.emit('start game', gameCode);
-	});
-	socket.on('update canvas', (canvasData, userID) => {
-		io.emit('update canvas', canvasData, userID);
-	});
-	socket.on('block points', (pointFormID, userID) => {
-		io.emit('block points', pointFormID, userID);
-	});
-	socket.on('unblock points', (pointFormID, userID) => {
-		io.emit('unblock points', pointFormID, userID);
-	});
-	socket.on('update points', (pointFormID, points, userID) => {
-		io.emit('update points', pointFormID, points, userID);
-	});
-	socket.on("editing team name", (teamId, state) => {
-		io.emit("editing team name", teamId, state);
-	});
-	socket.on("change team name", async (newName, teamId, gameCode) => {
-		if (!newName || !teamId || !gameCode) {
-			console.error("Missing parameters for change team name");
-			console.log({newName, teamId, gameCode});
-			return;
-		}
+		});
+		socket.on('player joined', async (gameCode, user) => {
+			// console.log(gameCode, user.displayName);
+			console.log(user.displayName + " has joined game " + gameCode);
 
-		try {
-			const updateTeam = await Game.updateOne(
-				{ code: gameCode, "teams._id": teamId },
-				{ $set: { "teams.$.name": newName } }
-			);
+			try {
+				// Update user's inGame status to the game code
+				await User.updateOne({twitchId: user.twitchId}, {inGame: gameCode});
+			} catch (error) {
+				console.error("Error updating " + user.displayName + "'s inGame status:", error);
+			}
 
-			if (updateTeam.matchedCount === 0) { return console.error("No game found with the provided game code") }
-			if (updateTeam.modifiedCount === 0) { return console.error("No team found with the provided team ID") }
+			io.emit('player joined', gameCode, user);
+		});
+		socket.on('start game', async (gameCode) => {
+			console.log("Starting game " + gameCode);
+			io.emit('start game', gameCode);
+		});
+		socket.on('update canvas', (canvasData, userID) => {
+			io.emit('update canvas', canvasData, userID);
+		});
+		socket.on('block points', (pointFormID, userID) => {
+			io.emit('block points', pointFormID, userID);
+		});
+		socket.on('unblock points', (pointFormID, userID) => {
+			io.emit('unblock points', pointFormID, userID);
+		});
+		socket.on('update points', (pointFormID, points, userID) => {
+			io.emit('update points', pointFormID, points, userID);
+		});
+		socket.on("editing team name", (teamId, state) => {
+			io.emit("editing team name", teamId, state);
+		});
+		socket.on("change team name", async (newName, teamId, gameCode) => {
+			if (!newName || !teamId || !gameCode) {
+				console.error("Missing parameters for change team name");
+				console.log({newName, teamId, gameCode});
+				return;
+			}
 
-			console.log("Team name updated successfully:", teamId, newName);
-		} catch (error) {
-			console.error("Unable to update the team name:", teamId, newName, error);
-		}
-		io.emit("update team name", newName, teamId);
-	});
-	socket.on("show interstitial", (state, heading="", subheading="") => {
-		io.emit("show interstitial", state, heading, subheading);
-	});
-	socket.on("show point interstitial", async (uniformSelfLocator) => {
-		try {
-			const team1name = await axios.get(uniformSelfLocator + "/obs/teams/1/name");
-			const team1points = await axios.get(uniformSelfLocator + "/obs/teams/1/points");
-			const team2name = await axios.get(uniformSelfLocator + "/obs/teams/2/name");
-			const team2points = await axios.get(uniformSelfLocator + "/obs/teams/2/points");
-			const team3name = await axios.get(uniformSelfLocator + "/obs/teams/3/name");
-			const team3points = await axios.get(uniformSelfLocator + "/obs/teams/3/points");
+			try {
+				const updateTeam = await Game.updateOne(
+					{ code: gameCode, "teams._id": teamId },
+					{ $set: { "teams.$.name": newName } }
+				);
 
-			const pointsData = [
-				{name: team1name.data, points: team1points.data},
-				{name: team2name.data, points: team2points.data},
-				{name: team3name.data, points: team3points.data}
-			];
-			var sortedPoints = pointsData.sort((a, b) => b.points-a.points);
+				if (updateTeam.matchedCount === 0) { return console.error("No game found with the provided game code") }
+				if (updateTeam.modifiedCount === 0) { return console.error("No team found with the provided team ID") }
 
-			io.emit("show point interstitial", 
-				sortedPoints[0].name, sortedPoints[0].points,
-				sortedPoints[1].name, sortedPoints[1].points,
-				sortedPoints[2].name, sortedPoints[2].points, 
-			);
+				console.log("Team name updated successfully:", teamId, newName);
+			} catch (error) {
+				console.error("Unable to update the team name:", teamId, newName, error);
+			}
+			io.emit("update team name", newName, teamId);
+		});
+		socket.on("show interstitial", (state, heading="", subheading="") => {
+			io.emit("show interstitial", state, heading, subheading);
+		});
+		socket.on("show point interstitial", async (uniformSelfLocator) => {
+			try {
+				const team1name = await axios.get(uniformSelfLocator + "/obs/teams/1/name");
+				const team1points = await axios.get(uniformSelfLocator + "/obs/teams/1/points");
+				const team2name = await axios.get(uniformSelfLocator + "/obs/teams/2/name");
+				const team2points = await axios.get(uniformSelfLocator + "/obs/teams/2/points");
+				const team3name = await axios.get(uniformSelfLocator + "/obs/teams/3/name");
+				const team3points = await axios.get(uniformSelfLocator + "/obs/teams/3/points");
 
-		} catch (error) {
-			console.error("Error fetching team data:", error);
-		}
-	});
-	socket.on("next question", (questionText, questionId) => {
-		io.emit("next question", questionText, questionId);
-	});
-	socket.on("update answer", async (imageData, playerId) => {
-		try {
-			updateUser = await User.updateOne(
-				{ twitchId: playerId },
-				{ $set: {"answer": imageData }}
-			)
-			if (updateUser.matchedCount === 0) { throw new Error("No user found"); }
-			if (updateUser.modifiedCount === 0) { throw new Error("User found but answer was not updated") }
-		} catch (error) {
-			console.error("Error updating answer for player " + playerId, error);
-			return;
-		}
-		io.emit("update answer", imageData, playerId);
-	});
+				const pointsData = [
+					{name: team1name.data, points: team1points.data},
+					{name: team2name.data, points: team2points.data},
+					{name: team3name.data, points: team3points.data}
+				];
+				var sortedPoints = pointsData.sort((a, b) => b.points-a.points);
+
+				io.emit("show point interstitial", 
+					sortedPoints[0].name, sortedPoints[0].points,
+					sortedPoints[1].name, sortedPoints[1].points,
+					sortedPoints[2].name, sortedPoints[2].points, 
+				);
+
+			} catch (error) {
+				console.error("Error fetching team data:", error);
+			}
+		});
+		socket.on("next question", (questionText, questionId) => {
+			io.emit("next question", questionText, questionId);
+		});
+		socket.on("update answer", async (imageData, playerId) => {
+			try {
+				updateUser = await User.updateOne(
+					{ twitchId: playerId },
+					{ $set: {"answer": imageData }}
+				)
+				if (updateUser.matchedCount === 0) { throw new Error("No user found"); }
+				if (updateUser.modifiedCount === 0) { throw new Error("User found but answer was not updated") }
+			} catch (error) {
+				console.error("Error updating answer for player " + playerId, error);
+				return;
+			}
+			io.emit("update answer", imageData, playerId);
+		});
+	} catch (error) {
+		console.error("Socket.io connection error:", error);
+	}
 });
 
 // Routes
