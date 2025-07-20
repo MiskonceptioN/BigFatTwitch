@@ -37,6 +37,11 @@ const checkAuthenticated = (req, res, next) => {
 	res.redirect("/login");
 };
 
+const checkIsOBSRequest = (req, res, next) => {
+	if (req.header("user-agent").includes("OBS/")) {return next()}
+	res.status(403).send("<h1>Nope</h1><p>Sorry, fam!</p><p>Your user-agent is " + req.header("user-agent") + "</p>");
+};
+
 /**
  * Asynchronously checks for a currently running game.
  *
@@ -194,5 +199,5 @@ async function fetchChatLog (game, room, limit = 20) {
 }
 
 module.exports = {
-	checkAuthenticated, checkForRunningGame, prepUserMessage, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession, fetchFromAPI, fetchChatLog, getAdminUsers
+	checkAuthenticated, checkIsOBSRequest, checkForRunningGame, prepUserMessage, generateGameCode, createErrorHTML, fetchTwitchChatColour, saveSession, fetchFromAPI, fetchChatLog, getAdminUsers
 };

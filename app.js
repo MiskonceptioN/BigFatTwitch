@@ -241,12 +241,14 @@ io.on('connection', async (socket) => {
 	});
 	socket.on("show point interstitial", async (uniformSelfLocator) => {
 		try {
-			const team1name = await axios.get(uniformSelfLocator + "/obs/teams/1/name");
-			const team1points = await axios.get(uniformSelfLocator + "/obs/teams/1/points");
-			const team2name = await axios.get(uniformSelfLocator + "/obs/teams/2/name");
-			const team2points = await axios.get(uniformSelfLocator + "/obs/teams/2/points");
-			const team3name = await axios.get(uniformSelfLocator + "/obs/teams/3/name");
-			const team3points = await axios.get(uniformSelfLocator + "/obs/teams/3/points");
+			const headers = {"user-agent": "Big Chonky OBS/Bot"};
+
+			const team1name = await axios.get(uniformSelfLocator + "/obs/teams/1/name", {headers});
+			const team1points = await axios.get(uniformSelfLocator + "/obs/teams/1/points", {headers});
+			const team2name = await axios.get(uniformSelfLocator + "/obs/teams/2/name", {headers});
+			const team2points = await axios.get(uniformSelfLocator + "/obs/teams/2/points", {headers});
+			const team3name = await axios.get(uniformSelfLocator + "/obs/teams/3/name", {headers});
+			const team3points = await axios.get(uniformSelfLocator + "/obs/teams/3/points", {headers});
 
 			const pointsData = [
 				{name: team1name.data, points: team1points.data},
