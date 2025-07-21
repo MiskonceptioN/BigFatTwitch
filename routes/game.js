@@ -164,7 +164,7 @@ router.get("/join", checkAuthenticated, (req, res) => {
 						teamIndex: i,
 					};
 					try {await saveSession(req)}
-					catch (err) {console.log('Error saving session for ' + req.user + ':', err)}
+					catch (err) {console.error('Error saving session for ' + req.user + ':', err)}
 
 					// Update the database to include game info in the User
 					try {await User.updateOne({twitchId: user.twitchId}, {inGame: gameCode, game, loggedOutOf: ""})}
