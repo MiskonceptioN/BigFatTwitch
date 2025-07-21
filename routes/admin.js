@@ -872,8 +872,21 @@ router.get("/teams", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 		const successMessage = req.flash("success")[0]; // Retrieve the flash message
-		const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
-		const allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"});
+		let allUsersResult = {};
+		try { allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); /* Sort case-insensitive */ }
+		catch (error) {
+			console.error("Error fetching users:", error);
+			req.flash("error", "Unable to fetch users");
+			return res.redirect("/login");
+		}
+
+		let allGamesResult = {};
+		try { allGamesResult = await Game.find({ status: { $not: { $eq: "complete" } } }).sort({order: "asc"}); }
+		catch (error) {
+			console.error("Error fetching games:", error);
+			req.flash("error", "Unable to fetch games");
+			return res.redirect("/login");
+		}
 		const currentlyRunningGame = await checkForRunningGame();
 		res.render("admin/teams", {user: req.user, game: currentlyRunningGame, allUsers: allUsersResult, allGames: allGamesResult, failureMessage, successMessage});
 	} else {
@@ -884,17 +897,28 @@ router.get("/teams", checkAuthenticated, async function(req, res){
 .post("/teams/:gameCode", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		console.log(req.body)
-		const updateGameResult = await Game.updateOne({ code: req.params.gameCode }, {$set: { teams: [
-			{players: [req.body.Team1[0], req.body.Team1[1]]},
-			{players: [req.body.Team2[0], req.body.Team2[1]]},
-			{players: [req.body.Team3[0], req.body.Team3[1]]},
-		] }});
-		console.log(updateGameResult);
+		try {
+			const updateGameResult = await Game.updateOne({ code: req.params.gameCode }, {$set: { teams: [
+				{players: [req.body.Team1[0], req.body.Team1[1]]},
+				{players: [req.body.Team2[0], req.body.Team2[1]]},
+				{players: [req.body.Team3[0], req.body.Team3[1]]},
+			] }});
+			console.log(updateGameResult);
+			req.flash("success", "Everything is great");
+		} catch (error) {
+			console.error("Error updating game teams:", error);
+			req.flash("error", "Unable to update teams for game " + req.params.gameCode);
+		}
 
-		const updatedGame = await Game.findOne({ code: req.params.gameCode });
-		console.log(updatedGame);
+		try {
+			const updatedGame = await Game.findOne({ code: req.params.gameCode });
+			console.log(updatedGame);
+			req.flash("success", "Everything is great");
+		} catch (error) {
+			console.error("Error fetching updated game:", error);
+			req.flash("error", "Unable to fetch updated game " + req.params.gameCode);
+		}
 
-		req.flash("success", "Everything is great");
 		res.redirect("/admin/teams");
 	} else {
 		res.send({status: "danger", content: "You're not an admin. Bugger off"});
@@ -905,8 +929,16 @@ router.get("/users", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 			const successMessage = req.flash("success")[0]; // Retrieve the flash message
-			const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
+			let allUsersResult = {};
 			const currentlyRunningGame = await checkForRunningGame();
+
+			try	{
+				allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
+			} catch (error) {
+				console.error("Error fetching users:", error);
+				req.flash("error", "Unable to fetch users");
+				return res.redirect("/");
+			}
 			res.render("admin/users", {user: req.user, allUsers: allUsersResult, game: currentlyRunningGame, failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
@@ -944,27 +976,33 @@ router.post("/users/add/", checkAuthenticated, async function(req, res){
 						console.error("Unable to fetch Twitch chat colour for user " + userInfo.display_name, error);
 					}
 
-					User.updateOne({ twitchId: userInfo.id }, {
-						displayName: userInfo.display_name,
-						profileImageUrl: userInfo.profile_image_url,
-						broadcasterType: userInfo.broadcaster_type,
-						bio: userInfo.description,
-						twitchChatColour: userInfo.twitchChatColour
-					}, { upsert: true })
-						.then(result => {
-							if (result.upsertedCount === 1) {
-								req.flash("success", "Added " + userInfo.display_name + " to the database!");
-							} else {
-								req.flash("success", "Updated " + userInfo.display_name + "'s user info!");
-							}
-						})
-						.catch(error => {
-							req.flash("error", "Unable to add " + user + " to the database!");
-							console.error(error, response.data.id);
-						})
-						.finally(() => {
-							res.redirect("/admin/users");
+					try {
+						User.updateOne({ twitchId: userInfo.id }, {
+							displayName: userInfo.display_name,
+							profileImageUrl: userInfo.profile_image_url,
+							broadcasterType: userInfo.broadcaster_type,
+							bio: userInfo.description,
+							twitchChatColour: userInfo.twitchChatColour
+						}, { upsert: true })
+							.then(result => {
+								if (result.upsertedCount === 1) {
+									req.flash("success", "Added " + userInfo.display_name + " to the database!");
+								} else {
+									req.flash("success", "Updated " + userInfo.display_name + "'s user info!");
+								}
+							})
+							.catch(error => {
+								req.flash("error", "Unable to add " + user + " to the database!");
+								console.error(error, response.data.id);
+							})
+							.finally(() => {
+								res.redirect("/admin/users");
 						});
+					} catch (error) {
+						req.flash("error", "Unable to add " + user + " to the database!");
+						console.error(error);
+						res.redirect("/admin/users");
+					}
 				})
 				.catch(error => {
 					req.flash("error", "Unable to fetch data from Twitch");
@@ -988,8 +1026,14 @@ router.post("/users/ban/:targetTwitchId", checkAuthenticated, async function(req
 			const newBanState = (req.body.banstate === "false") ? 1 : 0;
 
 			// ban the user
-			const result = await User.updateOne({ twitchId: req.body.targetTwitchId }, { banned: newBanState });
-			console.log(result);
+			try {
+				const result = await User.updateOne({ twitchId: req.body.targetTwitchId }, { banned: newBanState });
+				console.log(result);
+			} catch (error) {
+				console.error("Error updating ban state:", error);
+				req.flash("error", "Unable to update the ban state of " + req.body.targetTwitchDisplayName);
+				return res.redirect("/admin/users");
+			}
 			
 			if (result.modifiedCount == 0) {
 				req.flash("error", "Unable to update the ban state of " + req.body.targetTwitchDisplayName);
