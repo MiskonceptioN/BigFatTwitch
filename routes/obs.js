@@ -4,7 +4,6 @@ const router = express.Router();
 const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
 const Question = require("../models/questionModel.js");
-const Points = require("../models/pointsModel.js");
 const Answer = require("../models/answerModel.js");
 
 router.get("/", (req, res) => {
@@ -35,7 +34,6 @@ router.get("/question", async (req, res) => {
 
 router.get("/view-answers/:questionId", async (req, res) => {
 	const questionID = req.params.questionId;
-	// const questionID = "680fff8b3e568d9550be8b8b"; // For testing only
 
 	try {
 		// Retrieve question from DB
