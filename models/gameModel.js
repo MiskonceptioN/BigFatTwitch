@@ -3,34 +3,34 @@ const timestamps  = require('mongoose-timestamp');
 
 // Define the Team schema
 const teamSchema = new mongoose.Schema({
-  name: { type: String, default: "Team" },
-  points: { type: Number, default: 0 },
-  players: [{ type: String, default: [null, null], ref: 'User', foreignField: 'twitchId' }]
+	name: { type: String, default: "Team" },
+	points: { type: Number, default: 0 },
+	players: [{ type: String, default: [null, null], ref: 'User', foreignField: 'twitchId' }]
 });
 
 // Define the Game schema
 const gameSchema = new mongoose.Schema({
-  code: { type: String, required: true },
-  status: { type: String, enum: ["pending", "starting", "in-progress", "played"], default: "pending" },
-  maxAudience: { type: Number, default: 0 },
-  winner: { type: String, default: null },
-  teams: [teamSchema], 
+	code: { type: String, required: true },
+	status: { type: String, enum: ["pending", "starting", "in-progress", "played"], default: "pending" },
+	maxAudience: { type: Number, default: 0 },
+	winner: { type: String, default: null },
+	teams: [teamSchema], 
 });
 
 // Virtual for questions
 gameSchema.virtual('questions', {
-  ref: 'Question',
-  localField: 'code',
-  foreignField: 'game', // field in Question model
-  justOne: false
+	ref: 'Question',
+	localField: 'code',
+	foreignField: 'game', // field in Question model
+	justOne: false
 });
 
 // Virtual for rounds
 gameSchema.virtual('rounds', {
-  ref: 'Round',
-  localField: 'code',
-  foreignField: 'game', // field in answer model
-  justOne: false
+	ref: 'Round',
+	localField: 'code',
+	foreignField: 'game', // field in answer model
+	justOne: false
 });
 
 gameSchema.set('timestamps', true);
