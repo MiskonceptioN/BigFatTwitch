@@ -14,9 +14,8 @@ const io = require('../app');
 router.post("/canvas/:toggle", checkAuthenticated, async function(req, res){
 	const lockState = req.params.toggle || "";
 	if (lockState !== "lock" && lockState !== "unlock") {
-		res.send({status: "failure", content: "Invalid lock state"});
 		console.log("Invalid lock state: " + lockState);
-		return;
+		return res.send({status: "failure", content: "Invalid lock state"});
 	}
 
 	io.emit(lockState + " canvas");
@@ -26,9 +25,8 @@ router.post("/canvas/:toggle", checkAuthenticated, async function(req, res){
 router.post("/submit-button/:toggle", checkAuthenticated, async function(req, res){
 	const lockState = req.params.toggle || "";
 	if (lockState !== "lock" && lockState !== "unlock") {
-		res.send({status: "failure", content: "Invalid lock state"});
 		console.log("Invalid lock state: " + lockState);
-		return;
+		return res.send({status: "failure", content: "Invalid lock state"});
 	}
 
 	io.emit(lockState + " submit button");
@@ -249,9 +247,8 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			// Make sure the flash saves before redirecting
 			req.flash("error", "Unable to find any games in the 'in-progress' state");
 			await saveSession(req);
-
-			res.redirect("/admin/startGame");
-			return
+			
+			return res.redirect("/admin/startGame");
 		}
 		const gameCode = foundGame.code;
 
@@ -368,26 +365,23 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		},{ $set: { points: points } });
 
 		if (updatePoints.modifiedCount < 1) {
-			res.send({
+			return res.send({
 				status: "danger",
 				content: "Something went wrong! Please let Danny know."
 			});
-			return;
 		} else {
-			res.send({
+			io.emit('points added', pointFormID);
+			return res.send({
 				status: "success",
 				content: "Points added!"
 			});
-			io.emit('points added', pointFormID);
-			return;
 		}
 	} catch (error) {
-		res.send({
+		console.error(error);
+		return res.send({
 			status: "danger",
 			content: "Something went wrong! Please let Danny know."
 		});
-		console.error(error);
-		return;
 	}
 })
 .post("/in-game/set-question-state", checkAuthenticated, async function(req, res){
@@ -521,8 +515,7 @@ router.post("/reset-game-questions/:gameCode", checkAuthenticated, async functio
 
 		if (foundGame === null) {
 			console.log("Unable to find game " + gameCode);
-			res.send({status: "failure", content: "Unable to find game " + gameCode});
-			return;
+			return res.send({status: "failure", content: "Unable to find game " + gameCode});
 		}
 	
 		try {
@@ -533,16 +526,13 @@ router.post("/reset-game-questions/:gameCode", checkAuthenticated, async functio
 
 			// Check modifiedCount of updateQuestionStatusResult
 			if (updateQuestionStatusResult.matchedCount === 0) {
-				res.send({status: "failure", content: "No questions found for game " + gameCode});
-				return;
+				return res.send({status: "failure", content: "No questions found for game " + gameCode});
 			}
 			if (updateQuestionStatusResult.modifiedCount !== updateQuestionStatusResult.matchedCount) {
-				res.send({status: "failure", content: "Unable to update all questions for game " + gameCode});
-				return;
+				return res.send({status: "failure", content: "Unable to update all questions for game " + gameCode});
 			}
 		
-			res.send({status: "Success", content: "Successfully set round " + gameCode + "'s questions to 'pending'"});
-			return; 
+			return res.send({status: "Success", content: "Successfully set round " + gameCode + "'s questions to 'pending'"});
 		} catch (error) {
 			console.log("Unable to update " + gameCode + "'s questions", error);
 			res.send({status: "failure", content: "Unable to update " + gameCode + "'s questions"});
@@ -557,9 +547,8 @@ router.post("/end-game/:gameCode", checkAuthenticated, async function(req, res){
 	const gameCode = req.params.gameCode;
 
 	if (req.user.role != "admin") {
-		res.send({status: "failure", content: "You're not an admin!"});
 		console.log(req.user.displayName + " attempted to end game " + gameCode + " but they're not an admin!")
-		return;
+		return res.send({status: "failure", content: "You're not an admin!"});
 	}
 
 	try {
@@ -567,8 +556,7 @@ router.post("/end-game/:gameCode", checkAuthenticated, async function(req, res){
 
 		if (foundGame === null) {
 			console.log("Unable to find game " + gameCode);
-			res.send({status: "failure", content: "Unable to find game " + gameCode});
-			return;
+			return res.send({status: "failure", content: "Unable to find game " + gameCode});
 		}
 	
 		try {
@@ -582,8 +570,7 @@ router.post("/end-game/:gameCode", checkAuthenticated, async function(req, res){
 
 			const updateUsersResult = await User.updateMany({ inGame: gameCode }, { $set: { inGame: "", loggedOutOf: gameCode } });
 			
-			res.send({status: "Success", content: "Successfully reset game " + gameCode});
-			return; 
+			return res.send({status: "Success", content: "Successfully reset game " + gameCode});
 		} catch (error) {
 			console.error("Unable to update game " + gameCode, error);
 			res.send({status: "failure", content: "Unable to update game " + gameCode});
@@ -599,9 +586,8 @@ router.post("/restart-round/:gameCode/:roundNumber", checkAuthenticated, async f
 	const { gameCode, roundNumber } = req.params;
 
 	if (req.user.role != "admin") {
-		res.send({status: "failure", content: "You're not an admin!"});
 		console.log(req.user.displayName + " attempted to restart round " + roundNumber + " in " + gameCode + " but they're not an admin!")
-		return;
+		return res.send({status: "failure", content: "You're not an admin!"});
 	}
 
 	try {
@@ -609,8 +595,7 @@ router.post("/restart-round/:gameCode/:roundNumber", checkAuthenticated, async f
 
 		if (foundGame === null) {
 			console.log("Unable to find game " + gameCode);
-			res.send({status: "failure", content: "Unable to find game " + gameCode});
-			return;
+			return res.send({status: "failure", content: "Unable to find game " + gameCode});
 		}
 	
 		try {
@@ -625,12 +610,10 @@ router.post("/restart-round/:gameCode/:roundNumber", checkAuthenticated, async f
 				return;
 			}
 			if (updateQuestionStatusResult.modifiedCount !== updateQuestionStatusResult.matchedCount) {
-				res.send({status: "failure", content: "Unable to update all questions for game " + gameCode + " in round " + roundNumber});
-				return;
+				return res.send({status: "failure", content: "Unable to update all questions for game " + gameCode + " in round " + roundNumber});
 			}
 		
-			res.send({status: "Success", content: "Successfully set round " + roundNumber + "'s questions to 'pending' for game " + gameCode});
-			return; 
+			return res.send({status: "Success", content: "Successfully set round " + roundNumber + "'s questions to 'pending' for game " + gameCode});
 		} catch (error) {
 			console.log("Unable to update round " + roundNumber + "'s questions for game " + gameCode, error);
 			res.send({status: "failure", content: "Unable to update round " + roundNumber + "'s questions for game " + gameCode});
@@ -645,9 +628,8 @@ router.post("/end-round/:gameCode/:roundNumber", checkAuthenticated, async funct
 	const { gameCode, roundNumber } = req.params;
 
 	if (req.user.role != "admin") {
-		res.send({status: "failure", content: "You're not an admin!"});
 		console.log("User attempted to end round " + roundNumber + " in " + gameCode + " but they're not an admin!")
-		return;
+		return res.send({status: "failure", content: "You're not an admin!"});
 	}
 
 	try {
@@ -655,8 +637,7 @@ router.post("/end-round/:gameCode/:roundNumber", checkAuthenticated, async funct
 
 		if (foundGame === null) {
 			console.log("Unable to find game " + gameCode);
-			res.send({status: "failure", content: "Unable to find game " + gameCode});
-			return;
+			return res.send({status: "failure", content: "Unable to find game " + gameCode});
 		}
 	
 		try {
@@ -667,16 +648,13 @@ router.post("/end-round/:gameCode/:roundNumber", checkAuthenticated, async funct
 
 			// Check modifiedCount of updateQuestionStatusResult
 			if (updateQuestionStatusResult.matchedCount === 0) {
-				res.send({status: "failure", content: "No questions found for game " + gameCode + " in round " + roundNumber});
-				return;
+				return res.send({status: "failure", content: "No questions found for game " + gameCode + " in round " + roundNumber});
 			}
 			if (updateQuestionStatusResult.modifiedCount !== updateQuestionStatusResult.matchedCount) {
-				res.send({status: "failure", content: "Unable to update all questions for game " + gameCode + " in round " + roundNumber});
-				return;
+				return res.send({status: "failure", content: "Unable to update all questions for game " + gameCode + " in round " + roundNumber});
 			}
 		
-			res.send({status: "Success", content: "Successfully set round " + roundNumber + "'s questions to 'played' for game " + gameCode});
-			return; 
+			return res.send({status: "Success", content: "Successfully set round " + roundNumber + "'s questions to 'played' for game " + gameCode});
 		} catch (error) {
 			console.log("Unable to update round " + roundNumber + "'s questions for game " + gameCode, error);
 			res.send({status: "failure", content: "Unable to update round " + roundNumber + "'s questions for game " + gameCode});
@@ -739,8 +717,7 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 				} catch (error) {
 					console.error(error);
 					req.flash("error", "Unable to start game " + req.params.gameCode);
-					res.redirect("/admin/startGame/");
-					return;
+					return res.redirect("/admin/startGame/");
 				}
 
 				// Fetch the chat logs for each team
