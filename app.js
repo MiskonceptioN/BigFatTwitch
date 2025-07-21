@@ -6,7 +6,6 @@ const flash = require("express-flash");
 const { createServer} = require("node:http");
 const bodyParser = require("body-parser");
 const axios = require("axios").default;
-const fs = require("fs");
 const { Server } = require("socket.io");
 const passport = require("passport");
 const twitchStrategy = require("passport-twitch-v2").Strategy;
@@ -32,7 +31,7 @@ catch (error) {console.error("Error connecting to MongoDB:", error)}
 const db = mongoose.connection;
 
 // Import helper functions
-const { checkAuthenticated, generateGameCode, createErrorHTML, fetchTwitchChatColour, prepUserMessage } = require("./helpers");
+const { fetchTwitchChatColour, prepUserMessage } = require("./helpers");
 
 // App config
 app.set("view engine", "ejs");
