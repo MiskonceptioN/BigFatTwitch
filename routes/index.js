@@ -101,25 +101,25 @@ post("/settings", checkAuthenticated, async function(req, res){
 });
 
 router.get("/nologin", async function(req, res){
-    // Check the twitchId query param
-    if (req.query.twitchId) {
-        try {
-            // Find a user with the target Twitch ID
-            const user = await User.findOne({ twitchId: req.query.twitchId });    
-            if (user) {
-                req.session.userId = user._id; // Store user ID in the session
-                return res.redirect('/profile');
-            } else {
-                res.redirect('/login');
-            }
-        } catch (error) {
-            console.error(error);
-            res.redirect('/login');
-        }
-    } else {
-        const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
-        res.render("nologin", {allUsers: allUsersResult});
-    }
+	// Check the twitchId query param
+	if (req.query.twitchId) {
+		try {
+			// Find a user with the target Twitch ID
+			const user = await User.findOne({ twitchId: req.query.twitchId });    
+			if (user) {
+				req.session.userId = user._id; // Store user ID in the session
+				return res.redirect('/profile');
+			} else {
+				res.redirect('/login');
+			}
+		} catch (error) {
+			console.error(error);
+			res.redirect('/login');
+		}
+	} else {
+		const allUsersResult = await User.find({}).collation({ locale: 'en', strength: 2 }).sort({ displayName: 1 }); // Sort case-insensitive
+		res.render("nologin", {allUsers: allUsersResult});
+	}
 });
 
 router.post("/updateSession", checkAuthenticated, async function(req, res){
