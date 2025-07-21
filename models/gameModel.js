@@ -33,7 +33,6 @@ gameSchema.virtual('rounds', {
   justOne: false
 });
 
-// gameSchema.plugin(timestamps);
 gameSchema.set('timestamps', true);
 
 // Create the Game model based on the schema
