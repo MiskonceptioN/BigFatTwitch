@@ -310,7 +310,7 @@ app.route("/exampleAjaxPOST")
 
 // Fire up the server
 const PORT = process.env.PORT || 3000;
-const HOST = (PORT == 3000) ? "http://localhost" : "https://gameshow.dannyvalz.com";
+const HOST = (PORT == 3000) ? "http://localhost:3000" : "https://gameshow.dannyvalz.com";
 server.listen(PORT, function(){
-	console.log(`Server listening on ${HOST}:${PORT}`);
+	console.log(`Server listening on ${HOST}`);
 });
