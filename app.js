@@ -187,7 +187,6 @@ io.on('connection', async (socket) => {
 						message: msg,
 						room: team,
 					});
-					console.log({updateUser})
 				} catch (error) {
 					console.error("Unable to save chat message to DB:", error);
 				}
@@ -207,7 +206,6 @@ io.on('connection', async (socket) => {
 			io.emit('player joined', gameCode, user);
 		});
 		socket.on('start game', async (gameCode) => {
-			console.log("Starting game " + gameCode);
 			io.emit('start game', gameCode);
 		});
 		socket.on('update canvas', (canvasData, userID) => {
