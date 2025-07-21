@@ -6,8 +6,6 @@ const teamSchema = new mongoose.Schema({
   teamName: { type: String, required: true },
   playerOne: { type: String, required: true },
   playerTwo: { type: String, required: true },
-//   playerOne: { type: Number, required: true },
-//   playerTwo: { type: Number, required: true },
   gameId: { type: String, default: null }, 
   points: { type: Number, default: 0 }
 });

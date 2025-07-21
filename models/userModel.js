@@ -20,7 +20,6 @@ const userSchema = new mongoose.Schema({
   inGame: {type: String, default: ""},
   loggedOutOf: {type: String, default: ""},
   answer: {type: String, default: onePxPng}, // base64 of the most recent answer
-  // lastAnswerId: { type: mongoose.Schema.Types.ObjectId, ref: "Answer" }
 });
 userSchema.plugin(findOrCreate);
 userSchema.set('timestamps', true);

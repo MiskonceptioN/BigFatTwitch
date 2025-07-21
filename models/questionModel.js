@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const timestamps = require("mongoose-timestamp");
-// const Game = require("./gameModel.js");
 
 // Define the Question schema
 const questionSchema = new mongoose.Schema({
