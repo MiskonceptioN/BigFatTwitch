@@ -78,10 +78,8 @@ async function(accessToken, refreshToken, profile, done) {
 					});
 			
 					// Redirect the user if the game doesn't exist
-					if (!game) {
-						return done(null, user);
-					}
-			
+					if (!game) { return done(null, user); }
+
 					// Check to see if the user joining the game is one of the players
 					for (let i = 0; i < game.teams.length; i++) {
 						const team = game.teams[i];
