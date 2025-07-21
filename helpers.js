@@ -56,6 +56,13 @@ const checkForRunningGame = async () => {
 	}
 };
 
+/**
+ * Sanitises a string by replacing special HTML characters with their corresponding HTML entities.
+ * This helps prevent XSS (Cross-Site Scripting) attacks by escaping characters that have special meaning in HTML.
+ *
+ * @param {string} str - The input string to sanitise.
+ * @returns {string} The sanitised string with special characters replaced by HTML entities.
+ */
 const sanitiseString = (str) => {
 	return str.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;").replace(/\//g, "&#x2F;");
 }
