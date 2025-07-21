@@ -95,8 +95,8 @@ post("/settings", checkAuthenticated, async function(req, res){
 		req.session.save();
 
 	} catch (error) {
-		res.send({status: "danger", content: "Shit is fucked yo"});
 		console.error(error);
+		res.send({status: "danger", content: "Shit is fucked yo"});
 	}
 });
 
