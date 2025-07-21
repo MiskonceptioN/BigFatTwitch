@@ -215,12 +215,20 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 	const gameCode = req.user.inGame;
 
 	// Check logged in user is a player
-	const game = await Game.findOne({code: gameCode}).populate({
-		path: 'teams.players',
-		model: User,
-		// select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame bio',
-		foreignField: 'twitchId',
-	});
+	let game = {};
+	try {
+		game = await Game.findOne({code: gameCode}).populate({
+			path: 'teams.players',
+			model: User,
+			// select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame bio',
+			foreignField: 'twitchId',
+		});
+	} catch (error) {
+		console.error("Error finding game:", error);
+		req.flash("error", "Unable to find game " + gameCode);
+		res.redirect("join");
+		return;
+	}
 
 	// Redirect the user if the game doesn't exist
 	if (!game) {
