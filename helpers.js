@@ -84,7 +84,6 @@ function prepUserMessage(msg, user){
 		}
 	}
 	
-	
 	prefix = "<span class='chat-player-name' style='color: " + colour + "'>" + username + "</span>";
 	
 	if (isAdmin) { return `<span class='admin-chat-message'>${prefix}: ${santisedMsg}</span>` }
