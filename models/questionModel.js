@@ -4,7 +4,7 @@ const timestamps = require("mongoose-timestamp");
 
 // Define the Question schema
 const questionSchema = new mongoose.Schema({
-	game: { type: String, ref: 'Game', foreignField: 'code' }, // Reference to the game code
+	game: { type: String, ref: 'Game', foreignField: 'code', required: true }, // Reference to the game code
 	round: { type: Number, required: true }, // Round number
 	order: { type: Number, required: true }, // Question order within the round
 	question: { type: String, required: true },
