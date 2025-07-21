@@ -1,9 +1,5 @@
 const express = require("express");
 const router = express.Router();
-const { checkAuthenticated } = require("../helpers");
-
-// Pull in socket.io
-const io = require('../app');
 
 const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
