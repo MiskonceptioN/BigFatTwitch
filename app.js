@@ -195,7 +195,6 @@ io.on('connection', async (socket) => {
 
 		});
 		socket.on('player joined', async (gameCode, user) => {
-			// console.log(gameCode, user.displayName);
 			console.log(user.displayName + " has joined game " + gameCode);
 
 			try {
@@ -241,8 +240,6 @@ io.on('connection', async (socket) => {
 
 				if (updateTeam.matchedCount === 0) { return console.error("No game found with the provided game code") }
 				if (updateTeam.modifiedCount === 0) { return console.error("No team found with the provided team ID") }
-
-				console.log("Team name updated successfully:", teamId, newName);
 			} catch (error) {
 				console.error("Unable to update the team name:", teamId, newName, error);
 			}
