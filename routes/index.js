@@ -25,39 +25,6 @@ router.get("/", checkAuthenticated, async (req, res) => {
 
 });
 
-router.get("/debug", async (req, res) => {
-	const currentlyRunningGame = await checkForRunningGame();
-
-	const questions = [];
-	// Pull all the questions from the Game model
-	const allGames = await Game.find({}).populate({
-		path: 'questions',
-		// select: '_id game question answer round order status',
-		options: { sort: { round: 1, order: 1 } }
-	});
-
-	allGames.forEach(game => {
-		game.questions.forEach(question => {
-			questions.push(question);
-		});
-	});
-
-	res.render("debug", {user: req.user, game: currentlyRunningGame, questions})
-})
-.post("/debug", checkAuthenticated, async function(req, res){
-	// Sanitise inputs (later)
-	console.log(req.body);
-	if (req.body.sendQuestion) {
-		setTimeout(function(){
-			console.log("Sending next question...");
-			io.emit("next question", req.body.sendQuestion, req.body.questionId);
-			io.emit("update question", req.body.sendQuestion);
-			res.send({status: "success", content: "POST successful"});
-		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
-	}
-});
-
-
 router.get("/game", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 	const successMessage = req.flash("success")[0]; // Retrieve the flash message
