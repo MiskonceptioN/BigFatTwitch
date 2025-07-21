@@ -1,73 +1,73 @@
 <script>
 function addChatMessage(container, message, scroll=true) {
-    // Create the DOM element
-    const item = document.createElement('li');
-    item.innerHTML = message;
+	// Create the DOM element
+	const item = document.createElement('li');
+	item.innerHTML = message;
 
-    // Add the class "self" to the message if it is from the current user
-    const playerNameSpan = item.querySelector('span.chat-player-name');
-    if (playerNameSpan && playerNameSpan.textContent === "<%- user.displayName %>") {
-        item.classList.add('self');
-    }
+	// Add the class "self" to the message if it is from the current user
+	const playerNameSpan = item.querySelector('span.chat-player-name');
+	if (playerNameSpan && playerNameSpan.textContent === "<%- user.displayName %>") {
+		item.classList.add('self');
+	}
 
-    // Append the message to the chat container
-    document.querySelector(container).appendChild(item);
+	// Append the message to the chat container
+	document.querySelector(container).appendChild(item);
 
-    if (scroll) {
-        // Scroll to the bottom of the chat container
-        const chatMessageContainer = $(container).parent();
-        chatMessageContainer.scrollTop(chatMessageContainer.prop("scrollHeight"));
-    }   
+	if (scroll) {
+		// Scroll to the bottom of the chat container
+		const chatMessageContainer = $(container).parent();
+		chatMessageContainer.scrollTop(chatMessageContainer.prop("scrollHeight"));
+	}   
 }
 
 function showInterstitial(state, heading="", subheading="", tertiary=" ") {
-    // TODO Santisation on headings
+	// TODO Santisation on headings
 
-    const gameSection = $("#game");
-    const interstitialSection = $("#interstitial");
-    const interstitialHeading = $("#ish1");
-    const interstitialSubheading = $("#ish2");
-    const interstitialTertiaryheading = $("#ish3");
-    // Hide the tertiary heading unless it's points time
-    interstitialTertiaryheading.addClass("d-none");
+	const gameSection = $("#game");
+	const interstitialSection = $("#interstitial");
+	const interstitialHeading = $("#ish1");
+	const interstitialSubheading = $("#ish2");
+	const interstitialTertiaryheading = $("#ish3");
+	// Hide the tertiary heading unless it's points time
+	interstitialTertiaryheading.addClass("d-none");
 
-    if (state === true) {
-        // Hide the headings
-        interstitialHeading.addClass("d-none");
-        interstitialSubheading.addClass("d-none");
+	if (state === true) {
+		// Hide the headings
+		interstitialHeading.addClass("d-none");
+		interstitialSubheading.addClass("d-none");
 
-        // Add the scoreboard class if it's points time
-        if (tertiary !== " ") {
-            interstitialHeading.addClass("scoreboard");
-            interstitialSubheading.addClass("scoreboard");
-            interstitialTertiaryheading.addClass("scoreboard");
-        } else {
-            interstitialHeading.removeClass("scoreboard");
-            interstitialSubheading.removeClass("scoreboard");
-            interstitialTertiaryheading.removeClass("scoreboard");
-        }
+		// Add the scoreboard class if it's points time
+		if (tertiary !== " ") {
+			interstitialHeading.addClass("scoreboard");
+			interstitialSubheading.addClass("scoreboard");
+			interstitialTertiaryheading.addClass("scoreboard");
+		} else {
+			interstitialHeading.removeClass("scoreboard");
+			interstitialSubheading.removeClass("scoreboard");
+			interstitialTertiaryheading.removeClass("scoreboard");
+		}
 
-        // Update the headings
-        if (heading) { interstitialHeading.text(heading) } 
-        if (subheading) { interstitialSubheading.text(subheading) }
-        if (tertiary) { interstitialTertiaryheading.text(tertiary) }
+		// Update the headings
+		if (heading) { interstitialHeading.text(heading) } 
+		if (subheading) { interstitialSubheading.text(subheading) }
+		if (tertiary) { interstitialTertiaryheading.text(tertiary) }
 
-        // Hide the game section and show the interstitial
-        gameSection.removeClass("d-block").addClass("d-none");
-        interstitialSection.removeClass("d-none").addClass("d-flex");
+		// Hide the game section and show the interstitial
+		gameSection.removeClass("d-block").addClass("d-none");
+		interstitialSection.removeClass("d-none").addClass("d-flex");
 
-        // Show the headings after a 500ms delay
-        setTimeout(() => {
-            interstitialHeading.removeClass("d-none");
-            interstitialSubheading.removeClass("d-none");
-            interstitialTertiaryheading.removeClass("d-none");
-        }, 100);
+		// Show the headings after a 500ms delay
+		setTimeout(() => {
+			interstitialHeading.removeClass("d-none");
+			interstitialSubheading.removeClass("d-none");
+			interstitialTertiaryheading.removeClass("d-none");
+		}, 100);
 
-    } else {
-        gameSection.removeClass("d-none").addClass("d-block");
-        interstitialSection.removeClass("d-flex").addClass("d-none");
-        interstitialTertiaryheading.removeClass("d-flex").addClass("d-none");
-    }
+	} else {
+		gameSection.removeClass("d-none").addClass("d-block");
+		interstitialSection.removeClass("d-flex").addClass("d-none");
+		interstitialTertiaryheading.removeClass("d-flex").addClass("d-none");
+	}
 }
 
 </script>

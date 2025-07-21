@@ -17,14 +17,14 @@ $("#answer-form").on("submit", function(event){
 
 	const formData = $(this).serialize(); //Encode form elements for submission
 
-    $.ajax({
-        method: formMethod,
-        url: destUrl,
-        data: formData,
-        beforeSend: function() {
+	$.ajax({
+		method: formMethod,
+		url: destUrl,
+		data: formData,
+		beforeSend: function() {
 			lockFormFields();
-        },
-        success: function(msg) {
+		},
+		success: function(msg) {
 			if (msg.status == "danger") {
 				$("#loading").removeClass("d-flex").addClass("d-none");
 				$("#message").removeClass().addClass("alert").addClass("alert-" + msg.status).html(msg.content);
@@ -35,15 +35,15 @@ $("#answer-form").on("submit", function(event){
 				// unlockFormFields();
 				// resetFormFields();
 			}
-        },
-        error: function(err) {
+		},
+		error: function(err) {
 			$("#loading").removeClass("d-flex").addClass("d-none");
 			$("#message").removeClass().addClass("alert").addClass("alert-" + msg.status).html(msg.content);
 			$("#message").collapse("show");
 			console.log(err)
 			unlockFormFields();
-        }
-    });
+		}
+	});
 });
 
 
