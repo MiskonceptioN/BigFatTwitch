@@ -7,7 +7,6 @@ const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
 const Question = require("../models/questionModel.js");
 const Answer = require("../models/answerModel.js");
-const Round = require("../models/roundModel.js");
 
 // Pull in socket.io
 const io = require('../app');
@@ -121,7 +120,6 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 				  }, {});
 				  
 				res.render("admin/game/single_game", {user: req.user, game: result, questionsByRound, failureMessage, successMessage});
-				// console.log(questionsByRound);
 			}
 		} else {
 			res.redirect("/login")
@@ -131,17 +129,11 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 		if (req.user.role == "admin") {
 			let errors = [];
 			// Let's do some validation!
-			// if (!req.body.game) {req.flash("error", "Game is required")}
-			// if (!req.body.question) {req.flash("error", "Question is required")}
-			// if (!req.body.answer) {req.flash("error", "Answer is required")}
-			// if (req.body.round && req.body.round < 0) {req.flash("error", "The round number must be positive")}
-			// if (req.body.order && req.body.order < 0) {req.flash("error", "The order number must be positive")}
 			if (!req.body.game) {errors.push("Game is required")}
 			if (!req.body.question) {errors.push("Question is required")}
 			if (!req.body.answer) {errors.push("Answer is required")}
 			if (req.body.round && req.body.round <= 0) {errors.push("The round number must be greater than zero")}
 			if (req.body.order && req.body.order <= 0) {errors.push("The order number must be greater than zero")}
-			// res.redirect("/admin/gameManagement/" + req.params.gameCode);
 
 			// Try to add the question if there are no validation errors
 			if (errors.length === 0) {
@@ -161,22 +153,12 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 					console.error("Error creating question:", error);
 					return res.send({status: "failure", content: "An unknown error occurred"});
 				}
-				// if (!result._id) {
-				// 	errors.push("Unable to create question due to database error");
-				// } else {
-				// 	console.log("Question <em>&quot;" + req.body.question + "&quot;</em> added");
-				// }
-				// res.send({status: "success", content: result._id.toHexString()});
 			} else {
 				res.send({status: "failure", content: createErrorHTML(errors)});
 			}
 		} else {
 			res.redirect("/login")
 		}
-		
-		// setTimeout(function(){
-		// 	res.send({status: "success", content: "POST successful"});
-		// }, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	});
 
 router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async function(req, res){
@@ -188,9 +170,6 @@ router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async 
 		if (!req.body.direction) {errors.push("Direction is required")}
 
 		// Try to add the question if there are no validation errors
-		console.log("errors.length is " + errors.length)
-		console.log({errors})
-		console.log(req.body)
 		if (errors.length === 0) {
 			const amount = (req.body.direction == "up" ? -1 : 1);
 
@@ -216,16 +195,12 @@ router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async 
 	} else {
 		res.redirect("/login")
 	}
-	
-	// setTimeout(function(){
-	// 	res.send({status: "success", content: "POST successful"});
-	// }, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 });
 
 router.post("/gameManagement/delete/:gameCode", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
-			// Delete the game
 			try {
+				// Delete the game
 				const result = await Game.deleteOne({code: req.params.gameCode});
 
 				if (result.deletedCount == 0) {
@@ -283,10 +258,6 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		// Find all questions from the Game model
 		const allQuestionsResult = foundGame.questions.sort((a, b) => a.round - b.round || a.order - b.order);
 		
-
-		// Pull questions from Game model instead
-		// const allQuestionsResultFromGame = await Game.find({game: req.params.gameCode}).
-
 		const questionsByRound = allQuestionsResult.reduce((acc, question) => {
 			const round = question.round;
 			if (!acc[round]) {acc[round] = []};
@@ -296,7 +267,6 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		
 		// Get the data for an in-progress game
 		let currentQuestion = "";
-	
 		try {
 			const domain = req.protocol + "://" + req.get("host");
 			const questionEndpoint = domain + "/obs/question";
@@ -334,7 +304,6 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 })
 .post("/in-game", checkAuthenticated, async function(req, res){
 	// Sanitise inputs (later)
-	// console.log(req.body);
 	if (req.body.sendQuestion) {
 		// Set the question status to "in-progress" in the database
 		try {
@@ -355,7 +324,6 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		setTimeout(function(){
 			console.log("Sending next question...");
 			io.emit("next question", req.body.sendQuestion, req.body.questionId);
-			// io.emit("update question", req.body.sendQuestion); // Is this needed!?
 			res.send({status: "success", content: "POST successful"});
 		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	}
@@ -374,9 +342,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			}
 
 			foundAnswers.forEach(a => {
-				contestantAnswers.push({
-					[a.contestant]: a.answer
-				});
+				contestantAnswers.push({[a.contestant]: a.answer});
 			});
 
 		} catch (error) {
@@ -429,18 +395,15 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 
 	// Check all required params have been sent
 	if (!req.body.questionId || !req.body.state || !req.body.gameId ) {
-		console.log("Missing required parameters");
-		console.log(req.body);
 		return res.status(400).send({status: "danger", content: "Missing required parameters"});
 	}
 
-	// Update the database
-		// Set the question status to "in-progress" in the database
-		try {
-			const updateQuestionResult = await Question.updateOne(
-				{"_id": req.body.questionId},
-				{ $set: { "status": req.body.state }
-			});
+	// Set the question status to "in-progress" in the database
+	try {
+		const updateQuestionResult = await Question.updateOne(
+			{"_id": req.body.questionId},
+			{ $set: { "status": req.body.state }
+		});
 
 		if (updateQuestionResult.modifiedCount !== 1){
 			console.log("Unable to update question status");
@@ -458,8 +421,6 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 
 	// Check all required params have been sent
 	if (!req.body.playerId || !req.body.gameCode ) {
-		console.log("Missing required parameters");
-		console.log(req.body);
 		return res.status(400).send({status: "danger", content: "Missing required parameters"});
 	}
 
@@ -469,7 +430,6 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			const updatePlayerResult = await User.updateMany({ inGame
 				: req.body.gameCode }, { $set: { inGame: "", loggedOutOf: req.body.gameCode } });
 			if (updatePlayerResult.modifiedCount <= 0){
-				console.log("Unable to update users");
 				throw new Error("Unable to update users");
 			} else {
 				console.log("Successfully logged out all players from game " + req.body.gameCode);
@@ -482,7 +442,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 						io.emit("ltfo", req.body.gameCode, player._id);
 					});
 				} catch (error) {
-					console.log("Unable to remove `inGame` from Users");
+					console.error("Unable to remove `inGame` from Users");
 					return res.status(500).send();
 				}
 				
@@ -490,7 +450,6 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 			}
 		} catch (error) {
 			console.error("Failed to update question status to " + req.body.state, error);
-			// return res.status(500).send({status: "danger", content: "Failed to update question status to " + req.body.state + " for question ID " + req.body.questionId});
 			return res.status(500).send();
 		}
 	} else {
@@ -500,22 +459,17 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 				_id: req.body.playerId
 			}, { $set: { inGame: "" } });
 			if (updatePlayerResult.modifiedCount <= 0){
-				console.log("Unable to update user");
 				throw new Error("Unable to update user");
 			} else {
 				console.log("Successfully logged out user " + req.body.playerId + " from game " + req.body.gameCode);
 
-				
 				// Send a "log the fuck out of game" event to the affected user
 				io.emit("ltfo", req.params.gameCode, req.body.playerId);
 
-				
 				return res.status(200).send();
-				// To do: Send a logout event to the player via Socket.io
 			}
 		} catch (error) {
 			console.error("Failed to update question status to " + req.body.state, error);
-			// return res.status(500).send({status: "danger", content: "Failed to update question status to " + req.body.state + " for question ID " + req.body.questionId});
 			return res.status(500).send();
 		}
 	}
@@ -530,8 +484,7 @@ router.get("/release-user", checkAuthenticated, async function(req, res){
 
 		// if displayName from session matches displayName from adminUser
 		if (req.session.passport.user.doc.displayName === adminUser.displayName) {
-			// Log a success message and flash a success message to the user
-			console.log("Successfully logged out of " + currentUser.displayName + "!");
+			// Flash a success message to the user
 			req.flash("success", "Logged out of " + currentUser.displayName);
 			// Send the logout event if the player is in a game
 			if (currentUser.inGame) {io.emit("player left", currentUser.inGame, currentUser)}
@@ -546,7 +499,7 @@ router.get("/release-user", checkAuthenticated, async function(req, res){
 			res.redirect("/"); // Perform the redirect only after the session is successfully saved
 		} catch (err) {
 			console.error("Error saving session:", err);
-			res.redirect("/"); // Redirect even if there's an error, or handle it differently if needed
+			res.redirect("/");
 		}
 	} else {
 		res.redirect("/")
@@ -555,14 +508,12 @@ router.get("/release-user", checkAuthenticated, async function(req, res){
 
 router.post("/reset-game-questions/:gameCode", checkAuthenticated, async function(req, res){
 	const gameCode = req.params.gameCode;
-	const roundNumber = req.body.roundNumber;
 
 	// Todo add validation
 
 	if (req.user.role != "admin") {
-		res.send({status: "failure", content: "You're not an admin!"});
-		console.log("User attempted to reset game " + gameCode + " but they're not an admin!")
-		return;
+		console.log(req.user.displayName + " attempted to reset game " + gameCode + " but they're not an admin!")
+		return res.send({status: "failure", content: "You're not an admin!"});
 	}
 
 	try {
@@ -597,9 +548,8 @@ router.post("/reset-game-questions/:gameCode", checkAuthenticated, async functio
 			res.send({status: "failure", content: "Unable to update " + gameCode + "'s questions"});
 		}
 	} catch (error) {
-		console.log("Error finding game "+ gameCode, error)
+		console.error("Error finding game "+ gameCode, error)
 		res.send({status: "failure", content: "Unable to find game " + gameCode});
-		console.error(error);
 	}
 });
 
@@ -608,7 +558,7 @@ router.post("/end-game/:gameCode", checkAuthenticated, async function(req, res){
 
 	if (req.user.role != "admin") {
 		res.send({status: "failure", content: "You're not an admin!"});
-		console.log("User attempted to reset game " + gameCode + " but they're not an admin!")
+		console.log(req.user.displayName + " attempted to end game " + gameCode + " but they're not an admin!")
 		return;
 	}
 
@@ -635,14 +585,12 @@ router.post("/end-game/:gameCode", checkAuthenticated, async function(req, res){
 			res.send({status: "Success", content: "Successfully reset game " + gameCode});
 			return; 
 		} catch (error) {
-			console.log("Unable to update game " + gameCode);
+			console.error("Unable to update game " + gameCode, error);
 			res.send({status: "failure", content: "Unable to update game " + gameCode});
-			console.error(error);
 		}
 	} catch (error) {
-		console.log("Error finding game "+ gameCode, error)
+		console.error("Error finding game "+ gameCode, error);
 		res.send({status: "failure", content: "Unable to find game " + gameCode});
-		console.error(error);
 	}
 });
 
@@ -652,7 +600,7 @@ router.post("/restart-round/:gameCode/:roundNumber", checkAuthenticated, async f
 
 	if (req.user.role != "admin") {
 		res.send({status: "failure", content: "You're not an admin!"});
-		console.log("User attempted to restart round " + roundNumber + " in " + gameCode + " but they're not an admin!")
+		console.log(req.user.displayName + " attempted to restart round " + roundNumber + " in " + gameCode + " but they're not an admin!")
 		return;
 	}
 
@@ -753,7 +701,6 @@ router.get("/startGame", checkAuthenticated, async function(req, res){
 				options: { sort: { round: 1, order: 1 } }
 			});
 			const aggregationResult = allGamesResult.map(game => ({_id: game.code, total: game.questions.length}));
-			// console.log(aggregationResult);
 
 			// Convert the result array to an object with game codes as keys
 			questionTotals = aggregationResult.reduce((acc, item) => {
@@ -789,7 +736,6 @@ router.get("/startGame/:gameCode", checkAuthenticated, async function(req, res){
 				// Set the game's state to starting
 				try {
 					const updateGameStatusResult = await Game.updateOne({ code: req.params.gameCode }, { status: "starting" });
-					// ACTUALLY HANDLE THIS LATER, YOU DING-DONG
 				} catch (error) {
 					console.error(error);
 					req.flash("error", "Unable to start game " + req.params.gameCode);
@@ -896,14 +842,13 @@ router.get("/teams", checkAuthenticated, async function(req, res){
 
 .post("/teams/:gameCode", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
-		console.log(req.body)
 		try {
 			const updateGameResult = await Game.updateOne({ code: req.params.gameCode }, {$set: { teams: [
 				{players: [req.body.Team1[0], req.body.Team1[1]]},
 				{players: [req.body.Team2[0], req.body.Team2[1]]},
 				{players: [req.body.Team3[0], req.body.Team3[1]]},
 			] }});
-			console.log(updateGameResult);
+			console.log("Set teams for game " + req.params.gameCode);
 			req.flash("success", "Everything is great");
 		} catch (error) {
 			console.error("Error updating game teams:", error);
@@ -912,7 +857,6 @@ router.get("/teams", checkAuthenticated, async function(req, res){
 
 		try {
 			const updatedGame = await Game.findOne({ code: req.params.gameCode });
-			console.log(updatedGame);
 			req.flash("success", "Everything is great");
 		} catch (error) {
 			console.error("Error fetching updated game:", error);
@@ -992,27 +936,27 @@ router.post("/users/add/", checkAuthenticated, async function(req, res){
 								}
 							})
 							.catch(error => {
-								req.flash("error", "Unable to add " + user + " to the database!");
 								console.error(error, response.data.id);
+								req.flash("error", "Unable to add " + user + " to the database!");
 							})
 							.finally(() => {
 								res.redirect("/admin/users");
 						});
 					} catch (error) {
-						req.flash("error", "Unable to add " + user + " to the database!");
 						console.error(error);
+						req.flash("error", "Unable to add " + user + " to the database!");
 						res.redirect("/admin/users");
 					}
 				})
 				.catch(error => {
+					console.error(error);
 					req.flash("error", "Unable to fetch data from Twitch");
-					console.log(error);
 					res.redirect("/admin/users");
 				});
 		})
 		.catch(error => {
+			console.error(error);
 			req.flash("error", "Unable to get Twitch access token!");
-			console.log(error);
 			res.redirect("/admin/users");
 		});
 
@@ -1025,7 +969,7 @@ router.post("/users/ban/:targetTwitchId", checkAuthenticated, async function(req
 		if (req.user.role == "admin") {
 			const newBanState = (req.body.banstate === "false") ? 1 : 0;
 
-			// ban the user
+			// Ban the user
 			try {
 				const result = await User.updateOne({ twitchId: req.body.targetTwitchId }, { banned: newBanState });
 				console.log(result);
@@ -1061,8 +1005,7 @@ router.get("/users/login/:targetTwitchId", checkAuthenticated, async function(re
                 // If the session user's displayName matches the target user's displayName and adminUser exists
                 if (req.session.passport.user.doc.displayName === result.displayName
                     && adminUser) {
-                    // Log a success message and flash a success message to the user
-                    console.log("Successfully logged in as " + result.displayName + "!");
+                    // Flash a success message to the user
                     req.flash("success", "Logged in as " + result.displayName);
                     // Save the session
                     req.session.save();
