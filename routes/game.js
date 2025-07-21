@@ -31,7 +31,6 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 	// Check if the game is in progress
 	try {
 		const game = await Game.findOne({ code: req.user.inGame, status: "in-progress" });
-		console.log({game});
 		if (!game) {
 			req.flash("error", "The game has not started yet!");
 			res.redirect("/game/waiting-room");
