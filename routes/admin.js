@@ -826,7 +826,7 @@ router.get("/teams", checkAuthenticated, async function(req, res){
 				{players: [req.body.Team3[0], req.body.Team3[1]]},
 			] }});
 			console.log("Set teams for game " + req.params.gameCode);
-			req.flash("success", "Everything is great");
+			req.flash("success", "Successfully updated teams for game " + req.params.gameCode);
 		} catch (error) {
 			console.error("Error updating game teams:", error);
 			req.flash("error", "Unable to update teams for game " + req.params.gameCode);
