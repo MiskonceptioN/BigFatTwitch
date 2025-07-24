@@ -13,6 +13,7 @@ const questionSchema = new mongoose.Schema({
 });
 
 // Virtual for questions
+const Answer = require("./answerModel.js");
 questionSchema.virtual('contestantAnswers', {
 	ref: 'Answer',
 	localField: '_id',

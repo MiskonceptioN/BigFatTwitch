@@ -18,6 +18,7 @@ const gameSchema = new mongoose.Schema({
 });
 
 // Virtual for questions
+const Question = require("./questionModel.js");
 gameSchema.virtual('questions', {
 	ref: 'Question',
 	localField: 'code',
@@ -26,6 +27,7 @@ gameSchema.virtual('questions', {
 });
 
 // Virtual for rounds
+const Round = require("./roundModel.js");
 gameSchema.virtual('rounds', {
 	ref: 'Round',
 	localField: 'code',
