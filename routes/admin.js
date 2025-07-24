@@ -941,6 +941,13 @@ router.post("/users/ban/:targetTwitchId", checkAuthenticated, async function(req
 			// Ban the user
 			try {
 				const result = await User.updateOne({ twitchId: req.body.targetTwitchId }, { banned: newBanState });
+
+				if (result.modifiedCount == 0) {
+					req.flash("error", "Unable to update the ban state of " + req.body.targetTwitchDisplayName);
+				} else {
+					req.flash("success", "Updated the ban state of " + req.body.targetTwitchDisplayName);
+				}
+
 				console.log(result);
 			} catch (error) {
 				console.error("Error updating ban state:", error);
@@ -948,11 +955,6 @@ router.post("/users/ban/:targetTwitchId", checkAuthenticated, async function(req
 				return res.redirect("/admin/users");
 			}
 			
-			if (result.modifiedCount == 0) {
-				req.flash("error", "Unable to update the ban state of " + req.body.targetTwitchDisplayName);
-			} else {
-				req.flash("success", "Updated the ban state of " + req.body.targetTwitchDisplayName);
-			}
 			res.redirect("/admin/users")
 		} else {
 			res.redirect("/login")
