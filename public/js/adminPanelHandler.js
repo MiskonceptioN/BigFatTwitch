@@ -146,7 +146,6 @@ $("form.send-question").on("submit", function(event){
 		url: destUrl,
 		data: JSON.stringify({questionId, roundNumber, gameCode, sendQuestion: question}),
 		contentType: "application/json",
-		// data: formData,
 		beforeSend: function() {
 			// Show loading spinner before sending the form
 			$(inputButton).html('<div class="spinner-border" role="status"></div>');
@@ -169,7 +168,6 @@ $("form.send-question").on("submit", function(event){
 			if (previousQuestion !== questionId){
 				updatePrevious(previousQuestion, gameCode);
 				previousQuestion = questionId;
-				// $(form).find("input[name='questionId']").val();
 			}
 
 			// Rearrange #round-nav
@@ -410,8 +408,6 @@ function logOutUser(playerId, gameCode) {
 			if (response.status === "failure"){
 				console.log("Request failed: ", response.content);
 			} else {
-				// Refresh the page
-				// location.reload();
 				alert("User logged out successfully");
 			}
 		},
@@ -447,7 +443,6 @@ function endGame() {
 function updatePrevious(uid, gameId) {
 	if (previousQuestion === null) return;
 	console.log("Disabling previous question for game " + gameId);
-	// if (previousQuestion === uid) return;
 
 	// Set the question as played on the backend
 	$.ajax({
@@ -456,13 +451,11 @@ function updatePrevious(uid, gameId) {
 		data: JSON.stringify({gameId, questionId: uid, state: "played"}),
 		contentType: "application/json",
 	
-		// data: formData,
 		success: function() {
 			const targetCard = $("#" + uid);
 
 			// Use a jquery foreach to set all buttons within targetCard to disabled
 			$(targetCard).find("button").each(function(){
-				// $(this).attr("disabled", "disabled");
 				$(this).text("Resend question");
 			});
 		
@@ -493,9 +486,6 @@ function updatePrevious(uid, gameId) {
 			$("#loading").removeClass("d-flex").addClass("d-none");
 			$("#message").removeClass().addClass("alert").addClass("alert-danger").html("Unable to set the previous question's state in the database");
 			$("#message").collapse("show");
-
-			// Reset the button contents
-			// $(inputButton).html(inputButtonContent);
 		}
 	});
 }
@@ -527,7 +517,6 @@ function markAsPointsAdded(pointFormID) {
 function disablePointForm(pointFormID, bool) {
 	const target = (pointFormID === "all") ? ".points-form" : "#" + pointFormID;
 	document.querySelectorAll(target).forEach(function (pointInput) {
-	// $(target).each(function (pointInput) {
 	if (bool === true) {
 			pointInput.querySelector(".point-input").setAttribute("disabled", true);
 			pointInput.querySelector("button").setAttribute("disabled", true);
