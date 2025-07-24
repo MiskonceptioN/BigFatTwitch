@@ -832,14 +832,6 @@ router.get("/teams", checkAuthenticated, async function(req, res){
 			req.flash("error", "Unable to update teams for game " + req.params.gameCode);
 		}
 
-		try {
-			const updatedGame = await Game.findOne({ code: req.params.gameCode });
-			req.flash("success", "Everything is great");
-		} catch (error) {
-			console.error("Error fetching updated game:", error);
-			req.flash("error", "Unable to fetch updated game " + req.params.gameCode);
-		}
-
 		res.redirect("/admin/teams");
 	} else {
 		res.send({status: "danger", content: "You're not an admin. Bugger off"});
