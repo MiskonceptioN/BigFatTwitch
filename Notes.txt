@@ -45,10 +45,8 @@ Kill session upon ban and log out using socket.io redirect to logout page
 Move flashes into its own EJS template
 Make flashes dismissable
 Add unit tests!
-Make sure try/catch is *everywhere*
 Use a foreach on flashes to show multiple messages
 Ensure member ID in Teams table references Users table with objectID (currently using Twitch ID instead of objectID)
-Wrap fetchTwitchChatColour() in try/catch
 Sanitise chat messages using innerText for chat message, and innerhtml for the username prefix
 Add authtoken to api requests?
 Make sure previousQuestion is set upon loading/refreshing the page

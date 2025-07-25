@@ -2,10 +2,10 @@ const mongoose = require('mongoose');
 
 // Define the ChatLog schema
 const chatLogSchema = new mongoose.Schema({
-    gameId: { type: String, required: true },
-    userId: { type: String, required: true, ref: 'User', foreignField: 'twitchId' },
-    message: { type: String, required: true },
-    room: { type: String, required: true }, // room = teamId
+	gameId: { type: String, required: true },
+	userId: { type: String, required: true, ref: 'User', foreignField: 'twitchId' },
+	message: { type: String, required: true },
+	room: { type: String, required: true }, // room = teamId
 });
 chatLogSchema.set('timestamps', true);
 

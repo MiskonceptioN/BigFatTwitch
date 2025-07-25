@@ -68,7 +68,7 @@
 				}
 			});
 		</script>
-    </section>
+	</section>
 	<section id="interstitial" class="text-white d-flex flex-column justify-content-center align-items-center vh-80">
 		<h1 id="ish1" class="text-center">Welcome to The Big Chonky Question Show!</h1>
 		<h2 id="ish2" class="text-center">Strap in, and strap on, because it's gonna get silly</h2>
@@ -164,70 +164,70 @@
 
 	let lastCanvasData = "";
 
-    // Listen for mousedown then do the same for touchscreens
-    $(answerCanvas).on('mousedown', function(e) {
+	// Listen for mousedown then do the same for touchscreens
+	$(answerCanvas).on('mousedown', function(e) {
 		// Don't take any action if the canvas is disabled
 		if ($(answerCanvas).hasClass("disabled")) return;
 
 		if (e.which !== 1) return; // Check if it's the left mouse button only
 
-        e.preventDefault();
-        isDrawing = true;
-        [lastX, lastY] = [e.offsetX, e.offsetY];
-    });
-    $(answerCanvas).on('touchstart', function(e) {
+		e.preventDefault();
+		isDrawing = true;
+		[lastX, lastY] = [e.offsetX, e.offsetY];
+	});
+	$(answerCanvas).on('touchstart', function(e) {
 		// Don't take any action if the canvas is disabled
 		if ($(answerCanvas).hasClass("disabled")) return;
 
 		e.preventDefault();
-        isDrawing = true;
-        [lastX, lastY] = [e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY];
-    });
+		isDrawing = true;
+		[lastX, lastY] = [e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY];
+	});
 
-    // Listen for mousemove then do the same for touchscreens
-    $(answerCanvas).on('mousemove', function(e) {
+	// Listen for mousemove then do the same for touchscreens
+	$(answerCanvas).on('mousemove', function(e) {
 		// Don't take any action if the canvas is disabled
 		if ($(answerCanvas).hasClass("disabled")) return;
 
 		if (isDrawing) {
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(e.offsetX, e.offsetY);
-            ctx.lineWidth = 5;
-            ctx.strokeStyle = 'black';
-            ctx.lineCap = 'round';
-            ctx.stroke();
-            [lastX, lastY] = [e.offsetX, e.offsetY];
-        }
-    });
-    $(answerCanvas).on('touchmove', function(e) {
+			ctx.beginPath();
+			ctx.moveTo(lastX, lastY);
+			ctx.lineTo(e.offsetX, e.offsetY);
+			ctx.lineWidth = 5;
+			ctx.strokeStyle = 'black';
+			ctx.lineCap = 'round';
+			ctx.stroke();
+			[lastX, lastY] = [e.offsetX, e.offsetY];
+		}
+	});
+	$(answerCanvas).on('touchmove', function(e) {
 		// Don't take any action if the canvas is disabled
 		if ($(answerCanvas).hasClass("disabled")) return;
-        if (isDrawing) {
-            e.preventDefault();
-            ctx.beginPath();
-            ctx.moveTo(lastX, lastY);
-            ctx.lineTo(e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY);
-            ctx.lineWidth = 5;
-            ctx.strokeStyle = 'black';
-            ctx.lineCap = 'round';
-            ctx.stroke();
-            [lastX, lastY] = [e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY];
-        }
-    });
+		if (isDrawing) {
+			e.preventDefault();
+			ctx.beginPath();
+			ctx.moveTo(lastX, lastY);
+			ctx.lineTo(e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY);
+			ctx.lineWidth = 5;
+			ctx.strokeStyle = 'black';
+			ctx.lineCap = 'round';
+			ctx.stroke();
+			[lastX, lastY] = [e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY];
+		}
+	});
 
-    $(answerCanvas).on('mouseup mouseout touchend touchcancel', function() {
+	$(answerCanvas).on('mouseup mouseout touchend touchcancel', function() {
 		// Don't take any action if the canvas is disabled
 		if ($(answerCanvas).hasClass("disabled")) return;
-        isDrawing = false
+		isDrawing = false
 
-        // Send the image to the server
-        const data = answerCanvas.toDataURL();
+		// Send the image to the server
+		const data = answerCanvas.toDataURL();
 		if (lastCanvasData !== data) {
-        	socket.emit('update canvas', data, <%- user.twitchId %>);
+			socket.emit('update canvas', data, <%- user.twitchId %>);
 			lastCanvasData = data;
 		}
-    });
+	});
 	let originalCanvasData = null; // Store the original high-resolution canvas data
 
 	$(window).on('resize', function() {
