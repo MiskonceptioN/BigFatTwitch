@@ -7,6 +7,7 @@ const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
 const Question = require("../models/questionModel.js");
 const Answer = require("../models/answerModel.js");
+const Round = require("../models/roundModel.js");
 
 // Pull in socket.io
 const io = require('../app');
