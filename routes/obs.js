@@ -48,8 +48,8 @@ router.get("/view-answers/:questionId", async (req, res) => {
 		}
 		return res.send(foundQuestion.contestantAnswers);
 	} catch (error) {
-		console.error("Error saving answer:", error);
-		return res.status(500).send({"message": "Fuck you, basically"});
+		console.error("Error retrieving question:", error);
+		return res.status(500).send({"message": "Error retrieving question"});
 	}
 })
 
