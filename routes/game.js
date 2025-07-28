@@ -22,8 +22,7 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 
 	if (req.user.inGame === "" || !req.user.inGame || req.user.inGame === undefined) {
 		req.flash("error", "You're not in a game!");
-		res.redirect("/");
-		return;
+		return res.redirect("/");
 	}
 
 	const gameCode = req.user.inGame;
@@ -31,17 +30,14 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 	// Check if the game is in progress
 	try {
 		const game = await Game.findOne({ code: req.user.inGame, status: "in-progress" });
-		console.log({game});
 		if (!game) {
 			req.flash("error", "The game has not started yet!");
-			res.redirect("/game/waiting-room");
-			return;
+			return res.redirect("/game/waiting-room");
 		}
 	} catch (error) {
 		console.error(error);
 		req.flash("error", "Something went wrong!");
-		res.redirect("/game/waiting-room");
-		return;
+		return res.redirect("/game/waiting-room");
 	}
 
 	// Set the current question
@@ -87,29 +83,26 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 
 		if (addAnswer.answer !== answer) {
 			console.error("Answers do not match", addAnswer);
-			res.send({
+			return res.send({
 				status: "danger",
 				content: "Something went wrong! Please let Danny know."
 			});
-			return;
 		} else {
-			res.send({
+			// Add the player's answer to the User in the database
+			try {await User.updateOne({twitchId: user.twitchId}, {answer: answer})}
+			catch (error) {console.error(error)}
+
+			return res.send({
 				status: "success",
 				content: "Answer submitted!"
 			});
-				// Add the player's answer to the User in the database
-				try {await User.updateOne({twitchId: user.twitchId}, {answer: answer})}
-				catch (error) {console.error(error)}
-			
-			return;
 		}
 	} catch (error) {
-		res.send({
+		console.error(error);
+		return res.send({
 			status: "danger",
 			content: "Something went wrong! Please let Danny know."
 		});
-		console.error(error);
-		return;
 	}
 });
 
@@ -136,8 +129,7 @@ router.get("/join", checkAuthenticated, (req, res) => {
 		// Redirect the user if the game doesn't exist
 		if (!game) {
 			req.flash("error", "Game not found!");
-			res.redirect("join");
-			return;
+			return res.redirect("join");
 		}
 
 		// Check to see if the user joining the game is one of the players
@@ -165,7 +157,7 @@ router.get("/join", checkAuthenticated, (req, res) => {
 						teamIndex: i,
 					};
 					try {await saveSession(req)}
-					catch (err) {console.log('Error saving session for ' + req.user + ':', err)}
+					catch (err) {console.error('Error saving session for user ' + (req.user.displayName || req.user.twitchId) + ':', err)}
 
 					// Update the database to include game info in the User
 					try {await User.updateOne({twitchId: user.twitchId}, {inGame: gameCode, game, loggedOutOf: ""})}
@@ -180,13 +172,11 @@ router.get("/join", checkAuthenticated, (req, res) => {
 		}
 
 		req.flash("info", "Welcome to the audience for game " + gameCode + "!");
-		res.redirect("audience");
-		return;
+		return res.redirect("audience");
 	} catch (error) {
 		console.error(error);
 		req.flash("error", "Something went wrong!");
-		res.redirect("join");
-		return;
+		return res.redirect("join");
 	}
 });
 
@@ -209,24 +199,29 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 	// Check user has inGame in their user object
 	if (!req.user.inGame) {
 		req.flash("error", "You're not in a game!");
-		res.redirect("join");
-		return;
+		return res.redirect("join");
 	}
 	const gameCode = req.user.inGame;
 
 	// Check logged in user is a player
-	const game = await Game.findOne({code: gameCode}).populate({
-		path: 'teams.players',
-		model: User,
-		// select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame bio',
-		foreignField: 'twitchId',
-	});
+	let game = {};
+	try {
+		game = await Game.findOne({code: gameCode}).populate({
+			path: 'teams.players',
+			model: User,
+			// select: '_id twitchId displayName profileImageUrl broadcasterType chatColour twitchChatColour customChatColour inGame bio',
+			foreignField: 'twitchId',
+		});
+	} catch (error) {
+		console.error("Error finding game:", error);
+		req.flash("error", "Unable to find game " + gameCode);
+		return res.redirect("join");
+	}
 
 	// Redirect the user if the game doesn't exist
 	if (!game) {
 		req.flash("error", "Game not found!");
-		res.redirect("join");
-		return;
+		return res.redirect("join");
 	}
 
 	const chatLog = [];

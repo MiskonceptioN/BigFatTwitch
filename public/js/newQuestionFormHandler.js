@@ -12,14 +12,14 @@ $("form#new-question").on("submit", function(event){
 	const type =  $("input[name=type]:checked").val();
 	const round = $("#round").val();
 
-    $.ajax({
-        method: formMethod,
-        url: destUrl,
-        data: formData,
-        beforeSend: function() {
+	$.ajax({
+		method: formMethod,
+		url: destUrl,
+		data: formData,
+		beforeSend: function() {
 			$("form input").attr("disabled", true)
-        },
-        success: function(response) {
+		},
+		success: function(response) {
 			$("form input").attr("disabled", false)
 			if (response.status === "failure") {
 				showToast(response.content, "danger", "Could not add question '" + question + "'", 5000);
@@ -34,12 +34,12 @@ $("form#new-question").on("submit", function(event){
 				$("#round").val(1);
 				$("#order").val(1);
 			}
-        },
-        error: function(err) {
+		},
+		error: function(err) {
 			$("form input").attr("disabled", false)
 			showToast("An unknown error occurred. Please try again", "danger", "Could not add question '" + question + "'", 5000);
-        }
-    });
+		}
+	});
 });
 
 function getNewQuestionOrder(roundNumber) {

@@ -1,3 +1,4 @@
+// Navigation and utility button handlers
 const defaultImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAANSURBVBhXY2BgYGAAAAAFAAGKM+MAAAAAAElFTkSuQmCC";
 $("#previous-round").on("click", function(){navigateRound("previous")});
 $("#next-round").on("click", function(){navigateRound("next")});
@@ -139,17 +140,16 @@ $("form.send-question").on("submit", function(event){
 	const roundNumber = $(form).find("input[name='roundNumber']").val();
 	const $navButton = $("#round-nav").find("button[data-round='" + roundNumber + "']");
 	const roundType = $navButton.parent().data('round-type');
-    $.ajax({
-        method: formMethod,
-        url: destUrl,
+	$.ajax({
+		method: formMethod,
+		url: destUrl,
 		data: JSON.stringify({questionId, roundNumber, gameCode, sendQuestion: question}),
 		contentType: "application/json",
-        // data: formData,
-        beforeSend: function() {
+		beforeSend: function() {
 			// Show loading spinner before sending the form
 			$(inputButton).html('<div class="spinner-border" role="status"></div>');
-        },
-        success: function(msg) {
+		},
+		success: function(msg) {
 			$(form).parent().parent().addClass("bg-success");
 
 			// Hide the interstitial if it's visible
@@ -167,7 +167,6 @@ $("form.send-question").on("submit", function(event){
 			if (previousQuestion !== questionId){
 				updatePrevious(previousQuestion, gameCode);
 				previousQuestion = questionId;
-				// $(form).find("input[name='questionId']").val();
 			}
 
 			// Rearrange #round-nav
@@ -184,7 +183,7 @@ $("form.send-question").on("submit", function(event){
 			}
 		
 		},
-        error: function(err) {
+		error: function(err) {
 			// Log and show error message
 			console.log("Request failed", err);
 			$("#loading").removeClass("d-flex").addClass("d-none");
@@ -193,8 +192,8 @@ $("form.send-question").on("submit", function(event){
 
 			// Reset the button contents
 			$(inputButton).html(inputButtonContent);
-        }
-    });
+		}
+	});
 });
 
 $("form.fetch-answers").on("submit", function(event){
@@ -210,9 +209,9 @@ $("form.fetch-answers").on("submit", function(event){
 	const form = $(this);
 	const inputButton = $(form).find("button");
 	const inputButtonContent = $(inputButton).html();
-    $.ajax({
-        method: formMethod,
-        url: destUrl,
+	$.ajax({
+		method: formMethod,
+		url: destUrl,
 		data: JSON.stringify({questionId}),
 		contentType: "application/json",
 
@@ -222,8 +221,8 @@ $("form.fetch-answers").on("submit", function(event){
 
 			// Reset player canvases on OBS
 			sendEmptyAnswers();
-        },
-        success: function(msg) {
+		},
+		success: function(msg) {
 			// Reset the button contents
 			$(inputButton).html(inputButtonContent);
 
@@ -238,7 +237,7 @@ $("form.fetch-answers").on("submit", function(event){
 				$("#message").collapse("show");
 			}
 		},
-        error: function(err) {
+		error: function(err) {
 			// Log and show error message
 			console.log("Request failed", err);
 			$("#message").removeClass().addClass("alert").addClass("alert-dismissible").addClass("alert-danger").html(err.content);
@@ -246,8 +245,8 @@ $("form.fetch-answers").on("submit", function(event){
 
 			// Reset the button contents
 			$(inputButton).html(inputButtonContent);
-        }
-    });
+		}
+	});
 });
 
 $("form.points-form").on("submit", function(event){
@@ -267,23 +266,23 @@ $("form.points-form").on("submit", function(event){
 	const points = $(form).find('input[name="points"]').val();
 	const pointFormID = $(form).find('input[name="pointFormID"]').val();
 
-    $.ajax({
-        method: formMethod,
-        url: destUrl,
+	$.ajax({
+		method: formMethod,
+		url: destUrl,
 		data: JSON.stringify({gameCode, userId, teamId, questionId, points, pointFormID}),
 		contentType: "application/json",
 
-        beforeSend: function() {
+		beforeSend: function() {
 			// Show loading spinner before sending the form
 			$(inputButton).html('<div class="spinner-border" role="status"></div>');
 			// Deselect the input
 			$(form).find('input[name="points"]').blur();
-        },
-        success: function(msg) {
+		},
+		success: function(msg) {
 			// Reset the button contents
 			$(inputButton).html(inputButtonContent);
 		},
-        error: function(err) {
+		error: function(err) {
 			// Log and show error message
 			console.log("Request failed", err);
 			$("#loading").removeClass("d-flex").addClass("d-none");
@@ -292,8 +291,8 @@ $("form.points-form").on("submit", function(event){
 
 			// Reset the button contents
 			$(inputButton).html(inputButtonContent);
-        }
-    });
+		}
+	});
 });
 
 function updateQuestionPreview(question, questionId){
@@ -408,8 +407,6 @@ function logOutUser(playerId, gameCode) {
 			if (response.status === "failure"){
 				console.log("Request failed: ", response.content);
 			} else {
-				// Refresh the page
-				// location.reload();
 				alert("User logged out successfully");
 			}
 		},
@@ -445,22 +442,19 @@ function endGame() {
 function updatePrevious(uid, gameId) {
 	if (previousQuestion === null) return;
 	console.log("Disabling previous question for game " + gameId);
-	// if (previousQuestion === uid) return;
 
 	// Set the question as played on the backend
 	$.ajax({
-        method: "POST",
-        url: "/admin/in-game/set-question-state",
+		method: "POST",
+		url: "/admin/in-game/set-question-state",
 		data: JSON.stringify({gameId, questionId: uid, state: "played"}),
 		contentType: "application/json",
 	
-        // data: formData,
-        success: function() {
+		success: function() {
 			const targetCard = $("#" + uid);
 
 			// Use a jquery foreach to set all buttons within targetCard to disabled
 			$(targetCard).find("button").each(function(){
-				// $(this).attr("disabled", "disabled");
 				$(this).text("Resend question");
 			});
 		
@@ -485,17 +479,14 @@ function updatePrevious(uid, gameId) {
 				$navButton.detach().appendTo('[data-round-type="played"]');
 			}
 		},
-        error: function(err) {
+		error: function(err) {
 			// Log and show error message
 			console.log("Request failed", err);
 			$("#loading").removeClass("d-flex").addClass("d-none");
 			$("#message").removeClass().addClass("alert").addClass("alert-danger").html("Unable to set the previous question's state in the database");
 			$("#message").collapse("show");
-
-			// Reset the button contents
-			// $(inputButton).html(inputButtonContent);
-        }
-    });
+		}
+	});
 }
 
 function populateAnswers(answers) {
@@ -525,7 +516,6 @@ function markAsPointsAdded(pointFormID) {
 function disablePointForm(pointFormID, bool) {
 	const target = (pointFormID === "all") ? ".points-form" : "#" + pointFormID;
 	document.querySelectorAll(target).forEach(function (pointInput) {
-	// $(target).each(function (pointInput) {
 	if (bool === true) {
 			pointInput.querySelector(".point-input").setAttribute("disabled", true);
 			pointInput.querySelector("button").setAttribute("disabled", true);

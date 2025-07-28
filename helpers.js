@@ -47,12 +47,22 @@ const checkAuthenticated = (req, res, next) => {
  * @returns {Promise<Object|null>} A promise that resolves to the currently running game object, or null if no game is found.
  */
 const checkForRunningGame = async () => {
-	let currentlyRunningGame;
-	try {currentlyRunningGame = await Game.findOne({ status: "in-progress" })}
-		catch (error) {console.error("Error finding currently running game:", error)}
-	return currentlyRunningGame;
+	try {
+		const currentlyRunningGame = await Game.findOne({ status: "in-progress" });
+		return currentlyRunningGame || null;
+	} catch (error) {
+		console.error("Error finding currently running game:", error);
+		return null;
+	}
 };
 
+/**
+ * Sanitises a string by replacing special HTML characters with their corresponding HTML entities.
+ * This helps prevent XSS (Cross-Site Scripting) attacks by escaping characters that have special meaning in HTML.
+ *
+ * @param {string} str - The input string to sanitise.
+ * @returns {string} The sanitised string with special characters replaced by HTML entities.
+ */
 const sanitiseString = (str) => {
 	return str.replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#x27;").replace(/\//g, "&#x2F;");
 }
@@ -81,7 +91,6 @@ function prepUserMessage(msg, user){
 		}
 	}
 	
-	
 	prefix = "<span class='chat-player-name' style='color: " + colour + "'>" + username + "</span>";
 	
 	if (isAdmin) { return `<span class='admin-chat-message'>${prefix}: ${santisedMsg}</span>` }
@@ -103,13 +112,24 @@ async function generateGameCode() {
 }
 
 async function isGameCodeUnique(code) {
-	const existingCode = await Game.findOne({ code: code });
-	return !existingCode;
+	try {
+		// Check if the code already exists in the database
+		const existingCode = await Game.findOne({ code: code });
+		return !existingCode;
+	} catch (error) {
+		console.error("Error checking game code uniqueness:", error);
+		return false;
+	}
 }
 
 function createErrorHTML(errors) {
 	if (errors.length === 1) return errors[0];
-	return "The following errors occurred:<ul><li>" + errors.join("</li><li>") + "</li></ul>";
+	try {
+		return "The following errors occurred:<ul><li>" + errors.join("</li><li>") + "</li></ul>";
+	} catch (err) {
+		console.error("Error creating error HTML:", err);
+		return "An unknown error occurred.";
+	}
 }
 
 async function fetchTwitchChatColour (uid) {
@@ -119,28 +139,35 @@ async function fetchTwitchChatColour (uid) {
 	params.append("client_secret", process.env.TWITCH_CLIENT_SECRET);
 	params.append("grant_type", "client_credentials");
 
-	const result = await axios.post("https://id.twitch.tv/oauth2/token", params);
-	const accessToken = result.data.access_token;
-	const colorResult = await axios.get("https://api.twitch.tv/helix/chat/color?user_id=" + uid, {
-		headers: {
-			"Authorization": `Bearer ${accessToken}`,
-			"Client-Id": process.env.TWITCH_CLIENT_ID
-		}
-	})
-	const userInfo = colorResult.data.data[0];
-	return userInfo.color;
+	try {
+		// Make a POST request to get the access token
+		const result = await axios.post("https://id.twitch.tv/oauth2/token", params);
+		const accessToken = result.data.access_token;
+		const colorResult = await axios.get("https://api.twitch.tv/helix/chat/color?user_id=" + uid, {
+			headers: {
+				"Authorization": `Bearer ${accessToken}`,
+				"Client-Id": process.env.TWITCH_CLIENT_ID
+			}
+		})
+		const userInfo = colorResult.data.data[0];
+		return userInfo.color;
+	} catch (error) {
+		console.error("Error fetching Twitch chat colour:", error);
+		return "#000000"; // Default colour if there's an error
+	}
 }
 
 async function saveSession(req) {
-	await new Promise((resolve, reject) => {
-		req.session.save(err => {
-			if (err) {
-				reject(err);
-			} else {
-				resolve();
-			}
+	try {
+		await new Promise((resolve, reject) => {
+			req.session.save(err => {
+				if (err) {reject(err)}
+				else {resolve()}
+			});
 		});
-	});
+	} catch (error) {
+		console.error("Error saving session:", error);
+	}
 }
 
 async function fetchFromAPI(url) {
@@ -162,35 +189,40 @@ async function fetchFromAPI(url) {
 }
 
 async function fetchChatLog (game, room, limit = 20) {
-	const databaseChatLog = await ChatLog.aggregate([
-		{ $match: { game: game._id, room: room } },
-		{ $sort: { createdAt: -1 } },
-		{ $limit: limit },
-		{
-			$lookup: {
-				from: "users", // The name of the User collection
-				localField: "userId", // Field in ChatLog
-				foreignField: "twitchId", // Field in User
-				as: "user"
-			}
-		},
-		{
-			$project: {
-				message: 1,
-				room: 1,
-				user: {
-					displayName: { $arrayElemAt: ["$user.displayName", 0] },
-					chatColour: { $arrayElemAt: ["$user.chatColour", 0] },
-					customChatColour: { $arrayElemAt: ["$user.customChatColour", 0] },
-					twitchChatColour: { $arrayElemAt: ["$user.twitchChatColour", 0] }
+	try {
+		const databaseChatLog = await ChatLog.aggregate([
+			{ $match: { game: game._id, room: room } },
+			{ $sort: { createdAt: -1 } },
+			{ $limit: limit },
+			{
+				$lookup: {
+					from: "users", // The name of the User collection
+					localField: "userId", // Field in ChatLog
+					foreignField: "twitchId", // Field in User
+					as: "user"
+				}
+			},
+			{
+				$project: {
+					message: 1,
+					room: 1,
+					user: {
+						displayName: { $arrayElemAt: ["$user.displayName", 0] },
+						chatColour: { $arrayElemAt: ["$user.chatColour", 0] },
+						customChatColour: { $arrayElemAt: ["$user.customChatColour", 0] },
+						twitchChatColour: { $arrayElemAt: ["$user.twitchChatColour", 0] }
+					}
 				}
 			}
-		}
-	]);
+		]);
 
-	const chatLog = databaseChatLog.map(log => prepUserMessage(log.message, log.user[0]));
+		const chatLog = databaseChatLog.map(log => prepUserMessage(log.message, log.user[0]));
 
-	return chatLog.reverse(); // Reverse the order to show the oldest messages first
+		return chatLog.reverse(); // Reverse the order to show the oldest messages first
+	} catch (error) {
+		console.error("Error fetching chat log:", error);
+		return [];
+	}
 }
 
 module.exports = {

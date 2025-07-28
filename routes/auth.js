@@ -8,8 +8,8 @@ router.get('/twitch/callback', passport.authenticate("twitch", {
 		failureFlash: "Unable to log in"
 	}),
 	function (req, res) {
-	  // Successful authentication, redirect to a different route
-	  res.redirect("/profile");
+		// Successful authentication, redirect to a different route
+		res.redirect("/profile");
 	}
 	);
 
