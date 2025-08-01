@@ -531,3 +531,13 @@ button.in-game, input.in-game, .ingame-border {
         transform: translateX(0) scale(1) rotate(0);
     }
 }
+
+#ish1.obs {
+	font-size: 5rem;
+}
+#ish2.obs {
+	font-size: 4rem;
+}
+#ish3.obs {
+	font-size: 3rem;
+}
