@@ -164,6 +164,10 @@ router.get("/rounds/:roundIndex/question/:questionIndex/:key", async (req, res) 
 	}
 });
 
+router.get("/scoreboard", async (req, res) => {
+	return res.render("obs/scoreboard", {user: {}});
+});
+
 router.get("/teams", async (req, res) => {
 	try {
 		const foundGame = await Game.aggregate([
