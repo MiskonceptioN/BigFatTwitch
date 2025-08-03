@@ -66,6 +66,10 @@ h1 {
 	color: #8205B4;
 }
 
+a.text-twitch {
+	text-decoration: none;
+}
+
 table.user-info {
 	vertical-align: middle;
 }
