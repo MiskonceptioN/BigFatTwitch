@@ -22,6 +22,11 @@ router.get("/", checkAuthenticated, async (req, res) => {
 			successMessage
 		})
 	}
+	// Send the user to the game if they log in mid-game
+	if (req.user.inGame && req.user.teammate) {
+		return res.redirect('/game/in-game');
+	}
+
 	return res.render("game/join", {user: req.user, failureMessage, successMessage});
 
 });
