@@ -1,8 +1,8 @@
 <%- include('../header'); %>
 	<script>$("html").attr("data-bs-theme", "dark");</script>
-	<section id="game" class="text-center">
+	<section id="login" class="text-center">
 		<header>
-			<h1>Join a game</h1>
+			<h1 class="display-5">Welcome back, <%= user.displayName %></h1>
 		</header>
 		<% if (failureMessage) { %>
 			<div class="container">
@@ -17,19 +17,23 @@
 				</section>
 			</div>
 		<% } %>
-		<div class="d-grid gap-2 col-6 mx-auto">
-			<section>
-				<form action="/game/join" method="post">
-					<div class="form-group">
-						<input type="text" class="form-control form-control-lg" id="gameCode" name="gameCode" placeholder="Enter game code" maxlength="4" pattern="[A-Za-z]{4}" required autofocus>
-					</div>
-					<button type="submit" class="btn btn-primary">Join game</button>
-				</form>
-			</section>
+		<div class="container">
+			<img src="<%= user.profileImageUrl %>" width="300" class="rounded" />
+			<p class="lead mt-2">If this is your first time playing, don't forget to go to your <a href="/settings" class="text-twitch">settings</a> to set your name colour and/or your bio!</p>
 		</div>
+		<% if (user.role !== "admin") { %>
+		<h2 class="mt-5 display-6">Join a game</h1>
+		<section class="d-grid gap-2 col-6 mx-auto">
+			<form action="/game/join" method="post">
+				<div class="form-group">
+					<input type="text" class="form-control form-control-lg" id="gameCode" name="gameCode" placeholder="Enter game code" maxlength="4" pattern="[A-Za-z]{4}" required autofocus>
+				</div>
+				<button type="submit" class="btn btn-twitch">Join game</button>
+			</form>
+		</section>
+		<% } %>
 		<footer style="margin-top: 10em;">
-			<h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
+			<h6>Made by <a class="text-twitch" href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
 		</footer>
 	</section>
-	<!-- <script src="js/ajaxFormHandler.js"></script> -->
 <%- include('../footer'); %>
