@@ -9,7 +9,7 @@ router.get('/twitch/callback', passport.authenticate("twitch", {
 	}),
 	function (req, res) {
 		// Successful authentication, redirect to a different route
-		res.redirect("/profile");
+		res.redirect("/");
 	}
 	);
 
