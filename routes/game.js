@@ -171,8 +171,13 @@ router.get("/join", checkAuthenticated, (req, res) => {
 			}
 		}
 
-		req.flash("info", "Welcome to the audience for game " + gameCode + "!");
-		return res.redirect("audience");
+		req.flash("error", "Sadly, you're not a player in this game, but you can watch the fun on Twitch!");
+		try {
+			await saveSession(req);
+		} catch (err) {
+			console.error('Error saving session for user ' + (req.user.displayName || req.user.twitchId) + ':', err);
+		}
+		return res.redirect("/");
 	} catch (error) {
 		console.error(error);
 		req.flash("error", "Something went wrong!");
@@ -254,7 +259,7 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 	}
 
 	if (!isContestant) {
-		return res.redirect("audience");
+		return res.redirect("/");
 	}
 })
 
