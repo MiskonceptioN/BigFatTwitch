@@ -271,6 +271,8 @@ for (let i = 0; i < game.teams.length; i++) {
 		teamNameElement.innerText = newTeamName;
 	});
 	socket.on("editing team name", (teamId, editing) => {
+		if (teamId !== "<%- user.teamId %>") return;
+
 		const teamNameElement = document.getElementById("edit-team-name-button");
 		if (editing) {
 			teamNameElement.classList.add("text-danger");
