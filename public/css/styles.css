@@ -1,3 +1,6 @@
+/* Mirrored at https://assets.danny-valentine.com/raw/upload/v1754513299/chonky/styles.css */
+/* v1754513299 = Wednesday, 6 August 2025 20:48:19 */
+
 .navbar-expand-lg .navbar-nav .nav-link {
 	padding-left: .75rem;
 	padding-right: .75rem;
@@ -33,6 +36,10 @@ h1 {
 	margin-bottom: 1.5rem;
 }
 
+.bg-twitch {
+	background: #9146ff;
+}
+
 .btn-twitch {
 	color: #fff;
 	background-color: #9146ff;
@@ -58,12 +65,35 @@ h1 {
 	border-color: #8205B4;
 }
 
+.form-check-input-twitch:checked {
+	background-color: #9146ff;
+	border-color: #9146ff;
+}
+
+.form-check-input-twitch:focus {
+    border-color: #c196ff;
+    outline: 0;
+    box-shadow: 0 0 0 .25rem #c196ff40;
+}
+
+.form-switch .form-check-input-twitch:focus {
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23c196ff'/%3e%3c/svg%3e");
+}
+
+.form-switch .form-check-input-twitch:checked {
+    --bs-form-switch-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='-4 -4 8 8'%3e%3ccircle r='3' fill='%23ffffff'/%3e%3c/svg%3e");
+}
+
 .text-twitch {
 	color: #9146ff;
 }
 
 .text-twitch:hover {
 	color: #8205B4;
+}
+
+a.text-twitch {
+	text-decoration: none;
 }
 
 table.user-info {

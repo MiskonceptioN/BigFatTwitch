@@ -1,26 +1,29 @@
 <%- include('header'); %>
+	<script>$("html").attr("data-bs-theme", "dark");</script>
 	<section id="settings">
 		<header>
-			<h1 class="text-center">Settings</h1>
+			<h1 class="text-center display-5">Settings</h1>
 		</header>
 		<section>
 			<form method="post">
 				<input type="hidden" name="userID" value="<%- user._id %>">
 				<div class="mb-3 row">
 					<label class="col-sm-2 col-form-label">Username colour</label>
-					<div class="col-sm-10">
+					<div class="col-sm-10 d-flex align-self-center">
 						<div class="form-check form-check-inline">
-							<input class="form-check-input" type="radio" name="chat_colour" id="default-radio" value="default"<% if (user.chatColour === "default") { %> checked <% } %>>
+							<input class="form-check-input form-check-input-twitch" type="radio" name="chat_colour" id="default-radio" value="default"<% if (user.chatColour === "default") { %> checked <% } %>>
 							<label class="form-check-label" for="default-radio">Default</label>
 						</div>
 						<div class="form-check form-check-inline">
-							<input class="form-check-input" type="radio" name="chat_colour" id="twitch-radio" value="twitch"<% if (user.chatColour === "twitch") { %> checked <% } %>>
+							<input class="form-check-input form-check-input-twitch" type="radio" name="chat_colour" id="twitch-radio" value="twitch"<% if (user.chatColour === "twitch") { %> checked <% } %>>
 							<label class="form-check-label" for="twitch-radio" style="color: <%- user.twitchChatColour %>">Twitch colour</label>
 						</div>
 						<div class="form-check form-check-inline">
-							<input class="form-check-input" type="radio" name="chat_colour" id="custom-radio" value="custom"<% if (user.chatColour !== "default" && user.chatColour !== "twitch") { %> checked <% } %>>
-							<label class="form-check-label" for="custom-radio">Custom colour</label>
-							<input type="color" id="custom_colour" name="custom_colour" value="<% if (user.customChatColour) {%><%- user.customChatColour %><% } else { %>#00ff00<% } %>">
+							<div class="d-flex">
+								<input class="form-check-input form-check-input-twitch" type="radio" name="chat_colour" id="custom-radio" value="custom"<% if (user.chatColour !== "default" && user.chatColour !== "twitch") { %> checked <% } %>>
+								<label class="form-check-label mx-2" for="custom-radio">Custom colour</label>
+								<input type="color" id="custom_colour" name="custom_colour" value="<% if (user.customChatColour) {%><%- user.customChatColour %><% } else { %>#00ff00<% } %>">
+							</div>
 						</div>
 					</div>
 				</div>
@@ -33,7 +36,7 @@
 				<div class="mb-3 row">
 					<div class="offset-sm-2 col-sm-10">
 						<div class="form-check form-switch">
-							<input class="form-check-input" name="show-broadcaster-type" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked>
+							<input class="form-check-input form-check-input-twitch" name="show-broadcaster-type" type="checkbox" role="switch" id="flexSwitchCheckDefault" checked>
 							<label class="form-check-label" for="flexSwitchCheckDefault">Show affiliate/partner status</label>
 						</div>
 					</div>
@@ -41,14 +44,14 @@
 				<div class="mb-3 row">
 					<div class="offset-sm-2 col-sm-10">
 						<div class="form-check form-switch">
-							<input class="form-control btn btn-large btn-primary" type="submit">
+							<input class="form-control btn btn-large btn-twitch" type="submit">
 						</div>
 					</div>
 				</div>
 			</form>
 		</section>
 		<footer class="text-center" style="margin-top: 10em;">
-			<h6>Made by <a href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
+			<h6>Made by <a class="text-twitch" href="https://www.twitch.tv/dannyvalz" target="_blank">Danny Valentine <img width="16" height="16" src="https://twitch.tv/favicon.ico"></a></h6>
 		</footer>
 	</section>
 	<script src="js/ajaxFormHandler.js"></script>

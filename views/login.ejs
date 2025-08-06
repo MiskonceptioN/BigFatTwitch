@@ -7,28 +7,17 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
 	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css" integrity="sha384-TX8t27EcRE3e/ihU7zmQxVncDAy5uIKz4rEkgIXeMed4M0jlfIDPvg6uqKI2xXr2" crossorigin="anonymous">
-	<link rel="stylesheet" href="/css/styles.css">
+	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://assets.danny-valentine.com/raw/upload/v1754513299/chonky/styles.css">
 	<link rel="stylesheet" href="/css/fontawesome.min.css">
 	<link rel="stylesheet" href="/css/fa-brands.min.css">
+	<link rel="stylesheet" href="/css/fa-solid.min.css">
 
 	<script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
-	<!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.2/css/fontawesome.min.css" integrity="sha384-BY+fdrpOd3gfeRvTSMT+VUZmA728cfF9Z2G42xpaRkUGu2i3DyzpTURDo5A6CaLK" crossorigin="anonymous"> -->
-
-	<title>The Big Fat dannyvalz Quiz</title>
+	<title>The Chonky Question Show</title>
 </head>
 
-<body>
-	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-		<div class="container">
-			<a class="navbar-brand" href="/">The Big Fat dannyvalz Quiz</a>
-			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-				<span class="navbar-toggler-icon"></span>
-			</button>
-			<div class="collapse navbar-collapse" id="navbarSupportedContent">
-			</div>
-		</div>
-	</nav>
+<body class="bg-dark text-white">
 	<div class="container">
 		<div id="loading" class="d-none justify-content-center">
 			<div class="spinner-border" role="status"></div>
@@ -36,7 +25,8 @@
 		<div id="message" role="alert"></div>
 	<section id="login" class="text-center">
 		<div class="container">
-			<a class="btn btn-lg btn-twitch mb-3" href="/auth/twitch">Log in with Twitch <i class="fa-brands fa-twitch"></i></a>
+			<img src="https://assets.dannyvalz.com/image/upload/f_auto,q_auto/v1754255118/chonky/logo.png" alt="The Chonky Question Show Logo" class="img-fluid mb-3">
+			<a class="btn btn-lg btn-twitch my-5" href="/auth/twitch">Log in with Twitch <i class="fa-brands fa-twitch"></i></a>
 		</div>
 		<% if (failureMessage) { %>
 			<div class="container">
@@ -45,9 +35,13 @@
 				</section>
 			</div>
 		<% } %>
-		<section id="blurb" class="text-center">
-			<h1>What *is* this?</h1>
-			<p>The Big Fat dannyvalz Quiz is a Twitch gameshow where pairs of contestants answer trivia questions.</p>
+		<section id="blurb" class="text-center pt-5">
+			<h1 class="display-5">What <em>is</em> this?</h1>
+			<p class="lead">The Chonky Question Show is a gameshow hosted live on Twitch where pairs of contestants answer trivia questions</p>
+			<p class="lead">
+			Largely inspired by <a href="https://en.wikipedia.org/wiki/The_Big_Fat_Quiz_of_the_Year" target="_blank" class="text-twitch">The Big Fat Quiz of the Year</a>, three teams of two players compete in a series of themed rounds, where questions are asked by the quizmaster and possibly some special guests too. Questions are answered, not by shouting out/buzzing in/typing, but by writing your answers on an interactive whiteboard. Be careful though, because <strong>there's no erase button</strong>, so if you mess it up, it's scribble time!</p>
+			<p class="lead">"The best" answers are awarded points. That doesn't just mean correct answers, but also the most entertaining or creative ones. Doodles are most definitely welcomed.</p>
+			<p class="lead mt-3">The show is streamed live on <a href="https://www.twitch.tv/dannyvalz" target="_blank" class="text-twitch">Twitch</a> and is available to watch on <a href="https://www.youtube.com/@dannyvalz" target="_blank" class="text-twitch">YouTube</a> after the fact.</p>
 		</section>
 	</section>
 	<script src="js/ajaxFormHandler.js"></script>
