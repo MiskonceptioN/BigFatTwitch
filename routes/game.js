@@ -129,6 +129,12 @@ router.get("/join", checkAuthenticated, (req, res) => {
 		// Redirect the user if the game doesn't exist
 		if (!game) {
 			req.flash("error", "Game not found!");
+			try {
+				await saveSession(req);
+			} catch (err) {
+				console.error('Error saving session for user ' + (req.user.displayName || req.user.twitchId) + ':', err);
+			}
+
 			return res.redirect("join");
 		}
 
