@@ -23,6 +23,10 @@
 		</div>
 		<% if (user.role !== "admin") { %>
 		<h2 class="mt-5 display-6">Join a game</h1>
+		<div class="d-grid d-xl-none gap-2 col-8 mx-auto alert alert-warning my-3" role="alert">
+			<strong>⚠ This is best played on a desktop! ⚠</strong>
+			Playing on a mobile/tablet can result in difficulty writing and submitting your answers
+		</div>
 		<section class="d-grid gap-2 col-6 mx-auto">
 			<form action="/game/join" method="post">
 				<div class="form-group">
