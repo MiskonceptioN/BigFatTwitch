@@ -74,7 +74,8 @@
 										<input type="hidden" id="roundNumber" name="roundNumber" value="<%= round %>">
 										<input type="hidden" id="gameCode" name="gameCode" value="<%= question.game %>">
 										<input type="hidden" id="sendQuestion" name="sendQuestion" value="<%= question.question %>">
-										<button class="send-question btn btn-primary phase-question">Ask question</button>
+										<button class="send-question btn btn-primary phase-question">Ask question</button><br>
+										<input type="button" class="save-answer btn btn-twitch phase-question" data-game-code="<%= question.game %>" data-question-id="<%= question._id %>" value="Save player answers">
 									</form>
 									<form method="post" action="/admin/in-game/fetch-answers" class="fetch-answers">
 										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">

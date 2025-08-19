@@ -25,6 +25,7 @@ const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env
 // const mongoUri = `mongodb://${process.env.MONGODB_URL}/gameshow?retryWrites=true&w=majority`;
 const Game = require("./models/gameModel.js");
 const User = require("./models/userModel.js");
+const Answer = require("./models/answerModel.js");
 const ChatLog = require("./models/chatLogModel.js");
 try {mongoose.connect(mongoUri)}
 catch (error) {console.error("Error connecting to MongoDB:", error)}
@@ -274,6 +275,31 @@ io.on('connection', async (socket) => {
 		});
 		socket.on("next question", (questionText, questionId) => {
 			io.emit("next question", questionText, questionId);
+		});
+		socket.on("save answers", async (answerData) => {
+			try {
+				Object.entries(answerData.answers).forEach(async ([contestant, answer]) => {
+					try {
+						const addAnswer = await Answer.findOneAndUpdate(
+							{
+								questionId: answerData.questionId,
+								game: answerData.game,
+								contestant
+							},
+							{ answer },
+							{ 
+								new: true, 
+								upsert: true,
+							}
+						);
+					} catch (error) {
+						console.error("Error saving answers:", error);
+					}
+				});
+
+			} catch (error) {
+				console.error("Error looping through answers:", error);
+			}
 		});
 		socket.on("update answer", async (imageData, playerId) => {
 			try {

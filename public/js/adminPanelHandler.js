@@ -196,6 +196,23 @@ $("form.send-question").on("submit", function(event){
 	});
 });
 
+// Collect the answer data from the player canvases and save them to DB
+$(".save-answer").on("click", function(event){
+	const answerData = {
+		game: $(this).data("game-code"),
+		questionId: $(this).data("question-id"),
+		answers: {}
+	};
+
+	$(".canvas-container").each(function(){
+		let contestant = $(this).attr("id").replace("-Answer", "");
+		let answer = $(this).attr("src");
+		answerData.answers[contestant] = answer;
+	});
+
+	socket.emit("save answers", answerData);
+});
+
 $("form.fetch-answers").on("submit", function(event){
 	event.preventDefault(); //prevent default action
 	const destUrl = $(this).attr("action"); //get form action url
