@@ -632,7 +632,27 @@ function endRound(){
 		"Hope you're ready for some surprises!",
 		"Let's see who went off the rails this round!",
 		"Ready for some unexpected answers?",
-		"Who spouted the most bullshit?"
+		"Who spouted the most bullshit?",
+		"Let's see who can recover from this round!",
+		"Time to see who can salvage their score!",
+		"Did anyone actually understand the questions?",
+		"Let's see who guessed wildly!",
+		"Time for some questionable creativity!",
+		"Who will regret their answer the most?",
+		"Let's see who thought outside the box!",
+		"Who will surprise us this time?",
+		"Let's see who played it safe!",
+		"Time to reveal the wildest guesses!",
+		"Who went for style over substance?",
+		"Let's see who took a risk!",
+		"Who will get roasted for their answer?",
+		"Time to see who nailed it!",
+		"Let's see who missed the mark!",
+		"Time to see who shocked the crowd!",
+		"Let's see who confused everyone!",
+		"Who will get the sympathy points?",
+		"Time to see who made history!",
+		"Let's see who made us proud!",
 	];
 	const endRoundChosenSubheading = endRoundSubheadings[Math.floor(Math.random() * endRoundSubheadings.length)];
 
