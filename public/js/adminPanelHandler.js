@@ -169,6 +169,10 @@ $("form.send-question").on("submit", function(event){
 				previousQuestion = questionId;
 			}
 
+			// Update the save button with the question ID
+			$("#save-answers").data("question-id", questionId);
+			console.log("Question ID:", $("#save-answers").data("question-id"));
+
 			// Rearrange #round-nav
 			// if all questions have been played
 
@@ -197,7 +201,9 @@ $("form.send-question").on("submit", function(event){
 });
 
 // Collect the answer data from the player canvases and save them to DB
-$(".save-answer").on("click", function(event){
+$("#save-answers").on("click", function(event){
+	if (!$(this).data("question-id")) return;
+
 	const answerData = {
 		game: $(this).data("game-code"),
 		questionId: $(this).data("question-id"),
@@ -458,7 +464,6 @@ function endGame() {
 
 function updatePrevious(uid, gameId) {
 	if (previousQuestion === null) return;
-	console.log("Disabling previous question for game " + gameId);
 
 	// Set the question as played on the backend
 	$.ajax({
