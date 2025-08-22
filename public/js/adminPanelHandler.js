@@ -171,7 +171,6 @@ $("form.send-question").on("submit", function(event){
 
 			// Update the save button with the question ID
 			$("#save-answers").data("question-id", questionId);
-			console.log("Question ID:", $("#save-answers").data("question-id"));
 
 			// Rearrange #round-nav
 			// if all questions have been played
