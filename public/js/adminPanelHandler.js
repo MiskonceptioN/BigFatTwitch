@@ -80,9 +80,9 @@ $(".review-team-selector").on("click", function() {
 
 	// Show all review panels if "All teams" is clicked, otherwise show the selected team's review panel
 	if ($(this).attr("id") === "review-all-teams") {
-		$(".admin-background").removeClass("d-none");
+		$("#answer-review-panel > .admin-background").removeClass("d-none");
 	} else {
-		$(".admin-background").addClass("d-none");
+		$("#answer-review-panel > .admin-background").addClass("d-none");
 		$("#team-" + targetTeam + "-review").removeClass("d-none");
 	}
 });
