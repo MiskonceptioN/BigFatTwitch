@@ -292,6 +292,7 @@ io.on('connection', async (socket) => {
 								upsert: true,
 							}
 						);
+						io.emit('answer submitted', contestant);
 					} catch (error) {
 						console.error("Error saving answers:", error);
 					}
