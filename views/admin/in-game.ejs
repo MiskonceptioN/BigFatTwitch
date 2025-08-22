@@ -77,7 +77,7 @@
 										<button class="send-question btn btn-primary">Ask question</button><br>
 										<!-- <input type="button" class="save-answer btn btn-twitch" data-game-code="<%= question.game %>" data-question-id="<%= question._id %>" value="Save player answers"> -->
 									</form>
-									<form method="post" action="/admin/in-game/fetch-answers" class="phase-answer fetch-answers"">
+									<form method="post" action="/admin/in-game/fetch-answers" class="phase-scoring fetch-answers"">
 										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
 										<button class="fetch-answers btn btn-danger phase-scoring d-none">Fetch player answers</button>
 									</form>
