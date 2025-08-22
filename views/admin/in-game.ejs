@@ -97,8 +97,22 @@
 			</div>
 			<div class="col-2 ps-0"><button id="next-round" class="btn btn-primary w-100 h-100" type="button">Next round <i class="fa-solid fa-arrow-right"></i></button></div>
 		</div>
+		<h4 class="mt-3 phase-question">Answers</h4>
 		<div class="row phase-question">
-			<h4 class="mt-3">Answers</h4>
+			<% game.teams.forEach(team => { %>
+				<div class="col text-center text-light admin-background">
+					<h5 class="mt-1 mb-3 team-<%- team.id %>-name"><%- team.name %></h5>
+						<div class="d-flex justify-content-evenly">
+						<% team.players.forEach(player => { %>
+							<div class="d-flex align-items-center contestant-audit-header">
+								<h6 class="mt-0 mb-1 answer-status-audit answer-not-saved" id="player-<%- player.twitchId %>-answer-status"><img src="<%- player.profileImageUrl %>" class="miniavatar d-none d-md-inline-block"> <%- player.displayName %></h6>
+							</div>
+						<% }); %>
+					</div>
+				</div>
+			<% }); %>
+		</div>
+		<div class="row phase-question">
 			<div class="col d-none">
 				<button id="blank-answers" class="btn btn-danger w-100" type="button">Set all player answers to blank</button>
 			</div>
