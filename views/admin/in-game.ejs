@@ -90,10 +90,11 @@
 	</section>
 	<div class="d-grid">
 		<div class="row mt-2">
-			<div class="col-2 pe-0"><button id="previous-round" class="btn btn-primary w-100 h-100" type="button"><i class="fa-solid fa-arrow-left"></i> Previous round</button></div>
+			<div class="col-2 pe-0"><button id="previous-round" class="btn btn-primary w-100 h-100" type="button" disabled><i class="fa-solid fa-arrow-left"></i> Previous round</button></div>
 			<div class="col px-0">
-				<button id="end-round" class="btn btn-danger w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-flag-checkered"></i> End round</button>
+				<button id="start-round" class="btn btn-success w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-play"></i> Start round</button>
 				<button id="restart-round" class="btn btn-danger w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-rotate-right"></i> Restart round</button>
+				<button id="end-round" class="btn btn-danger w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-flag-checkered"></i> End round</button>
 			</div>
 			<div class="col-2 ps-0"><button id="next-round" class="btn btn-primary w-100 h-100" type="button">Next round <i class="fa-solid fa-arrow-right"></i></button></div>
 		</div>

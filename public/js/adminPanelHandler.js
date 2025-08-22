@@ -63,6 +63,12 @@ $("#end-round").on("click", function(event){
 	endRound();
 });
 
+// Click handler for the start round button
+$("#start-round").on("click", function(event){
+	const currentRoundNumber = $(".current-round").data("round");
+	navigateRound(currentRoundNumber);
+});
+
 // Click handler for the restart round button
 $("#restart-round").on("click", function(event){
 	if (!confirm("Are you sure you want to restart the round?")){return}
@@ -119,6 +125,14 @@ $(document).ready(function(){
 
 		// Show the selected round
 		$(".round[data-round='" + roundNumber + "']").removeClass("d-none").addClass("current-round");
+
+		// Disable the previous round button if the first round is selected
+		if (roundNumber === "1") $("#previous-round").prop("disabled", true);
+		else $("#previous-round").prop("disabled", false);
+
+		// Disable the next round button if the last round is selected
+		if (roundNumber === $(".round-selector").length.toString()) $("#next-round").prop("disabled", true);
+		else $("#next-round").prop("disabled", false);
 	});
 });
 
@@ -327,7 +341,12 @@ function updateQuestionPreview(question, questionId){
 // Function to handle round navigation
 function navigateRound(direction) {
 	const currentRoundNumber = $(".current-round").data("round");
-	const newRoundNumber = direction === "previous" ? currentRoundNumber - 1 : currentRoundNumber + 1;
+	let newRoundNumber = 0;
+	if (typeof(direction) == "number") {
+		newRoundNumber = direction;
+	} else {
+		newRoundNumber = direction === "previous" ? currentRoundNumber - 1 : currentRoundNumber + 1;
+	}
 
 	// Ensure the new round number is within valid range
 	if (newRoundNumber >= 1 && newRoundNumber <= $(".round").length) {
