@@ -571,3 +571,12 @@ button.in-game, input.in-game, .ingame-border {
 #ish3.obs {
 	font-size: 3rem;
 }
+
+.answer-status-audit {
+	color: lime;
+	transition-duration: 250ms;
+}
+
+.answer-not-saved {
+	filter: grayscale(100%);
+}
