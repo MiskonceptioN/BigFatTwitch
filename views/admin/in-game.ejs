@@ -388,6 +388,11 @@
 		disablePointForm(pointFormID, true);
 	});
 
+	// Show when a player has submitted their answer
+	socket.on('answer submitted', (twitchId) => {
+		$("#player-" + twitchId + "-answer-status").removeClass("answer-not-saved");
+	});
+
 	function restartAnimation() {
 		let circle = document.querySelector(".question");
 
