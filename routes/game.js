@@ -92,6 +92,7 @@ router.get("/in-game", checkAuthenticated, async (req, res) => {
 			try {await User.updateOne({twitchId: user.twitchId}, {answer: answer})}
 			catch (error) {console.error(error)}
 
+			io.emit('answer submitted', user.twitchId);
 			return res.send({
 				status: "success",
 				content: "Answer submitted!"
