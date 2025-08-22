@@ -332,7 +332,7 @@
 	socket.on("next question", (question, questionId) => {
 		updateQuestionPreview(question, questionId);
 		resetPointForms();
-		// resetCanvases();
+		$(".answer-status-audit").addClass("answer-not-saved");
 	});
 
 	// Lock point form when another admin is modifying points
