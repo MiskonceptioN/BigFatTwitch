@@ -454,7 +454,7 @@ function updatePrevious(uid, gameId) {
 			const targetCard = $("#" + uid);
 
 			// Use a jquery foreach to set all buttons within targetCard to disabled
-			$(targetCard).find("button").each(function(){
+			$(targetCard).find("button.send-question").each(function(){
 				$(this).text("Resend question");
 			});
 		
