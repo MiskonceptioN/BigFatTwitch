@@ -29,6 +29,7 @@ $("#answer-form").on("submit", function(event){
 				$("#loading").removeClass("d-flex").addClass("d-none");
 				$("#message").removeClass().addClass("alert").addClass("alert-" + msg.status).html(msg.content);
 				$("#message").collapse("show");
+				return;
 			}
 		},
 		error: function(err) {

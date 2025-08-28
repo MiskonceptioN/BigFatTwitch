@@ -1,5 +1,5 @@
-/* Mirrored at https://assets.danny-valentine.com/raw/upload/v1754513299/chonky/styles.css */
-/* v1754513299 = Wednesday, 6 August 2025 20:48:19 */
+/* Mirrored at https://assets.danny-valentine.com/raw/upload/v1755895765/chonky/styles.css */
+/* 1755895765 = Friday, 22 August 2025 20:47:16 */
 
 .navbar-expand-lg .navbar-nav .nav-link {
 	padding-left: .75rem;
@@ -570,4 +570,13 @@ button.in-game, input.in-game, .ingame-border {
 }
 #ish3.obs {
 	font-size: 3rem;
+}
+
+.answer-status-audit {
+	color: lime;
+	transition-duration: 250ms;
+}
+
+.answer-not-saved {
+	filter: grayscale(100%);
 }

@@ -69,14 +69,15 @@
 								<div class="card-body">
 									<h5 class="card-title"><%= question.question %></h5>
 									<p class="card-text answer">(<%= question.answer %>)</p>
-									<form method="post" action="/admin/in-game" class="send-question">
+									<form method="post" action="/admin/in-game" class="phase-question send-question">
 										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
 										<input type="hidden" id="roundNumber" name="roundNumber" value="<%= round %>">
 										<input type="hidden" id="gameCode" name="gameCode" value="<%= question.game %>">
 										<input type="hidden" id="sendQuestion" name="sendQuestion" value="<%= question.question %>">
-										<button class="send-question btn btn-primary phase-question">Ask question</button>
+										<button class="send-question btn btn-primary">Ask question</button><br>
+										<!-- <input type="button" class="save-answer btn btn-twitch" data-game-code="<%= question.game %>" data-question-id="<%= question._id %>" value="Save player answers"> -->
 									</form>
-									<form method="post" action="/admin/in-game/fetch-answers" class="fetch-answers">
+									<form method="post" action="/admin/in-game/fetch-answers" class="phase-scoring fetch-answers"">
 										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
 										<button class="fetch-answers btn btn-danger phase-scoring d-none">Fetch player answers</button>
 									</form>
@@ -89,23 +90,41 @@
 	</section>
 	<div class="d-grid">
 		<div class="row mt-2">
-			<div class="col-2 pe-0"><button id="previous-round" class="btn btn-primary w-100 h-100" type="button"><i class="fa-solid fa-arrow-left"></i> Previous round</button></div>
+			<div class="col-2 pe-0"><button id="previous-round" class="btn btn-primary w-100 h-100" type="button" disabled><i class="fa-solid fa-arrow-left"></i> Previous round</button></div>
 			<div class="col px-0">
-				<button id="end-round" class="btn btn-danger w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-flag-checkered"></i> End round</button>
+				<button id="start-round" class="btn btn-success w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-play"></i> Start round</button>
 				<button id="restart-round" class="btn btn-danger w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-rotate-right"></i> Restart round</button>
+				<button id="end-round" class="btn btn-danger w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-flag-checkered"></i> End round</button>
 			</div>
 			<div class="col-2 ps-0"><button id="next-round" class="btn btn-primary w-100 h-100" type="button">Next round <i class="fa-solid fa-arrow-right"></i></button></div>
 		</div>
-		<div class="row phase-scoring d-none">
-			<h4 class="mt-3">Answers</h4>
-			<div class="col">
+		<h4 class="mt-3 phase-question">Answers</h4>
+		<div class="row phase-question">
+			<% game.teams.forEach(team => { %>
+				<div class="col text-center text-light admin-background">
+					<h5 class="mt-1 mb-3 team-<%- team.id %>-name"><%- team.name %></h5>
+						<div class="d-flex justify-content-evenly">
+						<% team.players.forEach(player => { %>
+							<div class="d-flex align-items-center contestant-audit-header">
+								<h6 class="mt-0 mb-1 answer-status-audit answer-not-saved" id="player-<%- player.twitchId %>-answer-status"><img src="<%- player.profileImageUrl %>" class="miniavatar d-none d-md-inline-block"> <%- player.displayName %></h6>
+							</div>
+						<% }); %>
+					</div>
+				</div>
+			<% }); %>
+		</div>
+		<div class="row phase-question">
+			<div class="col d-none">
 				<button id="blank-answers" class="btn btn-danger w-100" type="button">Set all player answers to blank</button>
+			</div>
+			<div class="col">
+				<input type="button" id="save-answers" class="btn btn-twitch w-100" data-game-code="<%= game.code %>" data-question-id="" value="Save player answers">
 			</div>
 		</div>
 	</div>
 	<section class="my-4">
 		<h3 class="d-inline-block">Current question:</h3>
-		<h4 class="d-inline-block" id="current-question"><%= (currentQuestion == "") ? "-None!-" : currentQuestion %></h4>
+		<h4 class="d-inline-block" id="current-question" data-question-id=""><%= (currentQuestion == "") ? "-None!-" : currentQuestion %></h4>
 	</section>
 	<section id="admin-functions" class="mt-3 mb-5">
 		<div class="d-grid">
@@ -119,7 +138,7 @@
 					<button type="button" class="btn btn-success review-team-selector" id="review-all-teams">All teams</button>
 				</div>
 			</div>
-			<div class="row">
+			<div id="answer-review-panel" class="row">
 				<% game.teams.forEach(team => { %>
 					<div class="row text-center text-light admin-background" id="team-<%- team._id %>-review">
 						<h5 class="mt-1 mb-3 team-<%- team.id %>-name"><%- team.name %></h5>
@@ -328,7 +347,7 @@
 	socket.on("next question", (question, questionId) => {
 		updateQuestionPreview(question, questionId);
 		resetPointForms();
-		// resetCanvases();
+		$(".answer-status-audit").addClass("answer-not-saved");
 	});
 
 	// Lock point form when another admin is modifying points
@@ -382,6 +401,11 @@
 	socket.on('points added', (pointFormID) => {
 		markAsPointsAdded(pointFormID);
 		disablePointForm(pointFormID, true);
+	});
+
+	// Show when a player has submitted their answer
+	socket.on('answer submitted', (twitchId) => {
+		$("#player-" + twitchId + "-answer-status").removeClass("answer-not-saved");
 	});
 
 	function restartAnimation() {

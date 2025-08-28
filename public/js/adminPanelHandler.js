@@ -63,6 +63,12 @@ $("#end-round").on("click", function(event){
 	endRound();
 });
 
+// Click handler for the start round button
+$("#start-round").on("click", function(event){
+	const currentRoundNumber = $(".current-round").data("round");
+	navigateRound(currentRoundNumber);
+});
+
 // Click handler for the restart round button
 $("#restart-round").on("click", function(event){
 	if (!confirm("Are you sure you want to restart the round?")){return}
@@ -80,9 +86,9 @@ $(".review-team-selector").on("click", function() {
 
 	// Show all review panels if "All teams" is clicked, otherwise show the selected team's review panel
 	if ($(this).attr("id") === "review-all-teams") {
-		$(".admin-background").removeClass("d-none");
+		$("#answer-review-panel > .admin-background").removeClass("d-none");
 	} else {
-		$(".admin-background").addClass("d-none");
+		$("#answer-review-panel > .admin-background").addClass("d-none");
 		$("#team-" + targetTeam + "-review").removeClass("d-none");
 	}
 });
@@ -119,6 +125,14 @@ $(document).ready(function(){
 
 		// Show the selected round
 		$(".round[data-round='" + roundNumber + "']").removeClass("d-none").addClass("current-round");
+
+		// Disable the previous round button if the first round is selected
+		if (roundNumber === "1") $("#previous-round").prop("disabled", true);
+		else $("#previous-round").prop("disabled", false);
+
+		// Disable the next round button if the last round is selected
+		if (roundNumber === $(".round-selector").length.toString()) $("#next-round").prop("disabled", true);
+		else $("#next-round").prop("disabled", false);
 	});
 });
 
@@ -169,6 +183,9 @@ $("form.send-question").on("submit", function(event){
 				previousQuestion = questionId;
 			}
 
+			// Update the save button with the question ID
+			$("#save-answers").data("question-id", questionId);
+
 			// Rearrange #round-nav
 			// if all questions have been played
 
@@ -194,6 +211,25 @@ $("form.send-question").on("submit", function(event){
 			$(inputButton).html(inputButtonContent);
 		}
 	});
+});
+
+// Collect the answer data from the player canvases and save them to DB
+$("#save-answers").on("click", function(event){
+	if (!$(this).data("question-id")) return;
+
+	const answerData = {
+		game: $(this).data("game-code"),
+		questionId: $(this).data("question-id"),
+		answers: {}
+	};
+
+	$(".canvas-container").each(function(){
+		let contestant = $(this).attr("id").replace("-Answer", "");
+		let answer = $(this).attr("src");
+		answerData.answers[contestant] = answer;
+	});
+
+	socket.emit("save answers", answerData);
 });
 
 $("form.fetch-answers").on("submit", function(event){
@@ -305,7 +341,12 @@ function updateQuestionPreview(question, questionId){
 // Function to handle round navigation
 function navigateRound(direction) {
 	const currentRoundNumber = $(".current-round").data("round");
-	const newRoundNumber = direction === "previous" ? currentRoundNumber - 1 : currentRoundNumber + 1;
+	let newRoundNumber = 0;
+	if (typeof(direction) == "number") {
+		newRoundNumber = direction;
+	} else {
+		newRoundNumber = direction === "previous" ? currentRoundNumber - 1 : currentRoundNumber + 1;
+	}
 
 	// Ensure the new round number is within valid range
 	if (newRoundNumber >= 1 && newRoundNumber <= $(".round").length) {
@@ -441,7 +482,6 @@ function endGame() {
 
 function updatePrevious(uid, gameId) {
 	if (previousQuestion === null) return;
-	console.log("Disabling previous question for game " + gameId);
 
 	// Set the question as played on the backend
 	$.ajax({
@@ -615,7 +655,27 @@ function endRound(){
 		"Hope you're ready for some surprises!",
 		"Let's see who went off the rails this round!",
 		"Ready for some unexpected answers?",
-		"Who spouted the most bullshit?"
+		"Who spouted the most bullshit?",
+		"Let's see who can recover from this round!",
+		"Time to see who can salvage their score!",
+		"Did anyone actually understand the questions?",
+		"Let's see who guessed wildly!",
+		"Time for some questionable creativity!",
+		"Who will regret their answer the most?",
+		"Let's see who thought outside the box!",
+		"Who will surprise us this time?",
+		"Let's see who played it safe!",
+		"Time to reveal the wildest guesses!",
+		"Who went for style over substance?",
+		"Let's see who took a risk!",
+		"Who will get roasted for their answer?",
+		"Time to see who nailed it!",
+		"Let's see who missed the mark!",
+		"Time to see who shocked the crowd!",
+		"Let's see who confused everyone!",
+		"Who will get the sympathy points?",
+		"Time to see who made history!",
+		"Let's see who made us proud!",
 	];
 	const endRoundChosenSubheading = endRoundSubheadings[Math.floor(Math.random() * endRoundSubheadings.length)];
 
