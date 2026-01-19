@@ -117,6 +117,7 @@ router.get("/join", checkAuthenticated, (req, res) => {
 .post("/join", checkAuthenticated, async (req, res) => {
 	const gameCode = req.body.gameCode.toUpperCase();
 	const user = req.user;
+	let isContestant = false;
 
 	try {
 		// Check if a game with that ID exists
@@ -172,15 +173,22 @@ router.get("/join", checkAuthenticated, (req, res) => {
 
 					// Update listening frontend pages
 					io.emit("player joined", gameCode, user);
-				
-					return res.redirect("waiting-room");
+					isContestant = true;
+					break;
 				}
 			}
 		}
 
-		req.flash("error", "Sadly, you're not a player in this game, but you can watch the fun on Twitch!");
+		// If the user has got to this point, they must be an audience member
+		if (isContestant === false) {
+			req.session.passport.user.doc = {
+				...req.session.passport.user.doc,
+				watchingGame: gameCode,
+			};
+		}
 		try {
 			await saveSession(req);
+			return res.redirect("waiting-room");
 		} catch (err) {
 			console.error('Error saving session for user ' + (req.user.displayName || req.user.twitchId) + ':', err);
 		}
@@ -206,14 +214,20 @@ router.get("/ltfo", checkAuthenticated, (req, res) => {
 router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 	const successMessage = req.flash("success")[0]; // Retrieve the flash message
-	let isContestant = false;
+	let isContestant, isAudience = false;
 
-	// Check user has inGame in their user object
-	if (!req.user.inGame) {
+	// Check user has inGame (player) or watchingGame (audience) in their user object
+	if (!req.user.inGame && !req.user.watchingGame) {
 		req.flash("error", "You're not in a game!");
 		return res.redirect("join");
 	}
-	const gameCode = req.user.inGame;
+	const gameCode = req.user.inGame || req.user.watchingGame;
+
+	// Use separate logic if the user is an audience member
+	if (req.user.watchingGame) {
+		isAudience = true;
+		return res.send("Audience waiting room - coming soon!");
+	}
 
 	// Check logged in user is a player
 	let game = {};
@@ -265,7 +279,7 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 		}
 	}
 
-	if (!isContestant) {
+	if (!isContestant && !isAudience) {
 		return res.redirect("/");
 	}
 })
