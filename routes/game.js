@@ -188,11 +188,10 @@ router.get("/join", checkAuthenticated, (req, res) => {
 		}
 		try {
 			await saveSession(req);
-			return res.redirect("waiting-room");
 		} catch (err) {
 			console.error('Error saving session for user ' + (req.user.displayName || req.user.twitchId) + ':', err);
 		}
-		return res.redirect("/");
+		return (isContestant) ? res.redirect("waiting-room") : res.redirect("watching");
 	} catch (error) {
 		console.error(error);
 		req.flash("error", "Something went wrong!");
@@ -282,6 +281,60 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 	if (!isContestant && !isAudience) {
 		return res.redirect("/");
 	}
+})
+
+router.get("/watching", checkAuthenticated, async (req, res) => {
+	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+	const successMessage = req.flash("success")[0]; // Retrieve the flash message
+
+	// TODO: Handle visiting when user is a contestant
+	// TODO: Handle visiting when user is audience
+	// TODO: Handle logged-in but not audience/contestant
+
+	if (req.user.watchingGame === "" || !req.user.watchingGame || req.user.watchingGame === undefined) {
+		req.flash("error", "You're not an audience member! - This is the /watching endpoint");
+		return res.redirect("/");
+	}
+
+	if (req.user.inGame === "" || !req.user.inGame || req.user.inGame === undefined) {
+		req.flash("error", "You're not in a game! - This is the /watching endpoint");
+		return res.redirect("/");
+	}
+
+	const gameCode = req.user.inGame;
+
+	// Check if the game is in progress
+	try {
+		const game = await Game.findOne({ code: req.user.inGame, status: "in-progress" });
+		if (!game) {
+			req.flash("error", "The game has not started yet!");
+			return res.redirect("/game/waiting-room");
+		}
+	} catch (error) {
+		console.error(error);
+		req.flash("error", "Something went wrong!");
+		return res.redirect("/game/waiting-room");
+	}
+
+	// Set the current question
+	let currentQuestion = "";
+	try {
+		const domain = req.protocol + "://" + req.get("host");
+		const questionEndpoint = domain + "/obs/question";
+		
+		currentQuestion = await fetchFromAPI(questionEndpoint);
+	} catch (error) {
+		console.error(error);
+	}
+
+	const chatLog = [];
+	try {
+		chatLog.push(...await fetchChatLog(gameCode, req.user.teamId));
+	} catch (error) {
+		console.error("Error fetching chat log:", error);
+	}
+
+	res.render("game/in-game", {user: req.user, failureMessage, successMessage, currentQuestion, chatLog});
 })
 
 module.exports = router;

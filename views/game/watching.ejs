@@ -1,0 +1,285 @@
+<%- include('../header'); %>
+	<video
+		autoplay
+		muted
+		loop
+		id="ingame-background"
+		class="team-<%- user.teamIndex %>"
+		>
+		<source src="https://assets.danny-valentine.com/video/upload/h_1080,e_accelerate:-50/q_auto,f_auto/BigFatTwitch/anibak.mov">
+	</video>
+	<section id="game" class="text-white d-none">
+		<header id="headings" class="text-center">
+			<h2 class="question" id="question-text"><%= (currentQuestion == "") ? "-" : currentQuestion %></h2>
+		</header>
+		<% if (failureMessage) { %>
+			<div class="container">
+				<section>
+					<div class="alert alert-danger" role="alert"><%= failureMessage %></div>
+				</section>
+			</div>
+		<% } if (successMessage) { %>
+			<div class="container">
+				<section>
+					<div class="alert alert-success" role="alert"><%= successMessage %></div>
+				</section>
+			</div>
+		<% } %>
+		<section>
+			<div class="row mt-4">
+				<div class="col-9">
+					<form id="answer-form" method="post" action="/game/in-game" class="text-center">
+						<canvas id="answerCanvas" class="canvas-container disabled" width="900" height="506" disabled></canvas><br>
+						<input id="questionId" name="questionId" type="hidden">
+						<input id="answerField" name="answerField" type="hidden">
+						<button class="btn btn-primary in-game w-100 mt-2" id="answer-button" type="submit" disabled>Submit answer</button>
+					</form>
+				</div>
+				<div class="col-3 d-flex flex-column">
+					<h4><%- user.teammate.displayName %>'s answer</h4>
+					<img id="teammateAnswer" class="canvas-container" src="" style="height: auto;" />
+					<h4 class="mt-4">Team chat</h4>
+					<div class="chat-message-container chat-log w-100">
+						<ul class="chat-messages list-unstyled"></ul>
+					</div>
+					<form id="form">
+						<input id="input" type="text" class="in-game form-control mt-2" placeholder="Type a message..." autocomplete="off">
+						<button class="btn btn-secondary in-game w-100 mt-2">Send</button>
+					</form>
+				</div>
+			</div>
+		</section>
+		<section>
+			<!-- Try https://jsfiddle.net/hqb26mgd/11/ ? -->
+			<!-- <div class="timer" style="--duration: 30;--size: 200;">
+				<div class="mask"></div>
+			</div> -->
+		</section>
+		<script>
+			const form = document.getElementById('form');
+			const input = document.getElementById('input');
+
+			form.addEventListener('submit', (e) => {
+				e.preventDefault();
+				if (input.value) {
+					socket.emit('chat message', input.value, <%- JSON.stringify(user) %>);
+					input.value = '';
+				}
+			});
+		</script>
+	</section>
+	<section id="interstitial" class="text-white d-flex flex-column justify-content-center align-items-center vh-80">
+		<h1 id="ish1" class="text-center">Welcome to The Chonky Question Show!</h1>
+		<h2 id="ish2" class="text-center">Strap in, and strap on, because it's gonna get silly</h2>
+		<h3 id="ish3" class="text-center pt-3 d-none"></h3>
+		<div class="row text-light bg-dark w-100 text-center fade-up" style="position: absolute; bottom: 10%;">
+			<section>
+				<%- include('carousel') %>
+			</section>
+		</div>
+
+	</section>
+	<script src="/socket.io/socket.io.js"></script>
+	<%- include('../tipsCarousel'); %>
+	<script src="/js/answerHandler.js"></script>
+	<%- include('../helperFunctions'); %>
+	<script>
+
+	// console.log the user info for debugging
+	console.log(<%- JSON.stringify(user) %>);
+
+	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
+
+	<% if (chatLog) { chatLog.forEach((message) => { %> addChatMessage(".chat-messages", "<%- message %>");	<% }); } %>
+
+	socket.on('chat message', (msg) => {
+		addChatMessage(".chat-messages", msg);
+	});
+
+	socket.on('show interstitial', (state, heading="", subheading="") => {
+		showInterstitial(state, heading, subheading);
+		if (!state) { resizeCanvas(); } 
+	});
+
+	socket.on('show point interstitial', (firstPlaceName, firstPlacePoints, secondPlaceName, secondPlacePoints, thirdPlaceName, thirdPlacePoints) => {
+		const first = `🥇 ${firstPlaceName} (${firstPlacePoints})`;
+		const second = `🥈 ${secondPlaceName} (${secondPlacePoints})`
+		const third = `💩 ${thirdPlaceName} (${thirdPlacePoints})`;
+		showInterstitial(true, first, second, third);
+	});
+
+	socket.on('next question', (question, questionId) => {
+		resetFormFields();
+		unlockFormFields();
+		setPageTitle("Q: " + question);
+		document.querySelector('h2').innerHTML = question;
+		document.querySelector('#questionId').value = questionId;
+		// restartAnimation();
+	});
+
+	socket.on('lock canvas', (question, questionId) => {
+		console.log("Locking canvas");
+		lockCanvas();
+	});
+	socket.on('unlock canvas', (question, questionId) => {
+		console.log("Unlocking canvas");
+		unlockCanvas();
+	});
+
+	socket.on('lock submit button', (question, questionId) => {
+		console.log("Locking submit button");
+		lockSubmitButton();
+	});
+	socket.on('unlock submit button', (question, questionId) => {
+		console.log("Unlocking submit button");
+		unlockSubmitButton();
+	});
+
+	socket.on("ltfo", (gameCode, playerId) => {
+		if (playerId === "<%- user._id %>") {
+			alert("You're being logged out.\nSucks to be youuuuu bish!");
+			location.href = "/game/ltfo";
+		}
+	});
+
+	socket.on('update canvas', (canvasData, userID) => {
+		// Only update serverCanvas if the canvasData is from the current user's teammate
+		if (userID !== <%- user.teammate.twitchId %>) return;
+		
+		// Update #serverCanvas with received canvasData
+		const serverCanvas = document.getElementById('teammateAnswer');
+		serverCanvas.setAttribute("src", canvasData);
+	})
+
+	const answerCanvas = document.getElementById('answerCanvas');
+	const ctx = answerCanvas.getContext('2d');
+
+	const canvasOffset = answerCanvas.getBoundingClientRect();
+	const canvasOffsetX = answerCanvas.offsetLeft;
+	const canvasOffsetY = answerCanvas.offsetTop;
+
+	let isDrawing = false;
+	let lastX = 0;
+	let lastY = 0;
+
+	let lastCanvasData = "";
+
+	// Listen for mousedown then do the same for touchscreens
+	$(answerCanvas).on('mousedown', function(e) {
+		// Don't take any action if the canvas is disabled
+		if ($(answerCanvas).hasClass("disabled")) return;
+
+		if (e.which !== 1) return; // Check if it's the left mouse button only
+
+		e.preventDefault();
+		isDrawing = true;
+		[lastX, lastY] = [e.offsetX, e.offsetY];
+	});
+	$(answerCanvas).on('touchstart', function(e) {
+		// Don't take any action if the canvas is disabled
+		if ($(answerCanvas).hasClass("disabled")) return;
+
+		e.preventDefault();
+		isDrawing = true;
+		[lastX, lastY] = [e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY];
+	});
+
+	// Listen for mousemove then do the same for touchscreens
+	$(answerCanvas).on('mousemove', function(e) {
+		// Don't take any action if the canvas is disabled
+		if ($(answerCanvas).hasClass("disabled")) return;
+
+		if (isDrawing) {
+			ctx.beginPath();
+			ctx.moveTo(lastX, lastY);
+			ctx.lineTo(e.offsetX, e.offsetY);
+			ctx.lineWidth = 5;
+			ctx.strokeStyle = 'black';
+			ctx.lineCap = 'round';
+			ctx.stroke();
+			[lastX, lastY] = [e.offsetX, e.offsetY];
+		}
+	});
+	$(answerCanvas).on('touchmove', function(e) {
+		// Don't take any action if the canvas is disabled
+		if ($(answerCanvas).hasClass("disabled")) return;
+		if (isDrawing) {
+			e.preventDefault();
+			ctx.beginPath();
+			ctx.moveTo(lastX, lastY);
+			ctx.lineTo(e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY);
+			ctx.lineWidth = 5;
+			ctx.strokeStyle = 'black';
+			ctx.lineCap = 'round';
+			ctx.stroke();
+			[lastX, lastY] = [e.touches[0].clientX - canvasOffsetX, e.touches[0].clientY - canvasOffsetY];
+		}
+	});
+
+	$(answerCanvas).on('mouseup mouseout touchend touchcancel', function() {
+		// Don't take any action if the canvas is disabled
+		if ($(answerCanvas).hasClass("disabled")) return;
+		isDrawing = false
+
+		// Send the image to the server
+		const data = answerCanvas.toDataURL();
+		if (lastCanvasData !== data) {
+			socket.emit('update canvas', data, <%- user.twitchId %>);
+			lastCanvasData = data;
+		}
+	});
+	let originalCanvasData = null; // Store the original high-resolution canvas data
+
+	$(window).on('resize', function() {
+		resizeCanvas();
+
+		const canvas = $('#answerCanvas')[0];
+		const ctx = canvas.getContext('2d');
+		const img = new Image();
+
+		// Save the current canvas content at its original resolution if not already saved
+		if (!originalCanvasData) {
+			originalCanvasData = canvas.toDataURL();
+		}
+
+
+		// Redraw the saved high-resolution content onto the resized canvas
+		img.onload = function() {
+			ctx.clearRect(0, 0, canvas.width, canvas.height);
+			ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+		};
+		img.src = originalCanvasData;
+	}).trigger('resize');
+
+	// Update the originalCanvasData whenever the user draws on the canvas
+	$(answerCanvas).on('mouseup mouseout touchend touchcancel', function() {
+		if (!$(answerCanvas).hasClass("disabled")) {
+			originalCanvasData = answerCanvas.toDataURL();
+		}
+	});
+
+	function restartAnimation() {
+		let circle = document.querySelector(".question");
+
+		circle.style.animationName = "none";
+
+		requestAnimationFrame(() => {
+			setTimeout(() => {
+				circle.style.animationName = ""
+			}, 0);
+		});
+	}
+
+	function resizeCanvas() {
+		const canvas = $('#answerCanvas')[0];
+		// Adjust canvas size while maintaining 16:9 aspect ratio
+		const parentWidth = $(canvas).parent().width();
+		const newWidth = Math.min(parentWidth, 900); // Maximum width is 900
+		const newHeight = newWidth * 9 / 16; // Maintain 16:9 aspect ratio
+
+		canvas.width = newWidth;
+		canvas.height = newHeight;
+	}
+
+	</script>
+<%- include('../footer'); %>
