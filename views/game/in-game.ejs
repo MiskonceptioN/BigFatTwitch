@@ -112,6 +112,11 @@
 		updateQuestion(question, questionId);
 	});
 
+	socket.on('resend question', (playerId, question, questionId) => {
+		if (playerId !== <%- user.twitchId %>) return;
+		updateQuestion(question, questionId);
+	});
+
 	socket.on('lock canvas', (question, questionId) => {
 		console.log("Locking canvas");
 		lockCanvas();
