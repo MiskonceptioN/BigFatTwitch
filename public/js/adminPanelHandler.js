@@ -213,6 +213,16 @@ $("form.send-question").on("submit", function(event){
 	});
 });
 
+$("a.resend-question").on("click", function(event){
+	event.preventDefault();
+
+	const playerId = $(this).data("player-id");
+	const questionText = $(this).closest("form").find('input[name="sendQuestion"]').val();
+	const questionId = $(this).closest("form").find("input[name='questionId']").val();
+
+	socket.emit("resend question", playerId, questionText, questionId);
+});
+
 // Collect the answer data from the player canvases and save them to DB
 $("#save-answers").on("click", function(event){
 	if (!$(this).data("question-id")) return;
