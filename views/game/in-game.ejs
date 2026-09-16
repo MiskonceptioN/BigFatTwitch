@@ -109,12 +109,7 @@
 	});
 
 	socket.on('next question', (question, questionId) => {
-		resetFormFields();
-		unlockFormFields();
-		setPageTitle("Q: " + question);
-		document.querySelector('h2').innerHTML = question;
-		document.querySelector('#questionId').value = questionId;
-		// restartAnimation();
+		updateQuestion(question, questionId);
 	});
 
 	socket.on('lock canvas', (question, questionId) => {
@@ -280,6 +275,17 @@
 		canvas.width = newWidth;
 		canvas.height = newHeight;
 	}
+
+function updateQuestion(question, questionId){
+	showInterstitial(false);
+	resizeCanvas();
+	resetFormFields();
+	unlockFormFields();
+	setPageTitle("Q: " + question);
+	document.querySelector('h2').innerHTML = question;
+	document.querySelector('#questionId').value = questionId;
+	// restartAnimation();
+};
 
 	</script>
 <%- include('../footer'); %>
