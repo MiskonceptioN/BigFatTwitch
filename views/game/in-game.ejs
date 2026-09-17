@@ -114,6 +114,7 @@
 
 	socket.on('resend question', (playerId, question, questionId) => {
 		if (playerId !== <%- user.twitchId %>) return;
+		showInterstitial(false);
 		updateQuestion(question, questionId);
 	});
 
@@ -282,7 +283,6 @@
 	}
 
 function updateQuestion(question, questionId){
-	showInterstitial(false);
 	resizeCanvas();
 	resetFormFields();
 	unlockFormFields();
