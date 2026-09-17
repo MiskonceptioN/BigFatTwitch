@@ -34,6 +34,40 @@ router.post("/submit-button/:toggle", checkAuthenticated, async function(req, re
 	res.send({status: "success", content: "Socket event sent"});
 })
 
+router.get("/game-preview", checkAuthenticated, async function(req, res){
+		if (req.user.role == "admin") {
+			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+			const successMessage = req.flash("success")[0]; // Retrieve the flash message
+
+			let allGamesResult = [];
+			let allQuestionsResult = [];
+			try {
+				allGamesResult = await Game.find({}).sort({createdAt: "asc"});
+			} catch (error) {
+				console.error("Error fetching games:", error);
+				req.flash("error", "Unable to fetch games");
+			}
+			try {
+				allQuestionsResult = await Question.find();
+			} catch (error) {
+				console.error("Error fetching questions:", error);
+				req.flash("error", "Unable to fetch questions");
+			}
+
+			const questionTotals = allGamesResult.reduce((acc, game) => {
+				acc[game.code] = allQuestionsResult.filter(question => question.game === game.code).length;
+				return acc;
+			}, {});
+
+			let currentQuestion = "";
+			req.user.teammate = {displayName: "bingobongo"};
+			  
+			res.render("admin/game-preview", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage, currentQuestion});
+		} else {
+			res.redirect("/login")
+		}
+	});
+
 router.get("/gameManagement", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			const failureMessage = req.flash("error")[0]; // Retrieve the flash message
