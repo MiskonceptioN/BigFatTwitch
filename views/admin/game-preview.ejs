@@ -1,0 +1,53 @@
+<%- include('../header'); %>
+	<video
+		autoplay
+		muted
+		loop
+		id="ingame-background"
+		class="team-<%- user.teamIndex %>"
+		>
+		<source src="https://assets.danny-valentine.com/video/upload/h_1080,e_accelerate:-50/q_auto,f_auto/BigFatTwitch/anibak.mov">
+	</video>
+	<section id="game" class="text-white d-none">
+		<header id="headings" class="text-center">
+			<h2 class="question" id="question-text"><%= (currentQuestion == "") ? "-" : currentQuestion %></h2>
+		</header>
+		<section>
+			<!-- Try https://jsfiddle.net/hqb26mgd/11/ ? -->
+			<!-- <div class="timer" style="--duration: 30;--size: 200;">
+				<div class="mask"></div>
+			</div> -->
+		</section>
+	</section>
+	<section id="interstitial" class="text-white d-flex flex-column justify-content-center align-items-center vh-80">
+		<h1 id="ish1" class="text-center">Welcome to The Chonky Question Show!</h1>
+		<h2 id="ish2" class="text-center">Strap in, and strap on, because it's gonna get silly</h2>
+		<h3 id="ish3" class="text-center pt-3 d-none"></h3>
+	</section>
+
+	<script src="/socket.io/socket.io.js"></script>
+	<!-- <script src="/js/answerHandler.js"></script> -->
+	<%- include('../helperFunctions'); %>
+	<script>
+
+	const socket = io({ query: { teamId: '<%= user.teamId %>' , role: '<%= user.role %>' } });
+
+	socket.on('show interstitial', (state, heading="", subheading="") => {
+		showInterstitial(true, heading, subheading);
+	});
+
+	socket.on('show point interstitial', (firstPlaceName, firstPlacePoints, secondPlaceName, secondPlacePoints, thirdPlaceName, thirdPlacePoints) => {
+		const first = `🥇 ${firstPlaceName} (${firstPlacePoints})`;
+		const second = `🥈 ${secondPlaceName} (${secondPlacePoints})`
+		const third = `💩 ${thirdPlaceName} (${thirdPlacePoints})`;
+		showInterstitial(true, first, second, third);
+	});
+
+	socket.on('next question', (question, questionId) => {
+		showInterstitial(true, question, " ");
+	});
+
+	$(".navbar").addClass("d-none");
+
+	</script>
+<%- include('../footer'); %>

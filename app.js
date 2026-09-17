@@ -276,6 +276,9 @@ io.on('connection', async (socket) => {
 		socket.on("next question", (questionText, questionId) => {
 			io.emit("next question", questionText, questionId);
 		});
+		socket.on("resend question", (playerId, questionText, questionId) => {
+			io.emit("resend question", playerId, questionText, questionId);
+		});
 		socket.on("save answers", async (answerData) => {
 			try {
 				Object.entries(answerData.answers).forEach(async ([contestant, answer]) => {
