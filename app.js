@@ -319,6 +319,9 @@ io.on('connection', async (socket) => {
 			}
 			io.emit("update answer", imageData, playerId);
 		});
+		socket.on("send answers to audience", (teamColour, question, questionId, teamName, players, answers) => {
+			io.emit("send answers to audience", teamColour, question, questionId, teamName, players, answers);
+		});
 	} catch (error) {
 		console.error("Socket.io connection error:", error);
 	}
