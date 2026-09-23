@@ -183,18 +183,18 @@
 	});
 
 	function updateDisplayedAnswers(teamColour, question, questionId, teamName, players, answers){
-		console.log({teamColour, question, questionId, teamName, players, answers});
 		// Update the question and its ID if the incoming one is different
-		if (questionId !== $("#current-question").data("question-id")) {
+		// if (questionId !== $("#current-question").data("question-id")) {
 			updateCurrentQuestion(question, questionId);
-		}
+			// resetVoteButtons();
+		// }
 
-		// Update the relevant data if the team ID changes
-		if (teamName !== $("#current-team").text()) {
+		// Update the relevant data if the team name changes
+		// if ((teamName + " said:") !== $("#current-team").text()) {
 			updateTeam(teamName, teamColour);
 			updatePlayers(players, answers);
-			// resetVoteButtons();
-		}
+			resetVoteButtons();
+		// }
 	};
 
 	function resetVoteButtons(){
