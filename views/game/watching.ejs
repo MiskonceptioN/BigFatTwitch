@@ -121,5 +121,14 @@
 	}
 
 	function updateBackground(n = ""){
+		// Set the background colour based on the team number
+		if (n >= 0 && n <=2) {
+			$("#ingame-background").removeClass().addClass("team-" + n);
+		} else  {
+			$("#ingame-background").removeClass();
+		}
+	}
+
+	function changePhase(next, direction = "left") {
 	</script>
 <%- include('../footer'); %>
