@@ -8,8 +8,15 @@
 			<h1 class="d-none">Admin panel</h1>
 		</header>
 		<div class="row text-start my-3">
-			<h3>Contestant preview: </h3>
-			<iframe src="/admin/game-preview" height="400" style="overflow-x: hidden"></iframe>
+			<h3>Previews:</h3>
+			<div class="col">
+				<h4>Contestant preview:</h4>
+				<iframe src="/admin/game-preview" class="game-preview"></iframe>
+			</div>
+			<div class="col">
+				<h4>Audience preview:</h4>
+				<iframe src="/game/watching" class="game-preview"></iframe>
+			</div>
 		</div>
 		<div class="row text-start my-3">
 			<h3>Phase: 
