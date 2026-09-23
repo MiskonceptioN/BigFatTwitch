@@ -580,3 +580,10 @@ button.in-game, input.in-game, .ingame-border {
 .answer-not-saved {
 	filter: grayscale(100%);
 }
+
+iframe.game-preview {
+    width: 100%;
+    zoom: 0.5;
+    height: 800px;
+	pointer-events: none; /* Disable interaction with the iframe */
+}
