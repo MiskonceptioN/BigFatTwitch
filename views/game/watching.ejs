@@ -103,8 +103,9 @@
 		$(".vote-button").click(function() {
 			if ($(this).hasClass("chosen")) return;
 
-			$(this).addClass("animate");
-			$(this).addClass("chosen");
+			// Play the animations
+			$(this).addClass("animate chosen");
+			
 			setTimeout(() => {
 				$(this).removeClass("animate");
 			}, 1000);
