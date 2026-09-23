@@ -109,6 +109,21 @@
 	});
 
 	socket.on('next question', (question, questionId) => {
+	function updateTeam(teamName, teamColour){
+		// Update the team name and set the background colour accordingly
+		switch(teamColour){
+			case "red":
+				updateBackground(0);
+				break;
+			case "green":
+				updateBackground(1);
+				break;
+			case "blue":
+				updateBackground(2);
+				break;
+		}
+		$("#current-team").text("Team: " + teamName);
+	}
 	function updatePlayers(players, answers){
 		// Update the display names, Twitch IDs, and answers for the players
 		$("#player-one").text(players[0].displayName || "PlayerName");
