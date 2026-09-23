@@ -178,7 +178,7 @@
 	});
 
 	socket.on('send answers to audience', (teamColour, question, questionId, teamName, players, answers) => {
-		updateDisplayedAnswers(teamColour, question, questionId, teamName, players, answers)
+		updateDisplayedAnswers(teamColour, question, questionId, teamName, players, answers);
 		changePhase("team-answers");
 	});
 
