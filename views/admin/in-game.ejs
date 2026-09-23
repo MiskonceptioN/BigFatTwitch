@@ -104,7 +104,15 @@
 									</form>
 									<form method="post" action="/admin/in-game/fetch-answers" class="phase-scoring fetch-answers"">
 										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
-										<button class="fetch-answers btn btn-danger phase-scoring d-none">Fetch player answers</button>
+										<button class="fetch-answers btn btn-danger phase-scoring d-none">Fetch player answers</button><br>
+										<div class="btn-group phase-scoring d-none">
+										<button type="button" class="btn btn-twitch dropdown-toggle send-to-audience-button" data-bs-toggle="dropdown" aria-expanded="false" disabled>Send answers to audience</button>
+											<ul class="dropdown-menu">
+												<li><a class="dropdown-item send-to-audience" data-team-colour="red" href="#">🔴 <%- game.teams[0].name %>'s answers</a></li>
+												<li><a class="dropdown-item send-to-audience" data-team-colour="green" href="#">🟢 <%- game.teams[1].name %>'s answers</a></li>
+												<li><a class="dropdown-item send-to-audience" data-team-colour="blue" href="#">🔵 <%- game.teams[2].name %>'s answers</a></li>
+											</ul>
+										</div>
 									</form>
 								</div>
 							</div>
