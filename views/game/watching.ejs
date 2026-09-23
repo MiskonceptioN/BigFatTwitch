@@ -197,6 +197,14 @@
 		}
 	};
 
+	function resetVoteButtons(){
+		// To do - Check if vote exists in array first and set states accordingly
+		// To do - Check if "NO ANSWER" was provided and disable the buttons
+
+		// Reset the vote buttons to their default state
+		$(".vote-button").removeClass("chosen");
+	}
+
 	function updateCurrentQuestion(question, questionId){
 		$("#current-question").text("Question: " + question);
 		$("#current-question").data("question-id", questionId);
