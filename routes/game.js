@@ -355,5 +355,26 @@ router.get("/watching", checkAuthenticated, async (req, res) => {
 
 	res.render("game/in-game", {user: req.user, failureMessage, successMessage, currentQuestion, chatLog});
 })
+.post("/watching", checkAuthenticated, async (req, res) => {
+	// Insert answer into the answers table using the question ID
+	// const user = req.user;
+	// const answer = req.body.answerField;
+	// const questionId = req.body.questionId;
+	
+	try {
+		console.log(req.body);
+
+		return res.send({
+			status: "success",
+			content: "Dumped!"
+		});
+	} catch (error) {
+		console.error(error);
+		return res.send({
+			status: "danger",
+			content: "Something went wrong! Please let Danny know."
+		});
+	}
+});
 
 module.exports = router;
