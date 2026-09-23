@@ -336,7 +336,7 @@ router.get("/watching", checkAuthenticated, async (req, res) => {
 	}
 
 	// Set the current question
-	let currentQuestion = "";
+	// let currentQuestion = "";
 	try {
 		const domain = req.protocol + "://" + req.get("host");
 		const questionEndpoint = domain + "/obs/question";
