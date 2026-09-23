@@ -253,7 +253,7 @@ $("form.fetch-answers").on("submit", function(event){
 	updateQuestionPreview(questionText, questionId);
 
 	const form = $(this);
-	const inputButton = $(form).find("button");
+	const inputButton = $(form).find("button.fetch-answers");
 	const inputButtonContent = $(inputButton).html();
 	$.ajax({
 		method: formMethod,
