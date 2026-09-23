@@ -1,4 +1,8 @@
 <%- include('../header'); %>
+<script>
+	// Whack the team data into an object for easy reference later
+	const teams = <%- JSON.stringify(game.teams) %>;
+</script>
 	<section id="questions" class="text-center">
 		<header>
 			<h1 class="d-none">Admin panel</h1>
