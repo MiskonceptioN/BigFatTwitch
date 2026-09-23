@@ -109,6 +109,12 @@
 	});
 
 	socket.on('next question', (question, questionId) => {
+
+	function updateCurrentQuestion(question, questionId){
+		$("#current-question").text("Question: " + question);
+		$("#current-question").data("question-id", questionId);
+	}
+
 	function updateTeam(teamName, teamColour){
 		// Update the team name and set the background colour accordingly
 		switch(teamColour){
