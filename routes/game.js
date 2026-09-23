@@ -287,6 +287,25 @@ router.get("/watching", checkAuthenticated, async (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 	const successMessage = req.flash("success")[0]; // Retrieve the flash message
 
+	// Set the current question
+	let currentQuestion = "";
+	try {
+		const domain = req.protocol + "://" + req.get("host");
+		const questionEndpoint = domain + "/obs/question";
+		
+		currentQuestion = await fetchFromAPI(questionEndpoint);
+	} catch (error) {
+		console.error(error);
+	}
+
+	return res.render("game/watching", {
+		user: req.user,
+		failureMessage,
+		successMessage,
+		currentQuestion,
+		// chatLog
+	});
+
 	// TODO: Handle visiting when user is a contestant
 	// TODO: Handle visiting when user is audience
 	// TODO: Handle logged-in but not audience/contestant
