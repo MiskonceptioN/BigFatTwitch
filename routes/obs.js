@@ -5,6 +5,7 @@ const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
 const Question = require("../models/questionModel.js");
 const Answer = require("../models/answerModel.js");
+const Vote = require("../models/voteModel.js");
 
 router.get("/", (req, res) => {
 	res.render("obs")
@@ -50,6 +51,66 @@ router.get("/view-answers/:questionId", async (req, res) => {
 	} catch (error) {
 		console.error("Error retrieving question:", error);
 		return res.status(500).send({"message": "Error retrieving question"});
+	}
+})
+
+router.get("/votes/:questionId", async (req, res) => {
+	const questionId = req.params.questionId;
+
+	try {
+		// Every answer to this question, so we can tally votes per contestant
+		const answers = await Answer.find({ questionId });
+
+		if (answers.length === 0) {
+			return res.status(404).send({ message: "No answers found for this question" });
+		}
+
+		const answerIds = answers.map(answer => answer._id);
+		const counts = await Vote.getCounts(answerIds);
+
+		const results = answers.map(answer => ({
+			answerId: answer._id,
+			contestant: answer.contestant,
+			answer: answer.answer,
+			...counts.get(answer._id.toString())
+		}));
+
+		return res.send(results);
+	} catch (error) {
+		console.error("Error retrieving votes:", error);
+		return res.status(500).send({ message: "Error retrieving votes" });
+	}
+})
+
+// e.g. GET /obs/votes?voter=1234567&game=BCKM
+router.get("/votes", async (req, res) => {
+	let { voter, game } = req.query;
+	game = game?.toUpperCase();
+
+	if (game && game.length !== 4) {
+		return res.status(400).send({ message: "Game code must be 4 characters long" });
+	}
+
+	if (!voter && !game) {
+		return res.status(400).send({ message: "Provide at least a voter or game query parameter" });
+	}
+
+	const filter = {};
+	if (voter) filter.voter = voter;
+	if (game) filter.game = game;
+
+	try {
+		const votes = await Vote.find(filter);
+
+		const counts = votes.reduce((acc, vote) => {
+			acc[vote.intent] = (acc[vote.intent] || 0) + 1;
+			return acc;
+		}, { upvote: 0, rofl: 0 });
+
+		return res.send({ counts, votes });
+	} catch (error) {
+		console.error("Error retrieving votes:", error);
+		return res.status(500).send({ message: "Error retrieving votes" });
 	}
 })
 
