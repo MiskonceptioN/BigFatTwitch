@@ -8,6 +8,7 @@ const io = require('../app');
 const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
 const Answer = require("../models/answerModel.js");
+const Vote = require("../models/voteModel.js");
 
 router.get("/audience", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
@@ -360,25 +361,30 @@ router.get("/watching", checkAuthenticated, async (req, res) => {
 	const questionId = req.body["question-id"];
 	const contestant = req.body["player-id"];
 	const intent = req.body.intent;
-	
+	const gameCode = req.user.inGame || req.user.watchingGame;
+
 	try {
-		const updatePoints = await Answer.updateOne({
-			questionId: questionId,
-			contestant: contestant
-		},{ $inc: { [intent === "upvote" ? "audienceLikes" : "audienceRofls"]: 1 } });
-		
-		if (updatePoints.modifiedCount < 1) {
+		const answer = await Answer.findOne({ questionId, contestant });
+
+		if (!answer) {
 			return res.send({
 				status: "danger",
 				content: "Something went wrong! Please let Danny know."
 			});
-		} else {
-			console.log(`${intent}s increased for ${contestant}'s answer to question ID ${questionId}`)
-			return res.send({
-				status: "success",
-				content: "Points added!"
-			});
 		}
+
+		// One upvote and one rofl allowed per voter per answer; re-clicking doesn't create duplicates
+		await Vote.findOneAndUpdate(
+			{ answerId: answer._id, voter: req.user.twitchId, intent },
+			{ answerId: answer._id, game: gameCode, voter: req.user.twitchId, intent },
+			{ upsert: true, setDefaultsOnInsert: true }
+		);
+
+		console.log(`${intent} vote registered for ${contestant}'s answer to question ID ${questionId}`)
+		return res.send({
+			status: "success",
+			content: "Points added!"
+		});
 	} catch (error) {
 		console.error(error);
 		return res.send({
