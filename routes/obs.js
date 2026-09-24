@@ -114,6 +114,73 @@ router.get("/votes", async (req, res) => {
 	}
 })
 
+// "Thumbs Cup" style award: the contestant(s) with the most ROFL votes across the whole game
+// e.g. GET /obs/rofl-cup?game=BCKM
+router.get("/rofl-cup", async (req, res) => {
+	// Try to determine the game from the querystring
+	let { game } = req.query;
+	game = game?.toUpperCase();
+	if (game && game.length !== 4) {
+		return res.status(400).send({ message: "Provide a 4 character game query parameter" });
+	}
+
+	// If it's not provided in the querystring, check for a running game
+	if (!game) {
+		const activeGame = await Game.findOne({ status: "in-progress" });
+		game = activeGame?.code;
+	}
+
+	// Finally, abandon if we still don't have a game code
+	if (!game) {
+		return res.status(400).send({ message: "Unable to determine the active game" });
+	}
+
+	try {
+		// Filter by the vote's own game field, rather than the referenced answer's,
+		// so this isn't affected by stale/mismatched game data on old answer documents
+		const roflVotes = await Vote.find({ game, intent: "rofl" });
+		if (roflVotes.length === 0) {
+			return res.status(200).send(`No ROFLs have been cast yet in game ${game}`);
+		}
+
+		const answerIds = [...new Set(roflVotes.map(vote => vote.answerId.toString()))];
+		const answers = await Answer.find({ _id: { $in: answerIds } }).select('contestant');
+		const contestantByAnswerId = new Map(answers.map(answer => [answer._id.toString(), answer.contestant]));
+
+		// Tally rofl votes per contestant across all of their answers
+		const roflsByContestant = new Map();
+		for (const vote of roflVotes) {
+			const contestant = contestantByAnswerId.get(vote.answerId.toString());
+			if (!contestant) continue; // vote's answer has since been deleted
+
+			roflsByContestant.set(contestant, (roflsByContestant.get(contestant) || 0) + 1);
+		}
+
+		const highestRoflCount = Math.max(0, ...roflsByContestant.values());
+		if (highestRoflCount === 0) {
+			return res.status(200).send("No ROFLs have been cast yet");
+		}
+
+		// Multiple contestants can share the cup if they're tied
+		const winners = [...roflsByContestant.entries()]
+			.filter(([, rofls]) => rofls === highestRoflCount)
+			.map(([contestant]) => contestant);
+
+		const winnerUsers = await User.find({ twitchId: { $in: winners } })
+			.select('twitchId displayName profileImageUrl');
+
+		return res.status(200).send(winnerUsers.map(user => ({
+			twitchId: user.twitchId,
+			displayName: user.displayName,
+			profileImageUrl: user.profileImageUrl,
+			rofls: highestRoflCount
+		})));
+	} catch (error) {
+		console.error("Error retrieving ROFL cup winner:", error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+});
+
 router.get("/rounds", async (req, res) => {
 	try {
 		const gameFromDB = await Game.findOne({ status: { $in: ["starting", "in-progress"] } }).select('code -_id');
