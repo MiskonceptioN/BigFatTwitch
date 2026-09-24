@@ -357,17 +357,28 @@ router.get("/watching", checkAuthenticated, async (req, res) => {
 })
 .post("/watching", checkAuthenticated, async (req, res) => {
 	// Insert answer into the answers table using the question ID
-	// const user = req.user;
-	// const answer = req.body.answerField;
-	// const questionId = req.body.questionId;
+	const questionId = req.body["question-id"];
+	const contestant = req.body["player-id"];
+	const intent = req.body.intent;
 	
 	try {
-		console.log(req.body);
-
-		return res.send({
-			status: "success",
-			content: "Dumped!"
-		});
+		const updatePoints = await Answer.updateOne({
+			questionId: questionId,
+			contestant: contestant
+		},{ $inc: { [intent === "upvote" ? "audienceLikes" : "audienceRofls"]: 1 } });
+		
+		if (updatePoints.modifiedCount < 1) {
+			return res.send({
+				status: "danger",
+				content: "Something went wrong! Please let Danny know."
+			});
+		} else {
+			console.log(`${intent}s increased for ${contestant}'s answer to question ID ${questionId}`)
+			return res.send({
+				status: "success",
+				content: "Points added!"
+			});
+		}
 	} catch (error) {
 		console.error(error);
 		return res.send({
