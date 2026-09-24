@@ -7,6 +7,8 @@ const answersSchema = new mongoose.Schema({
 	contestant: { type: String, ref: 'User', required: true, refPath: 'twitchId' }, // Reference to the contestant's Twitch ID
 	answer: { type: String, required: true },
 	points: { type: Number, default: 0 },
+	audienceLikes: { type: Number, default: 0 },
+	audienceRofls: { type: Number, default: 0 },
 });
 answersSchema.set('timestamps', true);
 
