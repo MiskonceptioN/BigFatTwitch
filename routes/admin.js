@@ -194,6 +194,43 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 		}
 	});
 
+// Save the scoring settings for a game
+router.post("/gameManagement/:gameCode/scoring", checkAuthenticated, async function(req, res){
+	if (req.user.role != "admin") {
+		return res.send({status: "failure", content: "You're not an admin!"});
+	}
+
+	const { gameCode } = req.params;
+	const errors = [];
+
+	const upvotePoints = Number(req.body.upvotePoints);
+	const roflPoints = Number(req.body.roflPoints);
+	const allowBoth = req.body.allowBoth === "true";
+
+	if (isNaN(upvotePoints)) {errors.push("Upvote points must be a number")}
+	if (isNaN(roflPoints)) {errors.push("ROFL points must be a number")}
+
+	if (errors.length > 0) {
+		return res.send({status: "failure", content: createErrorHTML(errors)});
+	}
+
+	try {
+		const result = await Game.updateOne(
+			{ code: gameCode },
+			{ $set: { audienceScoring: { upvotePoints, roflPoints, allowBoth } } }
+		);
+
+		if (result.matchedCount === 0) {
+			return res.send({status: "failure", content: "Unable to find game " + gameCode});
+		}
+
+		return res.send({status: "success", content: "Audience scoring updated for game " + gameCode});
+	} catch (error) {
+		console.error("Error updating audience scoring for game " + gameCode, error);
+		return res.send({status: "failure", content: "An unknown error occurred"});
+	}
+});
+
 router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		const errors = [];
