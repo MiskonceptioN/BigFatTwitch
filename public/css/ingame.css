@@ -30,19 +30,26 @@
     justify-content: center;
     width: 4rem;
     height: 4rem;
-	transition: transform 0.3s ease;
+	transition: transform 0.3s ease, filter 0.3s ease;
 	filter: saturate(0);
 	user-select: none;
+	transform: scale(1);
 }
 
 .vote-button:hover {
 	transform: scale(1.2);
 }
 
-/* .vote-button:active,  */
+.vote-button-disabled {
+    animation: disable-button .5s ease-out forwards;
+}
+
+.vote-button.enable {
+    animation: enable-button .5s ease-in forwards;
+}
+
 .vote-button.animate {
     animation: spin-and-saturate 1s ease-out forwards;
-	/* filter: saturate(0); */
 }
 
 .chosen {
@@ -63,6 +70,28 @@
 		rotate: 360deg;
 		filter: saturate(1);
     }
+}
+
+@keyframes disable-button {
+	33% {
+		transform: scale(1.2);
+	}
+	100% {
+		transform: scale(0);
+		filter: saturate(0);
+	}
+}
+
+@keyframes enable-button {
+	0% {
+		transform: scale(0);
+	}
+	66% {
+		transform: scale(1.2);
+	}
+	100% {
+		transform: scale(1);
+	}
 }
 
 /* Flyin/out styling */
