@@ -6,6 +6,7 @@ const roundsSchema = new mongoose.Schema({
 	roundNumber: { type: Number, required: true },
 	heading: { type: String, default: "", },
 	subheading: { type: String, default: "" },
+	pointsAwarded: { type: Boolean, default: false }, // whether this round's pendingPoints have been committed
 });
 roundsSchema.set('timestamps', true);
 
