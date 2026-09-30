@@ -373,6 +373,15 @@ router.get("/watching", checkAuthenticated, async (req, res) => {
 			});
 		}
 
+		const foundGame = await Game.findOne({ code: gameCode }).select('audienceScoring');
+		const allowBoth = foundGame?.audienceScoring?.allowBoth ?? true;
+
+		// When only one intent is allowed, casting one clears any existing opposite vote
+		if (!allowBoth) {
+			const otherIntent = intent === "upvote" ? "rofl" : "upvote";
+			await Vote.deleteOne({ answerId: answer._id, voter: req.user.twitchId, intent: otherIntent });
+		}
+
 		// One upvote and one rofl allowed per voter per answer; re-clicking doesn't create duplicates
 		await Vote.findOneAndUpdate(
 			{ answerId: answer._id, voter: req.user.twitchId, intent },
