@@ -14,7 +14,12 @@ const gameSchema = new mongoose.Schema({
 	status: { type: String, enum: ["pending", "starting", "in-progress", "played"], default: "pending" },
 	maxAudience: { type: Number, default: 0 },
 	winner: { type: String, default: null },
-	teams: [teamSchema], 
+	teams: [teamSchema],
+	audienceScoring: {
+		upvotePoints: { type: Number, default: 1 }, // points per upvote when tallied into audiencePoints
+		roflPoints: { type: Number, default: 1 }, // points per rofl when tallied into audiencePoints
+		allowBoth: { type: Boolean, default: true }, // if false, casting one vote intent clears the other for that answer/voter
+	},
 });
 
 // Virtual for questions
