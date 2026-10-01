@@ -279,6 +279,9 @@ io.on('connection', async (socket) => {
 		socket.on("resend question", (playerId, questionText, questionId) => {
 			io.emit("resend question", playerId, questionText, questionId);
 		});
+		socket.on("audience vote", (playerId, intent) => {
+			io.emit('audience vote', playerId, intent);
+		});
 		socket.on("save answers", async (answerData) => {
 			try {
 				Object.entries(answerData.answers).forEach(async ([contestant, answer]) => {

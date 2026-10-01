@@ -317,8 +317,11 @@
 			url: destUrl,
 			data: formData,
 
-			// We don't need to provide any visual feedback to the user in either case tbh
 			success: function(msg) {
+				// Send audience vote to the admin panel
+				const playerId = formData.match(/player-id=([^&]*)/)[1];
+				const intent = formData.match(/intent=([^&]*)/)[1];
+				socket.emit('audience vote', playerId, intent);
 			},
 			error: function(err) {
 				console.log("Failed to register vote", err);

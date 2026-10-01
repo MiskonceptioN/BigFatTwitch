@@ -187,7 +187,7 @@
 
 							<div class="col d-flex flex-column">
 								<div class="row">
-									<div class="col">
+									<div class="col" style="position: relative;">
 										<div class="d-flex align-items-center justify-content-center contestant-audit-header">
 											<h6 class="mt-0 mb-1"><img src="<%- player.profileImageUrl %>" class="miniavatar d-none d-md-inline-block"> <%- player.displayName %></h6>
 										</div>
@@ -197,6 +197,8 @@
 											src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAANSURBVBhXY2BgYGAAAAAFAAGKM+MAAAAAAElFTkSuQmCC"
 											style="height: auto;"
 										>
+										<span id="upvotes-<%- player.twitchId %>" class="text-dark vote-count vote-count-upvote phase-scoring d-none">0</span>
+										<span id="rofls-<%- player.twitchId %>" class="text-dark vote-count vote-count-rofl phase-scoring d-none">0</span>
 									</div>
 								</div>
 								<div class="row">
@@ -436,6 +438,10 @@
 
 	socket.on('chat message', (msg, room) => {
 		addChatMessage("#team-" + room + "-chat .chat-messages", msg);
+	});
+
+	socket.on('audience vote', (playerId, voteType) => {
+		addAudienceVote(playerId, voteType);
 	});
 
 	// Update the inputs when points are successfully added.

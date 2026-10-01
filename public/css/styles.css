@@ -332,6 +332,37 @@ button>div.spinner-border{
 	overflow-x: hidden;
 }
 
+.vote-count {
+	position: absolute;
+    bottom: 0;
+	text-shadow: -1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff;
+	font-size: 1.5em;
+    user-select: none;
+	opacity: 0.5;
+	transition: opacity 0.3s ease-in-out;
+}
+
+.vote-count:hover {
+	opacity: 1;
+}
+
+.vote-count-upvote {
+    left: 0;
+    margin: .5rem 1rem;
+}
+.vote-count-upvote::before {
+    content: '👍';
+}
+
+.vote-count-rofl {
+    right: 0;
+    display: flex;
+    margin: .5rem 1.3rem;
+}
+.vote-count-rofl::before {
+    content: '🤣';
+}
+
 button.in-game, input.in-game, .ingame-border {
 	border-radius: var(--in-game-border-size) !important;
 }

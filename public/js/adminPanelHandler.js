@@ -651,6 +651,7 @@ function updatePrevious(uid, gameId) {
 function populateAnswers(answers) {
 	$(".canvas-container").attr("src", defaultImage); // Reset all canvases to the default image
 	disablePointForm("all", true); // Disable all point forms
+	$(".vote-count").text(0); // Reset all audience votes
 
 	answers.forEach(answer => {
 		let [[playerId, imageData]] = Object.entries(answer);
@@ -662,6 +663,12 @@ function populateAnswers(answers) {
 		// Update the OBS endpoint with the player's answer
 		socket.emit("update answer", imageData, playerId);
 	});
+}
+
+function addAudienceVote(playerId, voteType) {
+	const voteCountElement = $("#" + voteType + "s-" + playerId);
+	let currentCount = parseInt(voteCountElement.text());
+	voteCountElement.text(currentCount + 1);
 }
 
 // Set input to green with check mark when points are succesfully added
