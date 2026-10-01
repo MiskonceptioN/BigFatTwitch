@@ -434,7 +434,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		const updatePoints = await Answer.updateOne({
 			questionId: questionId,
 			contestant: userId
-		},{ $set: { points: points } });
+		},{ $set: { manualPoints: points } });
 
 		if (updatePoints.modifiedCount < 1) {
 			return res.send({
@@ -734,6 +734,61 @@ router.post("/end-round/:gameCode/:roundNumber", checkAuthenticated, async funct
 	} catch (error) {
 		console.log("Error finding game "+ gameCode, error)
 		res.send({status: "failure", content: "Unable to find game " + gameCode});
+	}
+});
+
+router.post("/award-points/:gameCode/:roundNumber", checkAuthenticated, async function(req, res){
+	const { gameCode, roundNumber } = req.params;
+
+	if (req.user.role != "admin") {
+		console.log(req.user.displayName + " attempted to award round " + roundNumber + "'s points in " + gameCode + " but they're not an admin!")
+		return res.send({status: "failure", content: "You're not an admin!"});
+	}
+
+	try {
+		const foundGame = await Game.findOne({ code: gameCode });
+
+		if (foundGame === null) {
+			console.log("Unable to find game " + gameCode);
+			return res.send({status: "failure", content: "Unable to find game " + gameCode});
+		}
+
+		try {
+			const roundQuestions = await Question.find({ game: gameCode, round: roundNumber }).select('_id');
+
+			if (roundQuestions.length === 0) {
+				return res.send({status: "failure", content: "No questions found for game " + gameCode + " in round " + roundNumber});
+			}
+
+			const questionIds = roundQuestions.map(question => question._id);
+			const answers = await Answer.find({ questionId: { $in: questionIds } });
+
+			// Commit each answer's pendingPoints (manualPoints + audiencePoints) to its live points
+			const bulkResult = await Answer.bulkWrite(answers.map(answer => ({
+				updateOne: {
+					filter: { _id: answer._id },
+					update: { $set: { points: answer.manualPoints + answer.audiencePoints } }
+				}
+			})));
+
+			await Round.updateOne(
+				{ game: gameCode, roundNumber },
+				{ $set: { pointsAwarded: true } },
+				{ upsert: true }
+			);
+
+			return res.send({
+				status: "Success",
+				content: "Successfully awarded round " + roundNumber + "'s points for game " + gameCode,
+				answersUpdated: bulkResult.modifiedCount
+			});
+		} catch (error) {
+			console.log("Unable to award round " + roundNumber + "'s points for game " + gameCode, error);
+			return res.send({status: "failure", content: "Unable to award round " + roundNumber + "'s points for game " + gameCode});
+		}
+	} catch (error) {
+		console.log("Error finding game " + gameCode, error)
+		return res.send({status: "failure", content: "Unable to find game " + gameCode});
 	}
 });
 

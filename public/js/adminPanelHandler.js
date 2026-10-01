@@ -2,6 +2,7 @@
 const defaultImage = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAANSURBVBhXY2BgYGAAAAAFAAGKM+MAAAAAAElFTkSuQmCC";
 $("#previous-round").on("click", function(){navigateRound("previous")});
 $("#next-round").on("click", function(){navigateRound("next")});
+$("#finalise-points").on("click", function(){finalisePoints()});
 $("#blank-answers").on("click", function(){sendEmptyAnswers()});
 
 // Control the phase selector buttons
@@ -435,6 +436,50 @@ function navigateRound(direction) {
 			socket.emit("show interstitial", true, heading, subheading);
 		}
 	}
+}
+
+function finalisePoints() {
+	const gameCode = $("#finalise-points").data("game-code");
+	const currentRoundNumber = $(".current-round").data("round");
+
+	console.log({gameCode, currentRoundNumber});
+
+	if (!confirm("Are you sure you want to finalise points for this round?")) return;
+
+	const buttonContent = $("#finalise-points").html();
+
+	$.ajax({
+		method: "POST",
+		url: "/admin/award-points/" + gameCode + "/" + currentRoundNumber,
+
+		beforeSend: function() {
+			$("#finalise-points").html('<div class="spinner-border" role="status"></div>');
+			$("#finalise-points").attr("disabled", "disabled");
+		},
+		success: function(response) {
+			console.log({response});
+			if (response.status === "failure"){
+				$("#finalise-points").html("Error - " + response.content);
+				$("#finalise-points").removeClass("btn-twitch").addClass("btn-danger");
+			} else {
+				$("#finalise-points").html("Points saved!");
+				$("#finalise-points").removeClass("btn-twitch").addClass("btn-success");
+			}
+		},
+		error: function(err) {
+			// Log error message
+			console.log("Request failed", err);
+			return false;
+		},
+		complete: function() {
+			setTimeout(function() {
+				$("#finalise-points").html(buttonContent);
+				$("#finalise-points").removeAttr("disabled");
+				$("#finalise-points").removeClass("btn-success btn-danger").addClass("btn-twitch");
+			}, 2000);
+		}
+	});
+
 }
 
 async function sendCanvasState(toggle){
