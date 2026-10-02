@@ -7,6 +7,7 @@ const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
 const Question = require("../models/questionModel.js");
 const Answer = require("../models/answerModel.js");
+const Vote = require("../models/voteModel.js");
 const Round = require("../models/roundModel.js");
 
 // Pull in socket.io
@@ -753,6 +754,10 @@ router.post("/award-points/:gameCode/:roundNumber", checkAuthenticated, async fu
 			return res.send({status: "failure", content: "Unable to find game " + gameCode});
 		}
 
+		// Get the vote multipliers
+		const upvotePointsMultiplier = foundGame.audienceScoring.upvotePoints || 1;
+		const roflPointsMultiplier = foundGame.audienceScoring.roflPoints || 1;
+
 		try {
 			const roundQuestions = await Question.find({ game: gameCode, round: roundNumber }).select('_id');
 
@@ -762,12 +767,26 @@ router.post("/award-points/:gameCode/:roundNumber", checkAuthenticated, async fu
 
 			const questionIds = roundQuestions.map(question => question._id);
 			const answers = await Answer.find({ questionId: { $in: questionIds } });
+			const voteCounts = await Vote.getCounts(answers.map(a => a._id));
+			answers.forEach(a => console.log(voteCounts.get(a._id.toString())));
+
+			const audiencePointsArray = answers.map(a => {
+				const upvotes = voteCounts.get(a._id.toString())?.upvote || 0;
+				const rofls = voteCounts.get(a._id.toString())?.rofl || 0;
+				const audiencePoints = (upvotes * upvotePointsMultiplier) + (rofls * roflPointsMultiplier);
+				a.audiencePoints = audiencePoints;
+				// Return the sum of all the count points
+				return audiencePoints;
+			});
+			const calculatedAudiencePoints = audiencePointsArray.reduce((sum, points) => sum + points, 0);
 
 			// Commit each answer's pendingPoints (manualPoints + audiencePoints) to its live points
 			const bulkResult = await Answer.bulkWrite(answers.map(answer => ({
 				updateOne: {
 					filter: { _id: answer._id },
-					update: { $set: { points: answer.manualPoints + answer.audiencePoints } }
+					// Set the points to the sum of manualPoints and audiencePoints
+					// and set audiencePoints to the calculated value as well
+					update: { $set: { points: answer.manualPoints + answer.audiencePoints, audiencePoints: calculatedAudiencePoints } }
 				}
 			})));
 
