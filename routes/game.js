@@ -285,26 +285,21 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 })
 
 router.get("/watching", checkAuthenticated, async (req, res) => {
-	// Dump active contestants to the correct location
-	if (req.user.inGame && req.user.inGame !== "" && req.user.inGame !== undefined) {
+	// Dump active contestants to the correct location if they're not an admin
+	if (req.user.inGame
+			&& req.user.inGame !== ""
+			&& req.user.inGame !== undefined
+			&& req.user.role !== "admin"
+		) {
 		return res.redirect("/");
 	}
 
-	// Get the game code from the user object
-	const gameCode = req.user.watchingGame;
+	// Get the game code
+	// If admin: from in-progress game
+	// If user: from the user object
+	let gameCode;
+	gameCode = req.user.role === "admin" ? (await Game.findOne({ status: "in-progress" }))?.code : req.user.watchingGame;
 
-	// Set the current question
-	let currentQuestion = "";
-	try {
-		const domain = req.protocol + "://" + req.get("host");
-		const questionEndpoint = domain + "/obs/question";
-		
-		currentQuestion = await fetchFromAPI(questionEndpoint);
-	} catch (error) {
-		console.error(error);
-	}
-
-	// Set the voting status
 	let allowBoth = true;
 	let foundgame;
 
