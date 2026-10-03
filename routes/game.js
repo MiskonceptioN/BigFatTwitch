@@ -321,14 +321,10 @@ router.get("/watching", checkAuthenticated, async (req, res) => {
 		return res.redirect("/");
 	}
 
-
-	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
-	const successMessage = req.flash("success")[0]; // Retrieve the flash message
-
 	return res.render("game/watching", {
 		user: req.user,
-		failureMessage,
-		successMessage,
+		failureMessage: req.flash("error")[0],
+		successMessage: req.flash("success")[0],
 		allowBoth,
 	});
 })
