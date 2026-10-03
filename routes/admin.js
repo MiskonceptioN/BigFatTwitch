@@ -7,6 +7,7 @@ const User = require("../models/userModel.js");
 const Game = require("../models/gameModel.js");
 const Question = require("../models/questionModel.js");
 const Answer = require("../models/answerModel.js");
+const Vote = require("../models/voteModel.js");
 const Round = require("../models/roundModel.js");
 
 // Pull in socket.io
@@ -193,6 +194,43 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 			res.redirect("/login")
 		}
 	});
+
+// Save the scoring settings for a game
+router.post("/gameManagement/:gameCode/scoring", checkAuthenticated, async function(req, res){
+	if (req.user.role != "admin") {
+		return res.send({status: "failure", content: "You're not an admin!"});
+	}
+
+	const { gameCode } = req.params;
+	const errors = [];
+
+	const upvotePoints = Number(req.body.upvotePoints);
+	const roflPoints = Number(req.body.roflPoints);
+	const allowBoth = req.body.allowBoth === "true";
+
+	if (isNaN(upvotePoints)) {errors.push("Upvote points must be a number")}
+	if (isNaN(roflPoints)) {errors.push("ROFL points must be a number")}
+
+	if (errors.length > 0) {
+		return res.send({status: "failure", content: createErrorHTML(errors)});
+	}
+
+	try {
+		const result = await Game.updateOne(
+			{ code: gameCode },
+			{ $set: { audienceScoring: { upvotePoints, roflPoints, allowBoth } } }
+		);
+
+		if (result.matchedCount === 0) {
+			return res.send({status: "failure", content: "Unable to find game " + gameCode});
+		}
+
+		return res.send({status: "success", content: "Audience scoring updated for game " + gameCode});
+	} catch (error) {
+		console.error("Error updating audience scoring for game " + gameCode, error);
+		return res.send({status: "failure", content: "An unknown error occurred"});
+	}
+});
 
 router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
@@ -397,7 +435,7 @@ router.get("/in-game", checkAuthenticated, async function(req, res){
 		const updatePoints = await Answer.updateOne({
 			questionId: questionId,
 			contestant: userId
-		},{ $set: { points: points } });
+		},{ $set: { manualPoints: points } });
 
 		if (updatePoints.modifiedCount < 1) {
 			return res.send({
@@ -697,6 +735,79 @@ router.post("/end-round/:gameCode/:roundNumber", checkAuthenticated, async funct
 	} catch (error) {
 		console.log("Error finding game "+ gameCode, error)
 		res.send({status: "failure", content: "Unable to find game " + gameCode});
+	}
+});
+
+router.post("/award-points/:gameCode/:roundNumber", checkAuthenticated, async function(req, res){
+	const { gameCode, roundNumber } = req.params;
+
+	if (req.user.role != "admin") {
+		console.log(req.user.displayName + " attempted to award round " + roundNumber + "'s points in " + gameCode + " but they're not an admin!")
+		return res.send({status: "failure", content: "You're not an admin!"});
+	}
+
+	try {
+		const foundGame = await Game.findOne({ code: gameCode });
+
+		if (foundGame === null) {
+			console.log("Unable to find game " + gameCode);
+			return res.send({status: "failure", content: "Unable to find game " + gameCode});
+		}
+
+		// Get the vote multipliers
+		const upvotePointsMultiplier = foundGame.audienceScoring.upvotePoints || 1;
+		const roflPointsMultiplier = foundGame.audienceScoring.roflPoints || 1;
+
+		try {
+			const roundQuestions = await Question.find({ game: gameCode, round: roundNumber }).select('_id');
+
+			if (roundQuestions.length === 0) {
+				return res.send({status: "failure", content: "No questions found for game " + gameCode + " in round " + roundNumber});
+			}
+
+			const questionIds = roundQuestions.map(question => question._id);
+			const answers = await Answer.find({ questionId: { $in: questionIds } });
+			const voteCounts = await Vote.getCounts(answers.map(a => a._id));
+			answers.forEach(a => console.log(voteCounts.get(a._id.toString())));
+
+			const audiencePointsArray = answers.map(a => {
+				const upvotes = voteCounts.get(a._id.toString())?.upvote || 0;
+				const rofls = voteCounts.get(a._id.toString())?.rofl || 0;
+				const audiencePoints = (upvotes * upvotePointsMultiplier) + (rofls * roflPointsMultiplier);
+				a.audiencePoints = audiencePoints;
+				// Return the sum of all the count points
+				return audiencePoints;
+			});
+			const calculatedAudiencePoints = audiencePointsArray.reduce((sum, points) => sum + points, 0);
+
+			// Commit each answer's pendingPoints (manualPoints + audiencePoints) to its live points
+			const bulkResult = await Answer.bulkWrite(answers.map(answer => ({
+				updateOne: {
+					filter: { _id: answer._id },
+					// Set the points to the sum of manualPoints and audiencePoints
+					// and set audiencePoints to the calculated value as well
+					update: { $set: { points: answer.manualPoints + answer.audiencePoints, audiencePoints: calculatedAudiencePoints } }
+				}
+			})));
+
+			await Round.updateOne(
+				{ game: gameCode, roundNumber },
+				{ $set: { pointsAwarded: true } },
+				{ upsert: true }
+			);
+
+			return res.send({
+				status: "Success",
+				content: "Successfully awarded round " + roundNumber + "'s points for game " + gameCode,
+				answersUpdated: bulkResult.modifiedCount
+			});
+		} catch (error) {
+			console.log("Unable to award round " + roundNumber + "'s points for game " + gameCode, error);
+			return res.send({status: "failure", content: "Unable to award round " + roundNumber + "'s points for game " + gameCode});
+		}
+	} catch (error) {
+		console.log("Error finding game " + gameCode, error)
+		return res.send({status: "failure", content: "Unable to find game " + gameCode});
 	}
 });
 

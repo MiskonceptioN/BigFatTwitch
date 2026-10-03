@@ -1,0 +1,162 @@
+/* Mirrored at https://assets.danny-valentine.com/raw/upload/v1755895765/chonky/styles.css */
+/* 1755895765 = Friday, 22 August 2025 20:47:16 */
+
+.votey-boi {
+    position: relative;
+    margin: 0 2.5rem 3rem;
+}
+
+.votey-boi > .upvote-button {
+    left: -2.1rem;
+	padding-bottom: 4px;
+}
+
+.votey-boi > .rofl-button {
+    right: -2.1rem;
+	padding-bottom: 2px;
+}
+
+.vote-button {
+    cursor: pointer;
+    border: .2rem solid black;
+    border-radius: 4em;
+    font-size: 2.5rem;
+    background: white;
+    position: absolute;
+    bottom: -2rem;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 4rem;
+    height: 4rem;
+	transition: transform 0.3s ease, filter 0.3s ease;
+	filter: saturate(0);
+	user-select: none;
+	transform: scale(1);
+}
+
+.vote-button:hover {
+	transform: scale(1.2);
+}
+
+.vote-button-disabled {
+    animation: disable-button .5s ease-out forwards;
+}
+
+.vote-button.enable {
+    animation: enable-button .5s ease-in forwards;
+}
+
+.vote-button.animate {
+    animation: spin-and-saturate 1s ease-out forwards;
+}
+
+.chosen {
+	filter: saturate(1);
+	transform: scale(1.2);
+}
+
+@keyframes spin-and-saturate {
+    0% {
+        rotate: 0deg;
+		filter: saturate(0);
+    }
+    50% {
+		rotate: 360deg;
+		filter: saturate(.5);
+    }
+    100% {
+		rotate: 360deg;
+		filter: saturate(1);
+    }
+}
+
+@keyframes disable-button {
+	33% {
+		transform: scale(1.2);
+	}
+	100% {
+		transform: scale(0);
+		filter: saturate(0);
+	}
+}
+
+@keyframes enable-button {
+	0% {
+		transform: scale(0);
+	}
+	66% {
+		transform: scale(1.2);
+	}
+	100% {
+		transform: scale(1);
+	}
+}
+
+/* Flyin/out styling */
+#game-stage {
+    position: relative;
+    overflow: hidden;
+    min-height: 80vh;
+}
+
+.game-phase {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    min-height: 80vh;
+}
+
+ .game-phase.flyout-left {
+    animation: flyout-left 500ms ease-in forwards;
+}
+
+.game-phase.flyout-right {
+    animation: flyout-right 500ms ease-in forwards;
+}
+
+.game-phase.flyin-left {
+    animation: flyin-left 500ms ease-out forwards;
+}
+
+.game-phase.flyin-right {
+    animation: flyin-right 500ms ease-out forwards;
+}
+
+@keyframes flyout-left {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(-100%);
+    }
+}
+
+@keyframes flyout-right {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(100%);
+    }
+}
+
+@keyframes flyin-left {
+    from {
+        transform: translateX(100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes flyin-right {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+

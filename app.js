@@ -279,6 +279,9 @@ io.on('connection', async (socket) => {
 		socket.on("resend question", (playerId, questionText, questionId) => {
 			io.emit("resend question", playerId, questionText, questionId);
 		});
+		socket.on("audience vote", (playerId, intent) => {
+			io.emit('audience vote', playerId, intent);
+		});
 		socket.on("save answers", async (answerData) => {
 			try {
 				Object.entries(answerData.answers).forEach(async ([contestant, answer]) => {
@@ -318,6 +321,9 @@ io.on('connection', async (socket) => {
 				return;
 			}
 			io.emit("update answer", imageData, playerId);
+		});
+		socket.on("send answers to audience", (teamColour, question, questionId, teamName, players, answers) => {
+			io.emit("send answers to audience", teamColour, question, questionId, teamName, players, answers);
 		});
 	} catch (error) {
 		console.error("Socket.io connection error:", error);

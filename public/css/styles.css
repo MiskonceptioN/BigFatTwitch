@@ -1,5 +1,5 @@
-/* Mirrored at https://assets.danny-valentine.com/raw/upload/v1755895765/chonky/styles.css */
-/* 1755895765 = Friday, 22 August 2025 20:47:16 */
+/* Mirrored at https://assets.danny-valentine.com/raw/upload/v1790158912/chonky/styles.css */
+/* 1790158912 = Wednesday, 23 September 2026 at 10:21:52 */
 
 .navbar-expand-lg .navbar-nav .nav-link {
 	padding-left: .75rem;
@@ -332,6 +332,37 @@ button>div.spinner-border{
 	overflow-x: hidden;
 }
 
+.vote-count {
+	position: absolute;
+    bottom: 0;
+	text-shadow: -1px -1px 0 #ffffff, 1px -1px 0 #ffffff, -1px 1px 0 #ffffff, 1px 1px 0 #ffffff;
+	font-size: 1.5em;
+    user-select: none;
+	opacity: 0.5;
+	transition: opacity 0.3s ease-in-out;
+}
+
+.vote-count:hover {
+	opacity: 1;
+}
+
+.vote-count-upvote {
+    left: 0;
+    margin: .5rem 1rem;
+}
+.vote-count-upvote::before {
+    content: '👍';
+}
+
+.vote-count-rofl {
+    right: 0;
+    display: flex;
+    margin: .5rem 1.3rem;
+}
+.vote-count-rofl::before {
+    content: '🤣';
+}
+
 button.in-game, input.in-game, .ingame-border {
 	border-radius: var(--in-game-border-size) !important;
 }
@@ -579,4 +610,11 @@ button.in-game, input.in-game, .ingame-border {
 
 .answer-not-saved {
 	filter: grayscale(100%);
+}
+
+iframe.game-preview {
+    width: 100%;
+    zoom: 0.5;
+    height: 800px;
+	pointer-events: none; /* Disable interaction with the iframe */
 }

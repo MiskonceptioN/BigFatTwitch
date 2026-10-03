@@ -1,11 +1,22 @@
 <%- include('../header'); %>
+<script>
+	// Whack the team data into an object for easy reference later
+	const teams = <%- JSON.stringify(game.teams) %>;
+</script>
 	<section id="questions" class="text-center">
 		<header>
 			<h1 class="d-none">Admin panel</h1>
 		</header>
 		<div class="row text-start my-3">
-			<h3>Contestant preview: </h3>
-			<iframe src="/admin/game-preview" height="400" style="overflow-x: hidden"></iframe>
+			<h3>Previews:</h3>
+			<div class="col">
+				<h4>Contestant preview:</h4>
+				<iframe src="/admin/game-preview" class="game-preview"></iframe>
+			</div>
+			<div class="col">
+				<h4>Audience preview:</h4>
+				<iframe src="/game/watching" class="game-preview"></iframe>
+			</div>
 		</div>
 		<div class="row text-start my-3">
 			<h3>Phase: 
@@ -100,7 +111,15 @@
 									</form>
 									<form method="post" action="/admin/in-game/fetch-answers" class="phase-scoring fetch-answers"">
 										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
-										<button class="fetch-answers btn btn-danger phase-scoring d-none">Fetch player answers</button>
+										<button class="fetch-answers btn btn-danger phase-scoring d-none">Fetch player answers</button><br>
+										<div class="btn-group phase-scoring d-none">
+										<button type="button" class="btn btn-twitch dropdown-toggle send-to-audience-button" data-bs-toggle="dropdown" aria-expanded="false" disabled>Send answers to audience</button>
+											<ul class="dropdown-menu">
+												<li><a class="dropdown-item send-to-audience" data-team-colour="red" href="#">🔴 <%- game.teams[0].name %>'s answers</a></li>
+												<li><a class="dropdown-item send-to-audience" data-team-colour="green" href="#">🟢 <%- game.teams[1].name %>'s answers</a></li>
+												<li><a class="dropdown-item send-to-audience" data-team-colour="blue" href="#">🔵 <%- game.teams[2].name %>'s answers</a></li>
+											</ul>
+										</div>
 									</form>
 								</div>
 							</div>
@@ -116,6 +135,7 @@
 				<button id="start-round" class="btn btn-success w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-play"></i> Start round</button>
 				<button id="restart-round" class="btn btn-danger w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-rotate-right"></i> Restart round</button>
 				<button id="end-round" class="btn btn-danger w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-flag-checkered"></i> End round</button>
+				<button id="finalise-points" class="btn btn-twitch w-100" type="button" data-game-code="<%= game.code %>"><i class="fa-solid fa-circle-check"></i> Finalise points</button>
 			</div>
 			<div class="col-2 ps-0"><button id="next-round" class="btn btn-primary w-100 h-100" type="button">Next round <i class="fa-solid fa-arrow-right"></i></button></div>
 		</div>
@@ -167,7 +187,7 @@
 
 							<div class="col d-flex flex-column">
 								<div class="row">
-									<div class="col">
+									<div class="col" style="position: relative;">
 										<div class="d-flex align-items-center justify-content-center contestant-audit-header">
 											<h6 class="mt-0 mb-1"><img src="<%- player.profileImageUrl %>" class="miniavatar d-none d-md-inline-block"> <%- player.displayName %></h6>
 										</div>
@@ -177,6 +197,8 @@
 											src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAANSURBVBhXY2BgYGAAAAAFAAGKM+MAAAAAAElFTkSuQmCC"
 											style="height: auto;"
 										>
+										<span id="upvotes-<%- player.twitchId %>" class="text-dark vote-count vote-count-upvote phase-scoring d-none">0</span>
+										<span id="rofls-<%- player.twitchId %>" class="text-dark vote-count vote-count-rofl phase-scoring d-none">0</span>
 									</div>
 								</div>
 								<div class="row">
@@ -416,6 +438,10 @@
 
 	socket.on('chat message', (msg, room) => {
 		addChatMessage("#team-" + room + "-chat .chat-messages", msg);
+	});
+
+	socket.on('audience vote', (playerId, voteType) => {
+		addAudienceVote(playerId, voteType);
 	});
 
 	// Update the inputs when points are successfully added.

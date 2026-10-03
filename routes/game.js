@@ -8,6 +8,7 @@ const io = require('../app');
 const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
 const Answer = require("../models/answerModel.js");
+const Vote = require("../models/voteModel.js");
 
 router.get("/audience", checkAuthenticated, (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
@@ -117,6 +118,7 @@ router.get("/join", checkAuthenticated, (req, res) => {
 .post("/join", checkAuthenticated, async (req, res) => {
 	const gameCode = req.body.gameCode.toUpperCase();
 	const user = req.user;
+	let isContestant = false;
 
 	try {
 		// Check if a game with that ID exists
@@ -172,19 +174,25 @@ router.get("/join", checkAuthenticated, (req, res) => {
 
 					// Update listening frontend pages
 					io.emit("player joined", gameCode, user);
-				
-					return res.redirect("waiting-room");
+					isContestant = true;
+					break;
 				}
 			}
 		}
 
-		req.flash("error", "Sadly, you're not a player in this game, but you can watch the fun on Twitch!");
+		// If the user has got to this point, they must be an audience member
+		if (isContestant === false) {
+			req.session.passport.user.doc = {
+				...req.session.passport.user.doc,
+				watchingGame: gameCode,
+			};
+		}
 		try {
 			await saveSession(req);
 		} catch (err) {
 			console.error('Error saving session for user ' + (req.user.displayName || req.user.twitchId) + ':', err);
 		}
-		return res.redirect("/");
+		return (isContestant) ? res.redirect("waiting-room") : res.redirect("watching");
 	} catch (error) {
 		console.error(error);
 		req.flash("error", "Something went wrong!");
@@ -206,14 +214,20 @@ router.get("/ltfo", checkAuthenticated, (req, res) => {
 router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 	const successMessage = req.flash("success")[0]; // Retrieve the flash message
-	let isContestant = false;
+	let isContestant, isAudience = false;
 
-	// Check user has inGame in their user object
-	if (!req.user.inGame) {
+	// Check user has inGame (player) or watchingGame (audience) in their user object
+	if (!req.user.inGame && !req.user.watchingGame) {
 		req.flash("error", "You're not in a game!");
 		return res.redirect("join");
 	}
-	const gameCode = req.user.inGame;
+	const gameCode = req.user.inGame || req.user.watchingGame;
+
+	// Use separate logic if the user is an audience member
+	if (req.user.watchingGame) {
+		isAudience = true;
+		return res.send("Audience waiting room - coming soon!");
+	}
 
 	// Check logged in user is a player
 	let game = {};
@@ -265,9 +279,108 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 		}
 	}
 
-	if (!isContestant) {
+	if (!isContestant && !isAudience) {
 		return res.redirect("/");
 	}
 })
+
+router.get("/watching", checkAuthenticated, async (req, res) => {
+	// Dump active contestants to the correct location
+	if (req.user.inGame && req.user.inGame !== "" && req.user.inGame !== undefined) {
+		return res.redirect("/");
+	}
+
+	// Get the game code from the user object
+	const gameCode = req.user.watchingGame;
+
+	// Set the current question
+	let currentQuestion = "";
+	try {
+		const domain = req.protocol + "://" + req.get("host");
+		const questionEndpoint = domain + "/obs/question";
+		
+		currentQuestion = await fetchFromAPI(questionEndpoint);
+	} catch (error) {
+		console.error(error);
+	}
+
+	// Set the voting status
+	let allowBoth = true;
+	let foundgame;
+
+	try {
+		foundGame = await Game.findOne({ code: gameCode }).select('audienceScoring, status');
+		allowBoth = foundGame?.audienceScoring?.allowBoth ?? true;
+	} catch (error) {
+		console.error("Error fetching audience scoring settings:", error);
+	}
+
+	if (!foundGame) {
+		req.flash("error", "Unable to find game " + gameCode);
+		return res.redirect("/");
+	}
+
+	if (foundGame.status === "played") {
+		req.flash("error", gameCode + " has already been played.");
+		return res.redirect("/");
+	}
+
+
+	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
+	const successMessage = req.flash("success")[0]; // Retrieve the flash message
+
+	return res.render("game/watching", {
+		user: req.user,
+		failureMessage,
+		successMessage,
+		allowBoth,
+	});
+})
+.post("/watching", checkAuthenticated, async (req, res) => {
+	// Insert answer into the answers table using the question ID
+	const questionId = req.body["question-id"];
+	const contestant = req.body["player-id"];
+	const intent = req.body.intent;
+	const gameCode = req.user.inGame || req.user.watchingGame;
+
+	try {
+		const answer = await Answer.findOne({ questionId, contestant });
+
+		if (!answer) {
+			return res.send({
+				status: "danger",
+				content: "Something went wrong! Please let Danny know."
+			});
+		}
+
+		const foundGame = await Game.findOne({ code: gameCode }).select('audienceScoring');
+		const allowBoth = foundGame?.audienceScoring?.allowBoth ?? true;
+
+		// When only one intent is allowed, casting one clears any existing opposite vote
+		if (!allowBoth) {
+			const otherIntent = intent === "upvote" ? "rofl" : "upvote";
+			await Vote.deleteOne({ answerId: answer._id, voter: req.user.twitchId, intent: otherIntent });
+		}
+
+		// One upvote and one rofl allowed per voter per answer; re-clicking doesn't create duplicates
+		await Vote.findOneAndUpdate(
+			{ answerId: answer._id, voter: req.user.twitchId, intent },
+			{ answerId: answer._id, game: gameCode, voter: req.user.twitchId, intent },
+			{ upsert: true, setDefaultsOnInsert: true }
+		);
+
+		console.log(`${intent} vote registered for ${contestant}'s answer to question ID ${questionId}`)
+		return res.send({
+			status: "success",
+			content: "Points added!"
+		});
+	} catch (error) {
+		console.error(error);
+		return res.send({
+			status: "danger",
+			content: "Something went wrong! Please let Danny know."
+		});
+	}
+});
 
 module.exports = router;

@@ -23,10 +23,15 @@
 					</section>
 				</div>
 			<% } %>
-			<%- include('../../forms/newQuestion'); %>
-			<hr>
+			<section id="audience-scoring-settings" class="mb-3">
+				<h2 class="text-start">Audience scoring</h2>
+				<%- include('../../forms/audienceScoring'); %>
+			</section>
 			<section id="game-questions">
-				<h2 class="text-start">Questions</h2>
+				<h2 class="text-start mt-5">Questions</h2>
+				<h3 class="text-start">Add question(s)</h3>
+				<%- include('../../forms/newQuestion'); %>
+				<h3 class="text-start mt-5">Existing question(s)</h3>
 				<% if (Object.keys(questionsByRound).length !== 0) { %>
 					<% Object.keys(questionsByRound).forEach(round => { %>
 					<h3 class="text-start">Round <%- round %></h3>
@@ -71,6 +76,7 @@
 	<!-- <script src="/js/ajaxFormHandler.js"></script> -->
 	<script src="/js/questionTableHandler.js"></script>
 	<script src="/js/newQuestionFormHandler.js"></script>
+	<script src="/js/audienceScoringFormHandler.js"></script>
 <%- include('../../footer'); %>
 
 

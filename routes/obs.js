@@ -5,6 +5,7 @@ const Game = require("../models/gameModel.js");
 const User = require("../models/userModel.js");
 const Question = require("../models/questionModel.js");
 const Answer = require("../models/answerModel.js");
+const Vote = require("../models/voteModel.js");
 
 router.get("/", (req, res) => {
 	res.render("obs")
@@ -52,6 +53,133 @@ router.get("/view-answers/:questionId", async (req, res) => {
 		return res.status(500).send({"message": "Error retrieving question"});
 	}
 })
+
+router.get("/votes/:questionId", async (req, res) => {
+	const questionId = req.params.questionId;
+
+	try {
+		// Every answer to this question, so we can tally votes per contestant
+		const answers = await Answer.find({ questionId });
+
+		if (answers.length === 0) {
+			return res.status(404).send({ message: "No answers found for this question" });
+		}
+
+		const answerIds = answers.map(answer => answer._id);
+		const counts = await Vote.getCounts(answerIds);
+
+		const results = answers.map(answer => ({
+			answerId: answer._id,
+			contestant: answer.contestant,
+			answer: answer.answer,
+			...counts.get(answer._id.toString())
+		}));
+
+		return res.send(results);
+	} catch (error) {
+		console.error("Error retrieving votes:", error);
+		return res.status(500).send({ message: "Error retrieving votes" });
+	}
+})
+
+// e.g. GET /obs/votes?voter=1234567&game=BCKM
+router.get("/votes", async (req, res) => {
+	let { voter, game } = req.query;
+	game = game?.toUpperCase();
+
+	if (game && game.length !== 4) {
+		return res.status(400).send({ message: "Game code must be 4 characters long" });
+	}
+
+	if (!voter && !game) {
+		return res.status(400).send({ message: "Provide at least a voter or game query parameter" });
+	}
+
+	const filter = {};
+	if (voter) filter.voter = voter;
+	if (game) filter.game = game;
+
+	try {
+		const votes = await Vote.find(filter);
+
+		const counts = votes.reduce((acc, vote) => {
+			acc[vote.intent] = (acc[vote.intent] || 0) + 1;
+			return acc;
+		}, { upvote: 0, rofl: 0 });
+
+		return res.send({ counts, votes });
+	} catch (error) {
+		console.error("Error retrieving votes:", error);
+		return res.status(500).send({ message: "Error retrieving votes" });
+	}
+})
+
+// "Thumbs Cup" style award: the contestant(s) with the most ROFL votes across the whole game
+// e.g. GET /obs/rofl-cup?game=BCKM
+router.get("/rofl-cup", async (req, res) => {
+	// Try to determine the game from the querystring
+	let { game } = req.query;
+	game = game?.toUpperCase();
+	if (game && game.length !== 4) {
+		return res.status(400).send({ message: "Provide a 4 character game query parameter" });
+	}
+
+	// If it's not provided in the querystring, check for a running game
+	if (!game) {
+		const activeGame = await Game.findOne({ status: "in-progress" });
+		game = activeGame?.code;
+	}
+
+	// Finally, abandon if we still don't have a game code
+	if (!game) {
+		return res.status(400).send({ message: "Unable to determine the active game" });
+	}
+
+	try {
+		// Filter by the vote's own game field, rather than the referenced answer's,
+		// so this isn't affected by stale/mismatched game data on old answer documents
+		const roflVotes = await Vote.find({ game, intent: "rofl" });
+		if (roflVotes.length === 0) {
+			return res.status(200).send(`No ROFLs have been cast yet in game ${game}`);
+		}
+
+		const answerIds = [...new Set(roflVotes.map(vote => vote.answerId.toString()))];
+		const answers = await Answer.find({ _id: { $in: answerIds } }).select('contestant');
+		const contestantByAnswerId = new Map(answers.map(answer => [answer._id.toString(), answer.contestant]));
+
+		// Tally rofl votes per contestant across all of their answers
+		const roflsByContestant = new Map();
+		for (const vote of roflVotes) {
+			const contestant = contestantByAnswerId.get(vote.answerId.toString());
+			if (!contestant) continue; // vote's answer has since been deleted
+
+			roflsByContestant.set(contestant, (roflsByContestant.get(contestant) || 0) + 1);
+		}
+
+		const highestRoflCount = Math.max(0, ...roflsByContestant.values());
+		if (highestRoflCount === 0) {
+			return res.status(200).send("No ROFLs have been cast yet");
+		}
+
+		// Multiple contestants can share the cup if they're tied
+		const winners = [...roflsByContestant.entries()]
+			.filter(([, rofls]) => rofls === highestRoflCount)
+			.map(([contestant]) => contestant);
+
+		const winnerUsers = await User.find({ twitchId: { $in: winners } })
+			.select('twitchId displayName profileImageUrl');
+
+		return res.status(200).send(winnerUsers.map(user => ({
+			twitchId: user.twitchId,
+			displayName: user.displayName,
+			profileImageUrl: user.profileImageUrl,
+			rofls: highestRoflCount
+		})));
+	} catch (error) {
+		console.error("Error retrieving ROFL cup winner:", error);
+		return res.status(500).send("Couldn't handle the request. Please try again later.");
+	}
+});
 
 router.get("/rounds", async (req, res) => {
 	try {
