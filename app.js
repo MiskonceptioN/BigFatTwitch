@@ -19,10 +19,13 @@ module.exports = io;
 // Mongo
 const mongoose = require('mongoose');
 const MongoStore = require('connect-mongo');
-// Prod
-const mongoUri = "mongodb+srv://" + process.env.MONGODB_USER + ":" + process.env.MONGODB_PASS + "@" + process.env.MONGODB_URL + "/gameshow?retryWrites=true&w=majority";
-// Dev
-// const mongoUri = `mongodb://${process.env.MONGODB_URL}/gameshow?retryWrites=true&w=majority`;
+
+// Detect environment
+const isLocal = process.env.NODE_ENV === "local";
+const mongoUri = isLocal
+	? `mongodb://${process.env.MONGODB_URL_LOCAL}/gameshow?retryWrites=true&w=majority`
+	: `mongodb+srv://${process.env.MONGODB_USER}:${process.env.MONGODB_PASS}@${process.env.MONGODB_URL}/gameshow?retryWrites=true&w=majority`;
+
 const Game = require("./models/gameModel.js");
 const User = require("./models/userModel.js");
 const Answer = require("./models/answerModel.js");
@@ -51,7 +54,9 @@ app.use(flash());
 passport.use(new twitchStrategy({
 	clientID: process.env.TWITCH_CLIENT_ID,
 	clientSecret: process.env.TWITCH_CLIENT_SECRET,
-	callbackURL: process.env.TWITCH_CALLBACK_URL,
+	callbackURL: process.env.NODE_ENV === "local"
+		? process.env.TWITCH_CALLBACK_URL_LOCAL
+		: process.env.TWITCH_CALLBACK_URL,
 },
 async function(accessToken, refreshToken, profile, done) {
 	try {
