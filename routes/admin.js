@@ -155,6 +155,21 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 					roundsData.push({heading: round.heading, subheading: round.subheading});
 				});
 
+				// Backwards compatibility time! Any questions that don't have a Round associated with them, insert the Round into the database with default heading and subheading.
+				for (const question of allQuestionsResult) {
+					const roundNumber = question.round;
+					const existingRound = roundsData[roundNumber - 1];
+					if (!existingRound) {
+						const newRound = await Round.create({
+							game: req.params.gameCode,
+							roundNumber: roundNumber,
+							heading: `Round ${roundNumber}`,
+							subheading: "Get ready!"
+						});
+						roundsData[roundNumber - 1] = {heading: newRound.heading, subheading: newRound.subheading};
+					}
+				}
+
 				const questionsByRound = allQuestionsResult.reduce((acc, question) => {
 					const round = question.round;
 					if (!acc[round]) {acc[round] = []};
