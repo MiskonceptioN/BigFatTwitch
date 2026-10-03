@@ -112,6 +112,13 @@ table.game-list i.edit-game, table.game-list i.edit-game:hover, table.game-list 
 	color: black;
 }
 
+.edit-heading-button, .edit-subheading-button {
+	cursor: pointer;
+}
+.edit-heading-button:hover, .edit-subheading-button:hover {
+	color: rgba(var(--bs-success-rgb)) !important;
+}
+
 #game-management div.row {
 	align-items: center;
 }
