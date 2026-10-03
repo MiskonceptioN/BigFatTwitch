@@ -149,6 +149,11 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 
 				// Find all questions from the Game model
 				const allQuestionsResult = result.questions.sort((a, b) => a.round - b.round || a.order - b.order);
+				const allRoundsData = await Round.find({game: req.params.gameCode}).sort({roundNumber: 1}).select('roundNumber heading subheading');
+				const roundsData = [];
+				allRoundsData.forEach(round => {
+					roundsData.push({heading: round.heading, subheading: round.subheading});
+				});
 
 				const questionsByRound = allQuestionsResult.reduce((acc, question) => {
 					const round = question.round;
@@ -157,7 +162,7 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 					return acc;
 				  }, {});
 				  
-				res.render("admin/game/single_game", {user: req.user, game: result, questionsByRound, failureMessage, successMessage});
+				res.render("admin/game/single_game", {user: req.user, game: result, questionsByRound, roundsData, failureMessage, successMessage});
 			}
 		} else {
 			res.redirect("/login")
