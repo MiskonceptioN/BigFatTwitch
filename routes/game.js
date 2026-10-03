@@ -300,15 +300,15 @@ router.get("/watching", checkAuthenticated, async (req, res) => {
 	let gameCode;
 	gameCode = req.user.role === "admin" ? (await Game.findOne({ status: "in-progress" }))?.code : req.user.watchingGame;
 
+	// Set the game and voting status
 	let foundGame;
 	let allowBoth = true;
-	let foundgame;
 
 	try {
 		foundGame = await Game.findOne({ code: gameCode }).select('audienceScoring, status');
 		allowBoth = foundGame?.audienceScoring?.allowBoth ?? true;
 	} catch (error) {
-		console.error("Error fetching audience scoring settings:", error);
+		console.error("Error fetching game status and scoring settings:", error);
 	}
 
 	if (!foundGame) {
