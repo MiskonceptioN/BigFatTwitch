@@ -93,8 +93,12 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 				acc[game.code] = allQuestionsResult.filter(question => question.game === game.code).length;
 				return acc;
 			}, {});
+
+			// Filter the games to separate played and pending games
+			const playedGamesResult = allGamesResult.filter(game => game.status === "played");
+			allGamesResult = allGamesResult.filter(game => game.status !== "played");
 			  
-			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
+			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, playedGames: playedGamesResult, questionTotals, failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
 		}
