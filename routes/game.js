@@ -300,6 +300,7 @@ router.get("/watching", checkAuthenticated, async (req, res) => {
 	let gameCode;
 	gameCode = req.user.role === "admin" ? (await Game.findOne({ status: "in-progress" }))?.code : req.user.watchingGame;
 
+	let foundGame;
 	let allowBoth = true;
 	let foundgame;
 
