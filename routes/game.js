@@ -285,34 +285,30 @@ router.get("/waiting-room", checkAuthenticated, async (req, res) => {
 })
 
 router.get("/watching", checkAuthenticated, async (req, res) => {
-	// Dump active contestants to the correct location
-	if (req.user.inGame && req.user.inGame !== "" && req.user.inGame !== undefined) {
+	// Dump active contestants to the correct location if they're not an admin
+	if (req.user.inGame
+			&& req.user.inGame !== ""
+			&& req.user.inGame !== undefined
+			&& req.user.role !== "admin"
+		) {
 		return res.redirect("/");
 	}
 
-	// Get the game code from the user object
-	const gameCode = req.user.watchingGame;
+	// Get the game code
+	// If admin: from in-progress game
+	// If user: from the user object
+	let gameCode;
+	gameCode = req.user.role === "admin" ? (await Game.findOne({ status: "in-progress" }))?.code : req.user.watchingGame;
 
-	// Set the current question
-	let currentQuestion = "";
-	try {
-		const domain = req.protocol + "://" + req.get("host");
-		const questionEndpoint = domain + "/obs/question";
-		
-		currentQuestion = await fetchFromAPI(questionEndpoint);
-	} catch (error) {
-		console.error(error);
-	}
-
-	// Set the voting status
+	// Set the game and voting status
+	let foundGame;
 	let allowBoth = true;
-	let foundgame;
 
 	try {
 		foundGame = await Game.findOne({ code: gameCode }).select('audienceScoring, status');
 		allowBoth = foundGame?.audienceScoring?.allowBoth ?? true;
 	} catch (error) {
-		console.error("Error fetching audience scoring settings:", error);
+		console.error("Error fetching game status and scoring settings:", error);
 	}
 
 	if (!foundGame) {
@@ -325,14 +321,10 @@ router.get("/watching", checkAuthenticated, async (req, res) => {
 		return res.redirect("/");
 	}
 
-
-	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
-	const successMessage = req.flash("success")[0]; // Retrieve the flash message
-
 	return res.render("game/watching", {
 		user: req.user,
-		failureMessage,
-		successMessage,
+		failureMessage: req.flash("error")[0],
+		successMessage: req.flash("success")[0],
 		allowBoth,
 	});
 })
