@@ -299,6 +299,45 @@ router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async 
 	}
 });
 
+router.post("/gameManagement/:gameCode/update-round-heading", checkAuthenticated, async function(req, res){
+	if (req.user.role != "admin") {
+		return res.send({status: "failure", content: "You're not an admin!"});
+	}
+
+	const { gameCode } = req.params;
+	const errors = [];
+
+	const round = Number(req.body.round);
+	const headingType = req.body.headingType;
+	const newHeading = req.body.newHeading;
+
+	// Do a little validation
+	if (isNaN(round)) {errors.push("Round must be a number")}
+	if (!headingType) {errors.push("Heading type is required")}
+	if (headingType && !["heading", "subheading"].includes(headingType)) {errors.push("Invalid heading type")}
+	if (!newHeading) {errors.push("New heading is required")}
+
+	if (errors.length > 0) {
+		return res.send({status: "failure", content: createErrorHTML(errors)});
+	}
+
+	try {
+		const result = await Round.updateOne(
+			{ game: gameCode, roundNumber: round },
+			{ $set: { [headingType]: newHeading } }
+		);
+
+		if (result.matchedCount === 0) {
+			return res.send({status: "failure", content: "Unable to find game " + gameCode});
+		}
+
+		return res.send({status: "success", content: `Successfully updated the ${headingType} for round ${round} of game ${gameCode}`});
+	} catch (error) {
+		console.error("Error updating round heading for game " + gameCode, error);
+		return res.send({status: "failure", content: "An unknown error occurred"});
+	}
+});
+
 router.post("/gameManagement/delete/:gameCode", checkAuthenticated, async function(req, res){
 		if (req.user.role == "admin") {
 			try {
