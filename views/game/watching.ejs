@@ -113,6 +113,10 @@
 		$(".vote-button").click(function() {
 			if ($(this).hasClass("chosen")) return;
 
+			<% if (!allowBoth) { %>
+				$(this).closest("form").find(".vote-button").removeClass("chosen");
+			<% } %>
+
 			// Play the animations
 			$(this).addClass("animate chosen");
 			
