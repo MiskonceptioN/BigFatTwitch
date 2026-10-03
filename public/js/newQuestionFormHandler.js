@@ -49,7 +49,8 @@ function getNewQuestionOrder(roundNumber) {
 function addQuestion (question, answer, type, round = 1, order = 1, questionID) {
 	let targetTable = $("#round" + round + "questions tbody");
 	if (targetTable.length === 0) {
-		const newSection = $(`<h3 class="text-start">Round ${round}</h3>
+		const newSection = $(`<h3 class="text-start">Heading: <span class="round-heading">Round ${round}</span><i data-round="${round}" class="edit-heading-button fa-solid fa-pencil fa-2xs ms-2"></i></h3>
+		<h4 class="text-start">Subheading: <span class="round-subheading">Get ready!</span><i data-round="${round}" class="edit-subheading-button fa-solid fa-pencil fa-2xs ms-2"></i></h4>
 		<table id="round${round}questions" class="table table-striped table-hover question-info">
 			<thead>
 				<tr>
