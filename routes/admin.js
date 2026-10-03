@@ -190,6 +190,13 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 						answer: req.body.answer,
 						type: req.body.type,
 					});
+
+					// Create the round if it doesn't exist
+					await Round.updateOne(
+						{ game: req.body.game, roundNumber: req.body.round },
+						{ $setOnInsert: { heading: `Round ${req.body.round}` } },
+						{ upsert: true }
+					);
 					
 					return res.send({status: "success", content: result});
 				} catch (error) {
