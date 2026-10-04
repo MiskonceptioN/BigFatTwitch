@@ -83,6 +83,7 @@ function addQuestion (question, answer, type, round = 1, order = 1, questionID) 
 				<span class="order">${order}</span> <form method="post" class="question-down" action="/admin/gameManagement/BCKM/moveQuestion">
 					<input type="hidden" name="direction" value="down">
 					<input type="hidden" name="questionId" value="${questionID}"><button type="button" class="btn btn-secondary btn-tiny move-down">▼</button></form></td>
+			<td><span class="delete-question" data-question-id="${questionID}"><i class="fa-solid fa-trash-can"></i></span></td>
 		</tr>`);
 	$(newRow).hide();
 	targetTable.append(newRow);
