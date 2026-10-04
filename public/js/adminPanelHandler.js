@@ -770,7 +770,7 @@ function restartRound(roundNumber){
 				// Set the data-state for each card in the current round to "pending"
 				$(".current-round .card").each(function(){
 					$(this).removeClass("bg-secondary").removeClass("bg-success");
-					$(this).data("state", "pending");
+					$(this).attr("data-state", "pending"); // TODO: Use the setQuestionCardState function instead
 				});
 
 				// Move the round button back to the "in-progress" section of the nav
