@@ -49,21 +49,24 @@ function getNewQuestionOrder(roundNumber) {
 function addQuestion (question, answer, type, round = 1, order = 1, questionID) {
 	let targetTable = $("#round" + round + "questions tbody");
 	if (targetTable.length === 0) {
-		const newSection = $(`<h3 class="text-start">Heading: <span class="round-heading">Round ${round}</span><i data-round="${round}" class="edit-heading-button fa-solid fa-pencil fa-2xs ms-2"></i></h3>
-		<h4 class="text-start">Subheading: <span class="round-subheading">Get ready!</span><i data-round="${round}" class="edit-subheading-button fa-solid fa-pencil fa-2xs ms-2"></i></h4>
-		<table id="round${round}questions" class="table table-striped table-hover question-info">
-			<thead>
-				<tr>
-					<th scope="col">Question</th>
-					<th scope="col">Answer</th>
-					<th scope="col">Status</th>
-					<th scope="col">Type</th>
-					<th scope="col">Order</th>
-				</tr>
-			</thead>
-			<tbody>
-			</tbody>
-		</table>`)
+		const newSection = $(`<span class="question-table-container">
+	<h3 class="text-start">Heading: <span class="round-heading">Round ${round}</span><i data-round="${round}" class="edit-heading-button fa-solid fa-pencil fa-2xs ms-2"></i></h3>
+	<h4 class="text-start">Subheading: <span class="round-subheading">Get ready!</span><i data-round="${round}" class="edit-subheading-button fa-solid fa-pencil fa-2xs ms-2"></i></h4>
+	<table id="round${round}questions" class="table table-striped table-hover question-info">
+		<thead>
+			<tr>
+				<th scope="col">Question</th>
+				<th scope="col">Answer</th>
+				<th scope="col">Status</th>
+				<th scope="col">Type</th>
+				<th scope="col">Order</th>
+				<th scope="col">Delete?</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</span>`)
 		$(newSection).hide();
 		$("#game-questions").append(newSection);
 		$(newSection).fadeIn("slow");
