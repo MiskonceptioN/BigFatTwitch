@@ -601,27 +601,23 @@ function endGame() {
 	});
 }
 
-function updatePrevious(uid, gameId) {
-	if (previousQuestion === null) return;
+function updatePrevious() {
+	const previousQuestionId = $(".card[data-state='in-progress']").attr("id"); // Look for card with data-state="in-progress"
+	const gameId = $("#end-round").data("game-code");
+	if (!previousQuestionId) return;
 
 	// Set the question as played on the backend
 	$.ajax({
 		method: "POST",
 		url: "/admin/in-game/set-question-state",
-		data: JSON.stringify({gameId, questionId: uid, state: "played"}),
+		data: JSON.stringify({gameId, questionId: previousQuestionId, state: "played"}),
 		contentType: "application/json",
 	
 		success: function() {
-			const targetCard = $("#" + uid);
-
-			// Use a jquery foreach to set all buttons within targetCard to disabled
-			$(targetCard).find("button.send-question").each(function(){
-				$(this).text("Resend question");
-			});
+			const targetCard = $("#" + previousQuestionId);
 		
 			// Set the card to the "played" state
-			$(targetCard).removeClass().addClass("card bg-secondary");
-			$(targetCard).data("state", "played")
+			setQuestionCardState(previousQuestionId, "played");
 
 			// Loop through all cards in a round and check if they have all been played
 			const allQuestionStates = [];
