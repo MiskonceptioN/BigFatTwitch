@@ -81,9 +81,11 @@
 					<% questionsByRound[round].forEach(function(question) { %>
 						<div class="col">
 							<div class="card h-100 <% if (question.status == "in-progress") { %>bg-success<% } if (question.status == "played") { %>bg-secondary<% } %>" id="<%= question._id %>" <% if (question.status == "in-progress") { %>data-state="in-progress"<% } if (question.status == "played") { %>data-state="played"<% } if (question.status == "pending") { %>data-state="pending"<% } %>>
-								<div class="card-body">
-									<h5 class="card-title"><%= question.question %></h5>
-									<p class="card-text answer">(<%= question.answer %>)</p>
+								<div class="card-body d-flex align-items-center justify-content-center">
+									<span>
+										<h5 class="card-title"><%= question.question %></h5>
+										<p class="card-text answer">(<%= question.answer %>)</p>
+									</span>
 								</div>
 								<div class="card-footer">
 									<form method="post" action="/admin/in-game" class="phase-question send-question">
