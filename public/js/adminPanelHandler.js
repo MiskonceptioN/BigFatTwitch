@@ -848,13 +848,20 @@ function endRound(){
 				console.log("Request failed: ", response.content);
 				alert("Aw shit, an error occurred! Check the console for more details.")
 			} else {
-				// Refresh the page
-				location.reload();
+				// Mark all questions as asked
+				const currentRoundCards = $(".current-round .card");
+				currentRoundCards.each(function() {
+					setQuestionCardState(this.id, "played");
+				});
 			}
 		},
 		error: function(err) {
 			// Log error message
 			console.log("Request failed", err);
+		},
+		complete: function() {
+			// Reenable the button
+			$("#end-round").removeAttr("disabled");
 		}
 	});
 }
