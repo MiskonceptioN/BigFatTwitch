@@ -34,7 +34,8 @@
 				<h3 class="text-start mt-5">Existing question(s)</h3>
 				<% if (Object.keys(questionsByRound).length !== 0) { %>
 					<% Object.keys(questionsByRound).forEach(round => { %>
-					<h3 class="text-start">Round <%- round %></h3>
+					<h3 class="text-start">Heading: <span class="round-heading"><% if (roundsData[round - 1].heading) { %><%- roundsData[round - 1].heading %><% } else { %>Round <%- round %><% } %></span><i data-game-code="<%- game.code %>" data-round="<%- round %>" class="edit-heading-button fa-solid fa-pencil fa-2xs ms-2"></i></h3>
+					<h4 class="text-start">Subheading: <span class="round-subheading"><% if (roundsData[round - 1].subheading) { %><%- roundsData[round - 1].subheading %><% } else { %>Get ready!<% } %></span><i data-game-code="<%- game.code %>" data-round="<%- round %>" class="edit-subheading-button fa-solid fa-pencil fa-2xs ms-2"></i></h4>
 					<table id="round<%- round %>questions" class="table table-striped table-hover question-info">
 						<thead>
 							<tr>
@@ -74,6 +75,7 @@
 	</section>
 <%- include('../../helperToasts'); %>
 	<!-- <script src="/js/ajaxFormHandler.js"></script> -->
+	<script src="/js/editRoundHeadingsHandler.js"></script>
 	<script src="/js/questionTableHandler.js"></script>
 	<script src="/js/newQuestionFormHandler.js"></script>
 	<script src="/js/audienceScoringFormHandler.js"></script>

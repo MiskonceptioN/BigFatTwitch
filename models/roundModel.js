@@ -4,8 +4,8 @@ const timestamps = require("mongoose-timestamp");
 const roundsSchema = new mongoose.Schema({
 	game: { type: String, ref: 'Game', refPath: 'code', required: true }, // Reference to the game code
 	roundNumber: { type: Number, required: true },
-	heading: { type: String, default: "", },
-	subheading: { type: String, default: "" },
+	heading: { type: String, default: ""},
+	subheading: { type: String, default: "Get ready!"},
 	pointsAwarded: { type: Boolean, default: false }, // whether this round's pendingPoints have been committed
 });
 roundsSchema.set('timestamps', true);

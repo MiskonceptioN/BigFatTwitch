@@ -93,8 +93,12 @@ router.get("/gameManagement", checkAuthenticated, async function(req, res){
 				acc[game.code] = allQuestionsResult.filter(question => question.game === game.code).length;
 				return acc;
 			}, {});
+
+			// Filter the games to separate played and pending games
+			const playedGamesResult = allGamesResult.filter(game => game.status === "played");
+			allGamesResult = allGamesResult.filter(game => game.status !== "played");
 			  
-			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, questionTotals, failureMessage, successMessage});
+			res.render("admin/game/manage", {user: req.user, allGames: allGamesResult, playedGames: playedGamesResult, questionTotals, failureMessage, successMessage});
 		} else {
 			res.redirect("/login")
 		}
@@ -145,6 +149,26 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 
 				// Find all questions from the Game model
 				const allQuestionsResult = result.questions.sort((a, b) => a.round - b.round || a.order - b.order);
+				const allRoundsData = await Round.find({game: req.params.gameCode}).sort({roundNumber: 1}).select('roundNumber heading subheading');
+				const roundsData = [];
+				allRoundsData.forEach(round => {
+					roundsData.push({heading: round.heading, subheading: round.subheading});
+				});
+
+				// Backwards compatibility time! Any questions that don't have a Round associated with them, insert the Round into the database with default heading and subheading.
+				for (const question of allQuestionsResult) {
+					const roundNumber = question.round;
+					const existingRound = roundsData[roundNumber - 1];
+					if (!existingRound) {
+						const newRound = await Round.create({
+							game: req.params.gameCode,
+							roundNumber: roundNumber,
+							heading: `Round ${roundNumber}`,
+							subheading: "Get ready!"
+						});
+						roundsData[roundNumber - 1] = {heading: newRound.heading, subheading: newRound.subheading};
+					}
+				}
 
 				const questionsByRound = allQuestionsResult.reduce((acc, question) => {
 					const round = question.round;
@@ -153,7 +177,7 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 					return acc;
 				  }, {});
 				  
-				res.render("admin/game/single_game", {user: req.user, game: result, questionsByRound, failureMessage, successMessage});
+				res.render("admin/game/single_game", {user: req.user, game: result, questionsByRound, roundsData, failureMessage, successMessage});
 			}
 		} else {
 			res.redirect("/login")
@@ -181,6 +205,13 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 						answer: req.body.answer,
 						type: req.body.type,
 					});
+
+					// Create the round if it doesn't exist
+					await Round.updateOne(
+						{ game: req.body.game, roundNumber: req.body.round },
+						{ $setOnInsert: { heading: `Round ${req.body.round}` } },
+						{ upsert: true }
+					);
 					
 					return res.send({status: "success", content: result});
 				} catch (error) {
@@ -265,6 +296,45 @@ router.post("/gameManagement/:gameCode/moveQuestion", checkAuthenticated, async 
 		}, 500); // 500ms delay to accommodate bootstrap .collapse() - plus it looks cooler this way
 	} else {
 		res.redirect("/login")
+	}
+});
+
+router.post("/gameManagement/:gameCode/update-round-heading", checkAuthenticated, async function(req, res){
+	if (req.user.role != "admin") {
+		return res.send({status: "failure", content: "You're not an admin!"});
+	}
+
+	const { gameCode } = req.params;
+	const errors = [];
+
+	const round = Number(req.body.round);
+	const headingType = req.body.headingType;
+	const newHeading = req.body.newHeading;
+
+	// Do a little validation
+	if (isNaN(round)) {errors.push("Round must be a number")}
+	if (!headingType) {errors.push("Heading type is required")}
+	if (headingType && !["heading", "subheading"].includes(headingType)) {errors.push("Invalid heading type")}
+	if (!newHeading) {errors.push("New heading is required")}
+
+	if (errors.length > 0) {
+		return res.send({status: "failure", content: createErrorHTML(errors)});
+	}
+
+	try {
+		const result = await Round.updateOne(
+			{ game: gameCode, roundNumber: round },
+			{ $set: { [headingType]: newHeading } }
+		);
+
+		if (result.matchedCount === 0) {
+			return res.send({status: "failure", content: "Unable to find game " + gameCode});
+		}
+
+		return res.send({status: "success", content: `Successfully updated the ${headingType} for round ${round} of game ${gameCode}`});
+	} catch (error) {
+		console.error("Error updating round heading for game " + gameCode, error);
+		return res.send({status: "failure", content: "An unknown error occurred"});
 	}
 });
 
