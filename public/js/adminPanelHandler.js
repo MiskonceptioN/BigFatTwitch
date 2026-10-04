@@ -650,6 +650,34 @@ function updatePrevious(uid, gameId) {
 	});
 }
 
+function setQuestionCardState(questionId, state) {
+	const targetCard = $("#" + questionId);
+	const targetState = state.toLowerCase();
+
+	console.log({questionId, state, targetState});
+
+	// Only process if the provided state is a valid one
+	if (["pending", "in-progress", "played"].includes(targetState) === false) { return; }
+
+	// Remove any styling
+	$(targetCard).removeClass("bg-secondary bg-success");
+
+	// Set the state data attribute
+	console.log("Before:", $(targetCard).attr("data-state"));
+	$(targetCard).attr("data-state", targetState);
+	console.log("After:", $(targetCard).attr("data-state"));
+
+	// Add the relevant colour to the card
+	if (targetState === "played") {
+		$(targetCard).addClass("bg-secondary");
+	} else if (targetState === "in-progress") {
+		$(targetCard).addClass("bg-success");
+	}
+
+	// Set the button text based on the current state
+	$(targetCard).find("button.send-question").text(targetState !== "pending" ? "Resend question" : "Ask question");
+}
+
 function populateAnswers(answers) {
 	$(".canvas-container").attr("src", defaultImage); // Reset all canvases to the default image
 	disablePointForm("all", true); // Disable all point forms
