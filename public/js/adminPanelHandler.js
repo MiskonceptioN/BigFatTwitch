@@ -538,6 +538,7 @@ function resetQuestions(roundNumber){
 		success: function(response) {
 			if (response.status === "failure"){
 				console.log("Request failed: ", response.content);
+				alert("Aw shit, an error occurred! Check the console for more details.")
 			} else {
 				// Refresh the page
 				location.reload();
