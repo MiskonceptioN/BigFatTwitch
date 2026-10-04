@@ -540,8 +540,16 @@ function resetQuestions(roundNumber){
 				console.log("Request failed: ", response.content);
 				alert("Aw shit, an error occurred! Check the console for more details.")
 			} else {
-				// Refresh the page
-				location.reload();
+				// Mark all questions as pending
+				const currentRoundCards = $(".current-round .card");
+				currentRoundCards.each(function() {
+					setQuestionCardState(this.id, "pending");
+				});
+
+				// Move the nav tab to the played section
+				const $navButton = $("#round-nav").find("button[data-round='" + roundNumber + "']");
+				$navButton.removeClass("btn-secondary btn-success").addClass("btn-primary");
+				$navButton.detach().appendTo('[data-round-type="pending"]');
 			}
 		},
 		error: function(err) {
