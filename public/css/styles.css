@@ -621,7 +621,7 @@ button.in-game, input.in-game, .ingame-border {
 
 iframe.game-preview {
     width: 100%;
+	aspect-ratio: 16 / 9;
     zoom: 0.5;
-    height: 800px;
 	pointer-events: none; /* Disable interaction with the iframe */
 }
