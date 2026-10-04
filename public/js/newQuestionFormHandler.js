@@ -25,7 +25,7 @@ $("form#new-question").on("submit", function(event){
 				showToast(response.content, "danger", "Could not add question '" + question + "'", 5000);
 			} else {
 				$(".no-content").hide();
-				addQuestion(question, answer, type, round, order, response.content);
+				addQuestion(question, answer, type, round, order, response.content.id);
 				// Blank the form
 				$("#question").val("");
 				$("#answer").val("");
