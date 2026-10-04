@@ -843,7 +843,7 @@ function endRound(){
 					setQuestionCardState(this.id, "played");
 				});
 
-				// Move the nav tab to the played sections
+				// Move the nav tab to the played section
 				const $navButton = $("#round-nav").find("button[data-round='" + roundNumber + "']");
 				$navButton.removeClass("btn-secondary").removeClass("btn-success").addClass("btn-secondary");
 				$navButton.detach().appendTo('[data-round-type="played"]');
