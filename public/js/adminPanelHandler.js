@@ -60,6 +60,8 @@ $("#end-round").on("click", function(event){
 	if (!allCardsValid) {
 		// Thanks Endergamer... muh true bebbeh... Not Cezz
 		if (!confirm("Not all questions have been asked!\nAre you sure you want to end the round?")){return}
+	} else {
+		if (!confirm("Are you sure you want to end the round?")){return}
 	}
 	endRound();
 });
