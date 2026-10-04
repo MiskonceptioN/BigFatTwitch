@@ -34,36 +34,40 @@
 				<h3 class="text-start mt-5">Existing question(s)</h3>
 				<% if (Object.keys(questionsByRound).length !== 0) { %>
 					<% Object.keys(questionsByRound).forEach(round => { %>
-					<h3 class="text-start">Heading: <span class="round-heading"><% if (roundsData[round - 1].heading) { %><%- roundsData[round - 1].heading %><% } else { %>Round <%- round %><% } %></span><i data-game-code="<%- game.code %>" data-round="<%- round %>" class="edit-heading-button fa-solid fa-pencil fa-2xs ms-2"></i></h3>
-					<h4 class="text-start">Subheading: <span class="round-subheading"><% if (roundsData[round - 1].subheading) { %><%- roundsData[round - 1].subheading %><% } else { %>Get ready!<% } %></span><i data-game-code="<%- game.code %>" data-round="<%- round %>" class="edit-subheading-button fa-solid fa-pencil fa-2xs ms-2"></i></h4>
-					<table id="round<%- round %>questions" class="table table-striped table-hover question-info">
-						<thead>
-							<tr>
-								<th scope="col">Question</th>
-								<th scope="col">Answer</th>
-								<th scope="col">Status</th>
-								<th scope="col">Type</th>
-								<th scope="col">Order</th>
-							</tr>
-						</thead>
-						<tbody>
-							<% questionsByRound[round].forEach(function(currentQuestion) { %>
-								<tr>
-									<th class="question"><%- currentQuestion.question %></th>
-									<td><%- currentQuestion.answer %></td>
-									<td><%- currentQuestion.status %></td>
-									<td><%- currentQuestion.type %></td>
-									<td><form method="post" class="question-up" action="/admin/gameManagement/<%- game.code %>/moveQuestion">
-										<input type="hidden" name="direction" value="up">
-										<input type="hidden" name="questionId" value="<%- currentQuestion._id %>">
-										<button type="button" class="btn btn-secondary btn-tiny move-up">▲</button></form>
-										<span class="order"><%- currentQuestion.order %></span> <form method="post" class="question-down" action="/admin/gameManagement/<%- game.code %>/moveQuestion">
-											<input type="hidden" name="direction" value="down">
-											<input type="hidden" name="questionId" value="<%- currentQuestion._id %>"><button type="button" class="btn btn-secondary btn-tiny move-down">▼</button></form></td>
-								</tr>
-							<% }); %>
-						</tbody>
-					</table>
+						<span class="question-table-container">
+							<h3 class="text-start">Heading: <span class="round-heading"><% if (roundsData[round - 1].heading) { %><%- roundsData[round - 1].heading %><% } else { %>Round <%- round %><% } %></span><i data-game-code="<%- game.code %>" data-round="<%- round %>" class="edit-heading-button fa-solid fa-pencil fa-2xs ms-2"></i></h3>
+							<h4 class="text-start">Subheading: <span class="round-subheading"><% if (roundsData[round - 1].subheading) { %><%- roundsData[round - 1].subheading %><% } else { %>Get ready!<% } %></span><i data-game-code="<%- game.code %>" data-round="<%- round %>" class="edit-subheading-button fa-solid fa-pencil fa-2xs ms-2"></i></h4>
+							<table id="round<%- round %>questions" class="table table-striped table-hover question-info">
+								<thead>
+									<tr>
+										<th scope="col">Question</th>
+										<th scope="col">Answer</th>
+										<th scope="col">Status</th>
+										<th scope="col">Type</th>
+										<th scope="col">Order</th>
+										<th scope="col">Delete?</th>
+									</tr>
+								</thead>
+								<tbody>
+									<% questionsByRound[round].forEach(function(currentQuestion) { %>
+										<tr>
+											<th class="question"><%- currentQuestion.question %></th>
+											<td><%- currentQuestion.answer %></td>
+											<td><%- currentQuestion.status %></td>
+											<td><%- currentQuestion.type %></td>
+											<td><form method="post" class="question-up" action="/admin/gameManagement/<%- game.code %>/moveQuestion">
+												<input type="hidden" name="direction" value="up">
+												<input type="hidden" name="questionId" value="<%- currentQuestion._id %>">
+												<button type="button" class="btn btn-secondary btn-tiny move-up">▲</button></form>
+												<span class="order"><%- currentQuestion.order %></span> <form method="post" class="question-down" action="/admin/gameManagement/<%- game.code %>/moveQuestion">
+													<input type="hidden" name="direction" value="down">
+													<input type="hidden" name="questionId" value="<%- currentQuestion._id %>"><button type="button" class="btn btn-secondary btn-tiny move-down">▼</button></form></td>
+													<td><span class="delete-question" data-question-id="<%- currentQuestion._id %>"><i class="fa-solid fa-trash-can"></i></span></td>
+										</tr>
+									<% }); %>
+								</tbody>
+							</table>
+						</span>
 					<% }); %>
 			<% } else { %>
 				<h3 class="no-content">There are no questions for this game!</h3>
