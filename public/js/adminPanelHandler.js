@@ -60,6 +60,8 @@ $("#end-round").on("click", function(event){
 	if (!allCardsValid) {
 		// Thanks Endergamer... muh true bebbeh... Not Cezz
 		if (!confirm("Not all questions have been asked!\nAre you sure you want to end the round?")){return}
+	} else {
+		if (!confirm("Are you sure you want to end the round?")){return}
 	}
 	endRound();
 });
@@ -137,8 +139,6 @@ $(document).ready(function(){
 	});
 });
 
-let previousQuestion = null;
-
 $("form.send-question").on("submit", function(event){
 	event.preventDefault(); //prevent default action
 	const destUrl = $(this).attr("action"); //get form action url
@@ -165,8 +165,6 @@ $("form.send-question").on("submit", function(event){
 			$(inputButton).html('<div class="spinner-border" role="status"></div>');
 		},
 		success: function(msg) {
-			$(form).parent().parent().addClass("bg-success");
-
 			// Hide the interstitial if it's visible
 			socket.emit("show interstitial", false);
 
@@ -175,14 +173,11 @@ $("form.send-question").on("submit", function(event){
 			// Reset the canvas states
 			resetCanvases();
 
-			// Reset the button contents
-			$(inputButton).html(inputButtonContent);
-
-			// Set the previousQuestion
-			if (previousQuestion !== questionId){
-				updatePrevious(previousQuestion, gameCode);
-				previousQuestion = questionId;
-			}
+			// Set the previous question
+			updatePrevious();
+			
+			// Reset the button contents and set the state
+			setQuestionCardState(questionId, "in-progress");
 
 			// Update the save button with the question ID
 			$("#save-answers").data("question-id", questionId);
@@ -543,9 +538,18 @@ function resetQuestions(roundNumber){
 		success: function(response) {
 			if (response.status === "failure"){
 				console.log("Request failed: ", response.content);
+				alert("Aw shit, an error occurred! Check the console for more details.")
 			} else {
-				// Refresh the page
-				location.reload();
+				// Mark all questions as pending
+				const currentRoundCards = $(".current-round .card");
+				currentRoundCards.each(function() {
+					setQuestionCardState(this.id, "pending");
+				});
+
+				// Move the nav tab to the played section
+				const $navButton = $("#round-nav").find("button[data-round='" + roundNumber + "']");
+				$navButton.removeClass("btn-secondary btn-success").addClass("btn-primary");
+				$navButton.detach().appendTo('[data-round-type="pending"]');
 			}
 		},
 		error: function(err) {
@@ -599,27 +603,23 @@ function endGame() {
 	});
 }
 
-function updatePrevious(uid, gameId) {
-	if (previousQuestion === null) return;
+function updatePrevious() {
+	const previousQuestionId = $(".card[data-state='in-progress']").attr("id"); // Look for card with data-state="in-progress"
+	const gameId = $("#end-round").data("game-code");
+	if (!previousQuestionId) return;
 
 	// Set the question as played on the backend
 	$.ajax({
 		method: "POST",
 		url: "/admin/in-game/set-question-state",
-		data: JSON.stringify({gameId, questionId: uid, state: "played"}),
+		data: JSON.stringify({gameId, questionId: previousQuestionId, state: "played"}),
 		contentType: "application/json",
 	
 		success: function() {
-			const targetCard = $("#" + uid);
+			const targetCard = $("#" + previousQuestionId);
 
-			// Use a jquery foreach to set all buttons within targetCard to disabled
-			$(targetCard).find("button.send-question").each(function(){
-				$(this).text("Resend question");
-			});
-		
 			// Set the card to the "played" state
-			$(targetCard).removeClass().addClass("card bg-secondary");
-			$(targetCard).data("state", "played")
+			setQuestionCardState(previousQuestionId, "played");
 
 			// Loop through all cards in a round and check if they have all been played
 			const allQuestionStates = [];
@@ -646,6 +646,34 @@ function updatePrevious(uid, gameId) {
 			$("#message").collapse("show");
 		}
 	});
+}
+
+function setQuestionCardState(questionId, state) {
+	const targetCard = $("#" + questionId);
+	const targetState = state.toLowerCase();
+
+	console.log({questionId, state, targetState});
+
+	// Only process if the provided state is a valid one
+	if (["pending", "in-progress", "played"].includes(targetState) === false) { return; }
+
+	// Remove any styling
+	$(targetCard).removeClass("bg-secondary bg-success");
+
+	// Set the state data attribute
+	console.log("Before:", $(targetCard).attr("data-state"));
+	$(targetCard).attr("data-state", targetState);
+	console.log("After:", $(targetCard).attr("data-state"));
+
+	// Add the relevant colour to the card
+	if (targetState === "played") {
+		$(targetCard).addClass("bg-secondary");
+	} else if (targetState === "in-progress") {
+		$(targetCard).addClass("bg-success");
+	}
+
+	// Set the button text based on the current state
+	$(targetCard).find("button.send-question").text(targetState !== "pending" ? "Resend question" : "Ask question");
 }
 
 function populateAnswers(answers) {
@@ -740,7 +768,7 @@ function restartRound(roundNumber){
 				// Set the data-state for each card in the current round to "pending"
 				$(".current-round .card").each(function(){
 					$(this).removeClass("bg-secondary").removeClass("bg-success");
-					$(this).data("state", "pending");
+					$(this).attr("data-state", "pending"); // TODO: Use the setQuestionCardState function instead
 				});
 
 				// Move the round button back to the "in-progress" section of the nav
@@ -816,14 +844,27 @@ function endRound(){
 		success: function(response) {
 			if (response.status === "failure"){
 				console.log("Request failed: ", response.content);
+				alert("Aw shit, an error occurred! Check the console for more details.")
 			} else {
-				// Refresh the page
-				location.reload();
+				// Mark all questions as asked
+				const currentRoundCards = $(".current-round .card");
+				currentRoundCards.each(function() {
+					setQuestionCardState(this.id, "played");
+				});
+
+				// Move the nav tab to the played section
+				const $navButton = $("#round-nav").find("button[data-round='" + roundNumber + "']");
+				$navButton.removeClass("btn-secondary").removeClass("btn-success").addClass("btn-secondary");
+				$navButton.detach().appendTo('[data-round-type="played"]');
 			}
 		},
 		error: function(err) {
 			// Log error message
 			console.log("Request failed", err);
+		},
+		complete: function() {
+			// Reenable the button
+			$("#end-round").removeAttr("disabled");
 		}
 	});
 }
