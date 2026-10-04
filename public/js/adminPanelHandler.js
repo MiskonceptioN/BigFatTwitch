@@ -139,8 +139,6 @@ $(document).ready(function(){
 	});
 });
 
-let previousQuestion = null;
-
 $("form.send-question").on("submit", function(event){
 	event.preventDefault(); //prevent default action
 	const destUrl = $(this).attr("action"); //get form action url
@@ -167,8 +165,6 @@ $("form.send-question").on("submit", function(event){
 			$(inputButton).html('<div class="spinner-border" role="status"></div>');
 		},
 		success: function(msg) {
-			$(form).parent().parent().addClass("bg-success");
-
 			// Hide the interstitial if it's visible
 			socket.emit("show interstitial", false);
 
@@ -177,14 +173,11 @@ $("form.send-question").on("submit", function(event){
 			// Reset the canvas states
 			resetCanvases();
 
-			// Reset the button contents
-			$(inputButton).html(inputButtonContent);
-
-			// Set the previousQuestion
-			if (previousQuestion !== questionId){
-				updatePrevious(previousQuestion, gameCode);
-				previousQuestion = questionId;
-			}
+			// Set the previous question
+			updatePrevious();
+			
+			// Reset the button contents and set the state
+			setQuestionCardState(questionId, "in-progress");
 
 			// Update the save button with the question ID
 			$("#save-answers").data("question-id", questionId);
@@ -615,7 +608,7 @@ function updatePrevious() {
 	
 		success: function() {
 			const targetCard = $("#" + previousQuestionId);
-		
+
 			// Set the card to the "played" state
 			setQuestionCardState(previousQuestionId, "played");
 
