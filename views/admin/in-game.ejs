@@ -80,7 +80,7 @@
 			<div class="row row-cols-1 row-cols-md-4 g-4">
 					<% questionsByRound[round].forEach(function(question) { %>
 						<div class="col">
-							<div class="card <% if (question.status == "in-progress") { %>bg-success<% } if (question.status == "played") { %>bg-secondary<% } %>" id="<%= question._id %>" <% if (question.status == "in-progress") { %>data-state="in-progress"<% } if (question.status == "played") { %>data-state="played"<% } if (question.status == "pending") { %>data-state="pending"<% } %>>
+							<div class="card h-100 <% if (question.status == "in-progress") { %>bg-success<% } if (question.status == "played") { %>bg-secondary<% } %>" id="<%= question._id %>" <% if (question.status == "in-progress") { %>data-state="in-progress"<% } if (question.status == "played") { %>data-state="played"<% } if (question.status == "pending") { %>data-state="pending"<% } %>>
 								<div class="card-body">
 									<h5 class="card-title"><%= question.question %></h5>
 									<p class="card-text answer">(<%= question.answer %>)</p>
