@@ -84,6 +84,8 @@
 								<div class="card-body">
 									<h5 class="card-title"><%= question.question %></h5>
 									<p class="card-text answer">(<%= question.answer %>)</p>
+								</div>
+								<div class="card-footer">
 									<form method="post" action="/admin/in-game" class="phase-question send-question">
 										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
 										<input type="hidden" id="roundNumber" name="roundNumber" value="<%= round %>">
@@ -106,8 +108,6 @@
 												<li><a class="dropdown-item resend-question" href="#" data-player-id="<%- game.teams[2].players[1].twitchId %>">Resend to <%- game.teams[2].players[1].displayName %></a></li>
 											</ul>
 										</div>
-
-										<!-- <input type="button" class="save-answer btn btn-twitch" data-game-code="<%= question.game %>" data-question-id="<%= question._id %>" value="Save player answers"> -->
 									</form>
 									<form method="post" action="/admin/in-game/fetch-answers" class="phase-scoring fetch-answers"">
 										<input type="hidden" id="questionId" name="questionId" value="<%= question._id %>">
