@@ -31,12 +31,6 @@ router.get("/", checkAuthenticated, async (req, res) => {
 
 });
 
-router.get("/game", checkAuthenticated, (req, res) => {
-	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
-	const successMessage = req.flash("success")[0]; // Retrieve the flash message
-	res.render("game", {user: req.user, failureMessage, successMessage});
-});
-
 router.get("/login", (req, res) => {
 	const failureMessage = req.flash("error")[0]; // Retrieve the flash message
 	  
