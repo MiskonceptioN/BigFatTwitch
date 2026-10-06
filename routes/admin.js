@@ -400,7 +400,31 @@ router.post("/gameManagement/delete/:gameCode", checkAuthenticated, async functi
 		}
 	});
 
+	router.post("/gameManagement/setStatus/:gameCode", checkAuthenticated, async function(req, res){
+		if (req.user.role == "admin") {
+			try {
+				// Update the game status
+				const newStatus = req.body.status;
+				const result = await Game.updateOne(
+					{ code: req.params.gameCode },
 					{ $set: { status: newStatus } }
+				);
+
+				if (result.matchedCount == 0) {
+					req.flash("error", "Unable to update status for game " + req.params.gameCode);
+				} else {
+					req.flash("success", "Set game " + req.params.gameCode + " to " + newStatus);
+				}
+			} catch (error) {
+				console.error("Error updating game status:", error);
+				req.flash("error", "Unable to update status for game " + req.params.gameCode);
+			}
+			res.redirect("/admin/gameManagement")
+		} else {
+			res.redirect("/login")
+		}
+	});
+
 router.get("/in-game", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		let foundGame = null;
