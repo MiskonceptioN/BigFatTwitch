@@ -96,7 +96,7 @@ a.text-twitch {
 	text-decoration: none;
 }
 
-table.user-info {
+table.user-info, table.game-list {
 	vertical-align: middle;
 }
 
@@ -110,6 +110,10 @@ table.game-list i.delete-game:hover, .delete-question > i:hover {
 
 table.game-list i.edit-game, table.game-list i.edit-game:hover, table.game-list i.edit-game:active {
 	color: black;
+}
+
+table.game-list select {
+	text-align: center;
 }
 
 .edit-heading-button, .edit-subheading-button {
