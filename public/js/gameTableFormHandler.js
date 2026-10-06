@@ -20,3 +20,8 @@ $("i.delete-game").on("mouseleave", function(){
 	$(targetRow).removeClass("table-danger");
 	$(this).removeClass("text-danger");
 });
+
+$("form.game-status select").on("change", function(){
+	let form = $(this).closest("form");
+	form.submit();
+});
