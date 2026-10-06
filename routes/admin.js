@@ -224,6 +224,47 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 		} else {
 			res.redirect("/login")
 		}
+	})
+	.post("/gameManagement/:gameCode/delete-question", async function(req, res){
+		if (req.user.role == "admin") {
+			let errors = [];
+			// Let's do some validation!
+			if (!req.body.questionId) {errors.push("Question ID is required")}
+
+			// Try to add the question if there are no validation errors
+			if (errors.length !== 0) { return res.send({status: "failure", content: errors.toString()}); }
+			try {
+				// Look up the question to determine its round number and sort order before deletion
+				const questionDbData = await Question.findById(req.body.questionId);
+				if (!questionDbData) { return res.send({status: "failure", content: "No question found with the given ID"}); }
+
+				// Delete the question
+				const result = await Question.deleteOne({_id: req.body.questionId});
+
+				// Adjust the order of the remaining questions in the same round
+				await Question.updateMany(
+					{ game: questionDbData.game, round: questionDbData.round, order: { $gt: questionDbData.order } },
+					{ $inc: { order: -1 } }
+				);
+
+				// If there are no remaining questions in the round, delete the round
+				const remainingQuestions = await Question.find({ game: questionDbData.game, round: questionDbData.round });
+				if (remainingQuestions.length === 0) {
+					await Round.deleteOne({ game: questionDbData.game, roundNumber: questionDbData.round });
+				}
+
+				if (result.deletedCount === 0) {
+					return res.send({status: "failure", content: "No question found with the given ID"});
+				}
+
+				return res.send({status: "success", content: result});
+			} catch (error) {
+				console.error("Error deleting question:", error);
+				return res.send({status: "failure", content: "An unknown error occurred"});
+			}
+		} else {
+			res.redirect("/login")
+		}
 	});
 
 // Save the scoring settings for a game

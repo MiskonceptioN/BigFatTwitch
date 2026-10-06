@@ -104,7 +104,7 @@ table.game-list form, table.question-info form {
 	display: inline;
 }
 
-table.game-list i.delete-game:hover {
+table.game-list i.delete-game:hover, .delete-question > i:hover {
 	cursor: pointer;
 }
 

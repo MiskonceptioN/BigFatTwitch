@@ -39,6 +39,68 @@ $(document).on("click", ".move-down", function () {
 	updateOrder($(this).parents("tr:first"), "down");
 });
 
+// Handle question deletion
+$(document).on("mouseenter focus", ".delete-question", function(){
+	const targetRow = $(this).closest('tr');
+	$(targetRow).addClass("table-danger");
+	$(this).addClass("text-danger");
+});
+$(document).on("mouseleave blur", ".delete-question", function(){
+	const targetRow = $(this).closest('tr');
+	$(targetRow).removeClass("table-danger");
+	$(this).removeClass("text-danger");
+});
+$(document).on("click", ".delete-question", function(){
+	const questionId = $(this).data("question-id");
+	deleteQuestion(questionId, $(this));
+});
+
+function deleteQuestion(questionId, $button) {
+	const questionText = $button.closest('tr').find('.question').text();
+	if (!confirm("Are you sure you want to delete the following question?\n" + `"${questionText}"`)) return;
+
+	const oldButtonContent = $button.html();
+	$.ajax({
+		method: "POST",
+		url: window.location.href + "/delete-question",
+		data: {questionId},
+		beforeSend: function() {
+			$button.html('<div class="spinner-border spinner-border-sm" role="status"></div>');
+		},
+		success: function(response) {
+			if (response.status !== "success") {
+				showToast("Please refresh and try again", "danger", "Could not delete the question", false);
+				console.error("Failed to delete question:", response.content);
+				$button.html(oldButtonContent);
+				return;
+			}
+
+			// If there are no remaining questions in the round, delete the round
+			// Count the number of rows in the table for this round
+			const remainingQuestions = $button.closest('tbody').find('tr');
+			if (remainingQuestions.length === 1) {
+				$button.closest('span.question-table-container').remove();
+			} else {
+				// Otherwise, just delete the row
+				$button.closest('tr').remove();
+				
+				// For any rows below, decrease their order number by 1
+				const rowsBelow = $button.closest('tr').nextAll();
+				rowsBelow.each(function() {
+					const orderSpan = $(this).find('.order');
+					const orderNumber = Number(orderSpan.text());
+					orderSpan.text(orderNumber - 1);
+				});
+			}
+		},
+		error: function(err) {
+			showToast("Please refresh and try again", "danger", "Could not delete the question", false);
+			console.error("Failed to update question order", err);
+			$button.html(oldButtonContent);
+		}
+	 });
+}
+
 function updateOrder(row, direction) {
 	const moveUpForm = row.find("form.question-up");
 	const moveDownForm = row.find("form.question-down");

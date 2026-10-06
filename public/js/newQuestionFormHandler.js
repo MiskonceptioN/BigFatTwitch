@@ -25,7 +25,7 @@ $("form#new-question").on("submit", function(event){
 				showToast(response.content, "danger", "Could not add question '" + question + "'", 5000);
 			} else {
 				$(".no-content").hide();
-				addQuestion(question, answer, type, round, order, response.content);
+				addQuestion(question, answer, type, round, order, response.content.id);
 				// Blank the form
 				$("#question").val("");
 				$("#answer").val("");
@@ -49,21 +49,24 @@ function getNewQuestionOrder(roundNumber) {
 function addQuestion (question, answer, type, round = 1, order = 1, questionID) {
 	let targetTable = $("#round" + round + "questions tbody");
 	if (targetTable.length === 0) {
-		const newSection = $(`<h3 class="text-start">Heading: <span class="round-heading">Round ${round}</span><i data-round="${round}" class="edit-heading-button fa-solid fa-pencil fa-2xs ms-2"></i></h3>
-		<h4 class="text-start">Subheading: <span class="round-subheading">Get ready!</span><i data-round="${round}" class="edit-subheading-button fa-solid fa-pencil fa-2xs ms-2"></i></h4>
-		<table id="round${round}questions" class="table table-striped table-hover question-info">
-			<thead>
-				<tr>
-					<th scope="col">Question</th>
-					<th scope="col">Answer</th>
-					<th scope="col">Status</th>
-					<th scope="col">Type</th>
-					<th scope="col">Order</th>
-				</tr>
-			</thead>
-			<tbody>
-			</tbody>
-		</table>`)
+		const newSection = $(`<span class="question-table-container">
+	<h3 class="text-start">Heading: <span class="round-heading">Round ${round}</span><i data-round="${round}" class="edit-heading-button fa-solid fa-pencil fa-2xs ms-2"></i></h3>
+	<h4 class="text-start">Subheading: <span class="round-subheading">Get ready!</span><i data-round="${round}" class="edit-subheading-button fa-solid fa-pencil fa-2xs ms-2"></i></h4>
+	<table id="round${round}questions" class="table table-striped table-hover question-info">
+		<thead>
+			<tr>
+				<th scope="col">Question</th>
+				<th scope="col">Answer</th>
+				<th scope="col">Status</th>
+				<th scope="col">Type</th>
+				<th scope="col">Order</th>
+				<th scope="col">Delete?</th>
+			</tr>
+		</thead>
+		<tbody>
+		</tbody>
+	</table>
+</span>`)
 		$(newSection).hide();
 		$("#game-questions").append(newSection);
 		$(newSection).fadeIn("slow");
@@ -83,6 +86,7 @@ function addQuestion (question, answer, type, round = 1, order = 1, questionID) 
 				<span class="order">${order}</span> <form method="post" class="question-down" action="/admin/gameManagement/BCKM/moveQuestion">
 					<input type="hidden" name="direction" value="down">
 					<input type="hidden" name="questionId" value="${questionID}"><button type="button" class="btn btn-secondary btn-tiny move-down">▼</button></form></td>
+			<td><span class="delete-question" data-question-id="${questionID}"><i class="fa-solid fa-trash-can"></i></span></td>
 		</tr>`);
 	$(newRow).hide();
 	targetTable.append(newRow);
