@@ -39,7 +39,16 @@
 						<% allGames.forEach(function(currentGame) { %>
 							<tr>
 								<th><%- currentGame.code %></th>
-								<td><%- currentGame.status %></td>
+								<td>
+									<form class="game-status" method="post" action="/admin/gameManagement/setStatus/<%- currentGame.code %>">
+										<select name="status" class="form-select form-select-sm">
+											<option value="pending" <%- currentGame.status === "pending" ? "selected" : "" %>>Pending</option>
+											<option value="starting" <%- currentGame.status === "starting" ? "selected" : "" %>>Starting</option>
+											<option value="in-progress" <%- currentGame.status === "in-progress" ? "selected" : "" %>>In-progress</option>
+											<option value="played" <%- currentGame.status === "played" ? "selected" : "" %>>Played</option>
+										</select>
+									</form>
+								</td>
 								<td><%- new Date(currentGame.createdAt).toUTCString() %></td>
 								<td><%- new Date(currentGame.updatedAt).toUTCString() %></td>
 								<td><%- questionTotals[currentGame.code] || 0 %></td>
@@ -69,7 +78,7 @@
 						<% playedGames.forEach(function(currentGame) { %>
 							<tr>
 								<th><%- currentGame.code %></th>
-								<td><%- currentGame.status %></td>
+								<td>Played</td>
 								<td><%- new Date(currentGame.createdAt).toUTCString() %></td>
 								<td><%- new Date(currentGame.updatedAt).toUTCString() %></td>
 								<td><%- questionTotals[currentGame.code] || 0 %></td>
