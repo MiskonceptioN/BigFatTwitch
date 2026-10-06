@@ -400,6 +400,7 @@ router.post("/gameManagement/delete/:gameCode", checkAuthenticated, async functi
 		}
 	});
 
+					{ $set: { status: newStatus } }
 router.get("/in-game", checkAuthenticated, async function(req, res){
 	if (req.user.role == "admin") {
 		let foundGame = null;
