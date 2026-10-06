@@ -237,7 +237,6 @@ router.get("/gameManagement/:gameCode", checkAuthenticated, async function(req, 
 				// Look up the question to determine its round number and sort order before deletion
 				const questionDbData = await Question.findById(req.body.questionId);
 				if (!questionDbData) { return res.send({status: "failure", content: "No question found with the given ID"}); }
-				console.log(questionDbData);
 
 				// Delete the question
 				const result = await Question.deleteOne({_id: req.body.questionId});
